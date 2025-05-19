@@ -1,0 +1,164 @@
+@model Task
+@{
+    ViewData["Title"] = "Create Task";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title h3 mb-4">Create Task</h1>
+
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="ProjectId" value="@ViewBag.ProjectId" />
+
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <input asp-for="Title" class="form-control" placeholder="Task title" required />
+                                <label asp-for="Title">Task Title</label>
+                            </div>
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <textarea asp-for="Description" class="form-control" placeholder="Description" 
+                                          style="height: 100px"></textarea>
+                                <label asp-for="Description">Description</label>
+                            </div>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input asp-for="DueDate" type="date" class="form-control" required />
+                                    <label asp-for="DueDate">Due Date</label>
+                                </div>
+                                <span asp-validation-for="DueDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select asp-for="Priority" class="form-select">
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                    </select>
+                                    <label asp-for="Priority">Priority</label>
+                                </div>
+                                <span asp-validation-for="Priority" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select asp-for="Status" class="form-select">
+                                        <option value="ToDo">To Do</option>
+                                        <option value="InProgress">In Progress</option>
+                                        <option value="Completed">Completed</option>
+                                    </select>
+                                    <label asp-for="Status">Status</label>
+                                </div>
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select asp-for="AssigneeId" asp-items="ViewBag.Users" class="form-select">
+                                        <option value="">-- Select Assignee --</option>
+                                    </select>
+                                    <label asp-for="AssigneeId">Assignee</label>
+                                </div>
+                                <span asp-validation-for="AssigneeId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Attachments</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control" name="attachments" multiple 
+                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+                                       aria-describedby="attachmentHelp" />
+                            </div>
+                            <div id="attachmentHelp" class="form-text">
+                                Allowed file types: PDF, DOC, DOCX, XLS, XLSX, PNG, JPG, JPEG
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="javascript:history.back()" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Create Task
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            $('#DueDate').attr('min', today);
+
+            // Custom validation for due date
+            $.validator.addMethod("futureDate", function (value, element) {
+                return this.optional(element) || new Date(value) >= new Date(today);
+            }, "Please select a future date");
+
+            // File size validation
+            const maxFileSize = 5 * 1024 * 1024; // 5MB
+            $('input[type="file"]').on('change', function() {
+                const files = this.files;
+                let totalSize = 0;
+                
+                for (let i = 0; i < files.length; i++) {
+                    totalSize += files[i].size;
+                    
+                    if (files[i].size > maxFileSize) {
+                        notificationSystem.showNotification(
+                            `File ${files[i].name} exceeds maximum size of 5MB`, 'danger'
+                        );
+                        this.value = '';
+                        return;
+                    }
+                }
+                
+                if (totalSize > maxFileSize * 3) {
+                    notificationSystem.showNotification(
+                        'Total file size exceeds maximum allowed size of 15MB', 'danger'
+                    );
+                    this.value = '';
+                }
+            });
+
+            // Form validation
+            $("form").validate({
+                rules: {
+                    DueDate: {
+                        required: true,
+                        futureDate: true
+                    },
+                    AssigneeId: {
+                        required: true
+                    }
+                },
+                messages: {
+                    AssigneeId: {
+                        required: "Please select an assignee"
+                    }
+                }
+            });
+        });
+    </script>
+}

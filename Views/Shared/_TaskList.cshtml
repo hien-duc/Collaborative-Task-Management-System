@@ -1,0 +1,40 @@
+@model IEnumerable<Task>
+
+@if (!Model.Any())
+{
+    <div class="p-2 text-muted" role="status">No tasks found</div>
+}
+else
+{
+    <div class="list-group" role="listbox">
+        @foreach (var task in Model)
+        {
+            <a href="/Tasks/Details/@task.Id" class="list-group-item list-group-item-action" role="option">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">@task.Title</h6>
+                        <small class="text-muted">
+                            Project: @task.Project.Title
+                        </small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-@(task.Priority == "High" ? "danger" : 
+                                            task.Priority == "Medium" ? "warning" : "info")">
+                            @task.Priority
+                        </span>
+                        <span class="badge bg-@(task.Status == "Completed" ? "success" : 
+                                            task.Status == "InProgress" ? "warning" : "primary")">
+                            @task.Status
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-1">
+                    <small class="text-muted">
+                        <i class="bi bi-person"></i> @(task.Assignee?.UserName ?? "Unassigned") |
+                        <i class="bi bi-calendar"></i> Due: @task.DueDate.ToString("MMM dd, yyyy")
+                    </small>
+                </div>
+            </a>
+        }
+    </div>
+}

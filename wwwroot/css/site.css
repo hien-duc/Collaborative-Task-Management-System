@@ -1,0 +1,233 @@
+:root {
+    --primary-color: #007BFF;
+    --secondary-color: #6c757d;
+    --light-bg: #F8F9FA;
+    --border-color: #dee2e6;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --text-color: #333;
+    --link-hover-color: #0056b3;
+    --shadow-color: rgba(0, 0, 0, 0.15);
+}
+
+/* High Contrast Theme Variables */
+:root[data-theme="high-contrast"] {
+    --primary-color: #0066cc;
+    --secondary-color: #ffffff;
+    --light-bg: #000000;
+    --border-color: #ffffff;
+    --success-color: #00ff00;
+    --danger-color: #ff0000;
+    --warning-color: #ffff00;
+    --info-color: #00ffff;
+    --text-color: #ffffff;
+    --link-hover-color: #66b0ff;
+    --shadow-color: rgba(255, 255, 255, 0.15);
+}
+
+html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    margin-bottom: 60px;
+    background-color: var(--light-bg);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Navbar Styling */
+.navbar {
+    padding: 1rem 0;
+    background-color: var(--light-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color) !important;
+}
+
+.nav-link {
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    transition: color 0.3s ease;
+    color: var(--text-color) !important;
+}
+
+.nav-link:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Button Styling */
+.btn {
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: var(--link-hover-color);
+    border-color: var(--link-hover-color);
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem var(--shadow-color);
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Card Styling */
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem var(--shadow-color);
+    transition: transform 0.3s ease;
+    background-color: var(--light-bg);
+    color: var(--text-color);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Form Styling */
+.form-control {
+    border-radius: 0.25rem;
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    background-color: var(--light-bg);
+    color: var(--text-color);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    background-color: var(--light-bg);
+    color: var(--text-color);
+}
+
+.form-floating label {
+    padding: 0.75rem 1rem;
+    color: var(--text-color);
+}
+
+/* Alert Styling */
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Footer Styling */
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: var(--light-bg);
+    border-top: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+/* Custom Components */
+.task-badge {
+    padding: 0.35rem 0.65rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background-color: var(--primary-color);
+    color: #ffffff;
+}
+
+.notification-toast {
+    background-color: var(--light-bg);
+    color: var(--text-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem var(--shadow-color);
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+/* Accessibility */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* Focus Indicators */
+a:focus, button:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Skip Link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-color);
+    color: #ffffff;
+    padding: 8px;
+    z-index: 1000;
+    transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Keyboard Navigation Indicators */
+*:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    :root {
+        --primary-color: #0066cc;
+        --border-color: #000000;
+        --text-color: #000000;
+        --light-bg: #ffffff;
+    }
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+}

@@ -1,0 +1,90 @@
+﻿@{
+    ViewData["Title"] = "Welcome";
+}
+
+@if (!User.Identity.IsAuthenticated)
+{
+    <div class="hero-section text-center py-5">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-4">Welcome to Task Manager</h1>
+            <p class="lead mb-5">Collaborate on tasks with your team efficiently and effectively. Track progress, manage deadlines, and achieve your goals together.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg">Login</a>
+                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary btn-lg">Register</a>
+            </div>
+        </div>
+        <div class="mt-5">
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h3 class="h5 card-title mb-3">Task Management</h3>
+                            <p class="card-text">Create, assign, and track tasks with ease. Set priorities and deadlines to keep your projects on schedule.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h3 class="h5 card-title mb-3">Real-time Collaboration</h3>
+                            <p class="card-text">Work together in real-time with your team. Get instant notifications and updates on task progress.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h3 class="h5 card-title mb-3">Analytics & Insights</h3>
+                            <p class="card-text">Track team performance and project progress with detailed analytics and custom reports.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container py-4">
+        <div class="row align-items-center mb-4">
+            <div class="col">
+                <h2 class="mb-0">Welcome Back, @User.Identity.Name!</h2>
+            </div>
+            <div class="col-auto">
+                <a asp-controller="Projects" asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> New Project
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">My Tasks</h5>
+                        <p class="card-text">View and manage your assigned tasks</p>
+                        <a asp-controller="Tasks" asp-action="MyTasks" class="btn btn-outline-primary">View Tasks</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Projects</h5>
+                        <p class="card-text">Access your active projects</p>
+                        <a asp-controller="Projects" asp-action="Index" class="btn btn-outline-primary">View Projects</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Recent Activity</h5>
+                        <p class="card-text">Check recent updates and notifications</p>
+                        <a href="#" class="btn btn-outline-primary">View Activity</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

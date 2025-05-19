@@ -1,0 +1,113 @@
+@model IEnumerable<Project>
+@{
+    ViewData["Title"] = "Projects";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Projects</h1>
+        @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Create Project
+            </a>
+        }
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" aria-label="Projects table">
+                    <thead>
+                        <tr>
+                            <th scope="col" aria-label="Project Title">Title</th>
+                            <th scope="col" aria-label="Project Deadline">Deadline</th>
+                            <th scope="col" aria-label="Project Creator">Created By</th>
+                            <th scope="col" aria-label="Project Status">Status</th>
+                            <th scope="col" aria-label="Actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var project in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@project.Id" class="text-decoration-none">
+                                        @project.Title
+                                    </a>
+                                </td>
+                                <td>@project.Deadline.ToString("MMM dd, yyyy")</td>
+                                <td>@project.CreatedBy.UserName</td>
+                                <td>
+                                    <span class="badge bg-@(project.Status == "Completed" ? "success" : 
+                                                        project.Status == "InProgress" ? "warning" : "primary")">
+                                        @project.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group" aria-label="Project actions">
+                                        <a asp-action="Details" asp-route-id="@project.Id" 
+                                           class="btn btn-sm btn-info" aria-label="View project details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if (User.IsInRole("Manager") || User.IsInRole("Admin") || 
+                                             project.CreatedBy.Id == User.Identity.GetUserId())
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@project.Id" 
+                                               class="btn btn-sm btn-warning" aria-label="Edit project">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    data-bs-toggle="modal" data-bs-target="#deleteModal@(project.Id)"
+                                                    aria-label="Delete project">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        }
+                                    </div>
+
+                                    <!-- Delete Confirmation Modal -->
+                                    <div class="modal fade" id="deleteModal@(project.Id)" tabindex="-1" 
+                                         aria-labelledby="deleteModalLabel@(project.Id)" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteModalLabel@(project.Id)">
+                                                        Confirm Delete
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" 
+                                                            aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to delete project "@project.Title"?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" 
+                                                            data-bs-dismiss="modal">Cancel</button>
+                                                    <form asp-action="Delete" asp-route-id="@project.Id" 
+                                                          method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+}

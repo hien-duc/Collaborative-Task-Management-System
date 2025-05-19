@@ -1,0 +1,133 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">Dashboard</h1>
+
+    <div class="row">
+        <!-- Tasks Section -->
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4 card-title mb-3">My Tasks</h2>
+                    <div class="table-responsive">
+                        <table class="table table-hover" aria-label="Tasks table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" aria-label="Task Title">Title</th>
+                                    <th scope="col" aria-label="Project Name">Project</th>
+                                    <th scope="col" aria-label="Task Status">Status</th>
+                                    <th scope="col" aria-label="Actions">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var task in Model.Tasks)
+                                {
+                                    <tr data-task-id="@task.Id">
+                                        <td>@task.Title</td>
+                                        <td>@task.Project.Name</td>
+                                        <td>
+                                            <select class="form-select form-select-sm task-status-select"
+                                                    aria-label="Change task status"
+                                                    data-task-id="@task.Id">
+                                                <option value="ToDo" selected=@(task.Status == "ToDo")>To Do</option>
+                                                <option value="InProgress" selected=@(task.Status == "InProgress")>In Progress</option>
+                                                <option value="Completed" selected=@(task.Status == "Completed")>Completed</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <a href="/Tasks/Edit/@task.Id" class="btn btn-warning btn-sm"
+                                               aria-label="Edit task @task.Title">
+                                                Edit
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4 card-title mb-3">Project Progress</h2>
+                    <canvas id="projectProgressChart" aria-label="Project Progress Chart"
+                            role="img"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Initialize project progress chart
+        const ctx = document.getElementById('projectProgressChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @Json.Serialize(Model.ProjectNames),
+                datasets: [{
+                    label: 'Completion Percentage',
+                    data: @Json.Serialize(Model.ProjectProgress),
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Completion %'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Projects'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Handle task status updates
+        document.querySelectorAll('.task-status-select').forEach(select => {
+            select.addEventListener('change', function() {
+                const taskId = this.dataset.taskId;
+                const newStatus = this.value;
+
+                fetch(`/Tasks/UpdateStatus/${taskId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        notificationSystem.showNotification('Task status updated successfully', 'success');
+                    } else {
+                        notificationSystem.showNotification('Failed to update task status', 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    notificationSystem.showNotification('An error occurred while updating task status', 'danger');
+                });
+            });
+        });
+    </script>
+}
