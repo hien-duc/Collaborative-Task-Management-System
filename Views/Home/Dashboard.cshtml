@@ -1,83 +1,153 @@
+@model DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="container py-4">
-    <h1 class="mb-4">Dashboard</h1>
+<div class="container-fluid py-4">
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Projects</h5>
+                    <h2 class="card-text">@Model.TotalProjects</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Tasks</h5>
+                    <h2 class="card-text">@Model.TotalTasks</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Completed Tasks</h5>
+                    <h2 class="card-text">@Model.CompletedTasks</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Completion Rate</h5>
+                    <h2 class="card-text">@Model.OverallCompletionRate.ToString("F1")%</h2>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
-        <!-- Tasks Section -->
-        <div class="col-md-6 mb-3">
+        <!-- Task Status Chart -->
+        <div class="col-md-6 mb-4">
             <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Task Status Distribution</h5>
+                </div>
                 <div class="card-body">
-                    <h2 class="h4 card-title mb-3">My Tasks</h2>
-                    <div class="table-responsive">
-                        <table class="table table-hover" aria-label="Tasks table">
-                            <thead>
-                                <tr>
-                                    <th scope="col" aria-label="Task Title">Title</th>
-                                    <th scope="col" aria-label="Project Name">Project</th>
-                                    <th scope="col" aria-label="Task Status">Status</th>
-                                    <th scope="col" aria-label="Actions">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var task in Model.Tasks)
-                                {
-                                    <tr data-task-id="@task.Id">
-                                        <td>@task.Title</td>
-                                        <td>@task.Project.Name</td>
-                                        <td>
-                                            <select class="form-select form-select-sm task-status-select"
-                                                    aria-label="Change task status"
-                                                    data-task-id="@task.Id">
-                                                <option value="ToDo" selected=@(task.Status == "ToDo")>To Do</option>
-                                                <option value="InProgress" selected=@(task.Status == "InProgress")>In Progress</option>
-                                                <option value="Completed" selected=@(task.Status == "Completed")>Completed</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <a href="/Tasks/Edit/@task.Id" class="btn btn-warning btn-sm"
-                                               aria-label="Edit task @task.Title">
-                                                Edit
-                                            </a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                    <canvas id="taskStatusChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Analytics Section -->
-        <div class="col-md-6 mb-3">
+        <!-- Project Progress Chart -->
+        <div class="col-md-6 mb-4">
             <div class="card">
-                <div class="card-body">
-                    <h2 class="h4 card-title mb-3">Project Progress</h2>
-                    <canvas id="projectProgressChart" aria-label="Project Progress Chart"
-                            role="img"></canvas>
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Project Progress</h5>
                 </div>
+                <div class="card-body">
+                    <canvas id="projectProgressChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Tasks Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">My Tasks</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Project</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var task in Model.Tasks.OrderBy(t => t.DueDate))
+                        {
+                            <tr>
+                                <td>@task.Title</td>
+                                <td>@task.Project?.Title</td>
+                                <td>@task.DueDate?.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="badge bg-@(task.Status switch {
+                                        TaskStatus.Pending => "secondary",
+                                        TaskStatus.InProgress => "primary",
+                                        TaskStatus.Completed => "success",
+                                        TaskStatus.Blocked => "danger",
+                                        _ => "secondary"
+                                    })">@task.Status</span>
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Edit", "Tasks", new { id = task.Id })" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Initialize project progress chart
-        const ctx = document.getElementById('projectProgressChart').getContext('2d');
-        new Chart(ctx, {
+        // Task Status Chart
+        const taskStatusCtx = document.getElementById('taskStatusChart').getContext('2d');
+        new Chart(taskStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'In Progress', 'Completed', 'Blocked'],
+                datasets: [{
+                    data: [@Model.StatusSummary.Pending, @Model.StatusSummary.InProgress,
+                          @Model.StatusSummary.Completed, @Model.StatusSummary.Blocked],
+                    backgroundColor: ['#6c757d', '#0d6efd', '#198754', '#dc3545']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Project Progress Chart
+        const projectProgressCtx = document.getElementById('projectProgressChart').getContext('2d');
+        new Chart(projectProgressCtx, {
             type: 'bar',
             data: {
-                labels: @Json.Serialize(Model.ProjectNames),
+                labels: [@Html.Raw(string.Join(",", Model.ProjectAnalytics.Select(p => $"\"{p.ProjectName}\"")))],
                 datasets: [{
-                    label: 'Completion Percentage',
-                    data: @Json.Serialize(Model.ProjectProgress),
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
+                    label: 'Completion Rate (%)',
+                    data: [@string.Join(",", Model.ProjectAnalytics.Select(p => p.CompletionPercentage.ToString("F1")))],
+                    backgroundColor: '#0d6efd'
                 }]
             },
             options: {
@@ -85,19 +155,18 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 100,
-                        title: {
-                            display: true,
-                            text: 'Completion %'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Projects'
-                        }
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
                     }
                 }
+            }
+        });
+    </script>
+}
             }
         });
 

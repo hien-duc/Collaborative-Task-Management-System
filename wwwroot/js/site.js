@@ -1,4 +1,4 @@
-﻿// Initialize SignalR connection for real-time updates
+// Initialize SignalR connection for real-time updates
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/notificationHub")
     .withAutomaticReconnect()

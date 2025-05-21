@@ -154,10 +154,24 @@
 
 @section Scripts {
     <script>
-        // Search functionality
-        const logSearch = document.getElementById('logSearch');
-        const logFilter = document.getElementById('logFilter');
-        let searchTimeout;
+        // Handle filter form submission via AJAX
+        $(document).ready(function () {
+            $('#filterForm').on('submit', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                $.get(form.attr('action'), form.serialize(), function (data) {
+                    $('#auditLogsTable').html(data);
+                });
+            });
+        });
+
+        function resetFilters() {
+            $('#userId').val('');
+            $('#action').val('');
+            $('#fromDate').val('');
+            $('#toDate').val('');
+            $('#filterForm').submit();
+        }
 
         function filterLogs() {
             const searchQuery = logSearch.value.toLowerCase();

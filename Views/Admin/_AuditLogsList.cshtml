@@ -1,0 +1,86 @@
+@model IEnumerable<AuditLog>
+
+@foreach (var log in Model)
+{
+    <tr>
+        <td>
+            <small class="text-muted">
+                @log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+            </small>
+        </td>
+        <td>
+            <span class="d-inline-block text-truncate" style="max-width: 200px;">
+                @(log.User?.UserName ?? "System")
+            </span>
+        </td>
+        <td>
+            <span class="badge bg-@(log.Action switch {
+                "TaskCreated" or "ProjectCreated" => "success",
+                "TaskUpdated" or "ProjectUpdated" => "info",
+                "TaskDeleted" or "ProjectDeleted" => "danger",
+                "CommentCreated" => "primary",
+                "StatusChanged" => "warning",
+                _ => "secondary"
+            })">
+                @log.Action
+            </span>
+        </td>
+        <td>
+            <span class="d-inline-block text-truncate" style="max-width: 300px;">
+                @log.Details
+            </span>
+            @if (log.Details?.Length > 50)
+            {
+                <button type="button" class="btn btn-link btn-sm p-0 ms-2"
+                        data-bs-toggle="modal" data-bs-target="#logDetails-@log.Id">
+                    <i class="bi bi-three-dots"></i>
+                </button>
+
+                <!-- Details Modal -->
+                <div class="modal fade" id="logDetails-@log.Id" tabindex="-1"
+                     aria-labelledby="logDetailsLabel-@log.Id" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="logDetailsLabel-@log.Id">Log Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <dl class="row">
+                                    <dt class="col-sm-3">Timestamp</dt>
+                                    <dd class="col-sm-9">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+
+                                    <dt class="col-sm-3">User</dt>
+                                    <dd class="col-sm-9">@(log.User?.UserName ?? "System")</dd>
+
+                                    <dt class="col-sm-3">Action</dt>
+                                    <dd class="col-sm-9">@log.Action</dd>
+
+                                    <dt class="col-sm-3">Details</dt>
+                                    <dd class="col-sm-9">@log.Details</dd>
+
+                                    @if (!string.IsNullOrEmpty(log.IpAddress))
+                                    {
+                                        <dt class="col-sm-3">IP Address</dt>
+                                        <dd class="col-sm-9">@log.IpAddress</dd>
+                                    }
+
+                                    @if (!string.IsNullOrEmpty(log.UserAgent))
+                                    {
+                                        <dt class="col-sm-3">User Agent</dt>
+                                        <dd class="col-sm-9">@log.UserAgent</dd>
+                                    }
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </td>
+        <td>
+            <span class="d-inline-block text-truncate" style="max-width: 150px;">
+                @log.IpAddress
+            </span>
+        </td>
+    </tr>
+}

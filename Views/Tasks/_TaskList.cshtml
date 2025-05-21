@@ -1,0 +1,66 @@
+@model IEnumerable<TaskItem>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        @foreach (var task in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 text-truncate">
+                            @task.Title
+                        </h5>
+                        <span class="badge bg-@(task.Status switch {
+                            TaskStatus.Pending => "secondary",
+                            TaskStatus.InProgress => "primary",
+                            TaskStatus.Completed => "success",
+                            TaskStatus.Blocked => "danger",
+                            _ => "secondary"
+                        })">@task.Status</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text text-muted mb-2">
+                            <i class="bi bi-folder"></i> Project: @task.Project?.Title
+                        </p>
+                        <p class="card-text text-muted mb-2">
+                            <i class="bi bi-person"></i> Assigned to: @task.AssignedTo?.FullName
+                        </p>
+                        @if (task.DueDate.HasValue)
+                        {
+                            <p class="card-text text-muted mb-2">
+                                <i class="bi bi-calendar"></i> Due: @task.DueDate.Value.ToString("MMM dd, yyyy")
+                            </p>
+                        }
+                        <p class="card-text description-text">
+                            @(task.Description?.Length > 100 ? task.Description.Substring(0, 97) + "..." : task.Description)
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Created @task.CreatedAt.ToString("MMM dd, yyyy")
+                            </small>
+                            <div class="btn-group">
+                                <a href="@Url.Action("Edit", "Tasks", new { id = task.Id })" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                                <a href="@Url.Action("Details", "Projects", new { id = task.ProjectId })#task-@task.Id" 
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No tasks found matching your search criteria.
+    </div>
+}
