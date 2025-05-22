@@ -1,3 +1,12 @@
+using Collaborative_Task_Management_System.Data;
+using Collaborative_Task_Management_System.Hubs;
+using Collaborative_Task_Management_System.Middleware;
+using Collaborative_Task_Management_System.Models;
+using Collaborative_Task_Management_System.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
