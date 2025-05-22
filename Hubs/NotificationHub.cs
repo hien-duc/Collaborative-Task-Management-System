@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Collaborative_Task_Management_System.Hubs
 {

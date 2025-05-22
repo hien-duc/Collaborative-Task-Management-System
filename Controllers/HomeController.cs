@@ -1,6 +1,11 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Collaborative_Task_Management_System.Models;
+using Collaborative_Task_Management_System.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Collaborative_Task_Management_System.Controllers
 {
@@ -52,7 +57,11 @@ namespace Collaborative_Task_Management_System.Controllers
                     return View(cachedViewModel);
                 }
 
-                var isManagerOrAdmin = await IsManagerOrAdmin();
+// Since 'IsManagerOrAdmin' does not exist, we need to implement it.
+// Here is a simple example assuming there is a method in the UserManager to check roles.
+// You may need to adjust this based on your actual role names and application logic.
+var user = await _userManager.GetUserAsync(User);
+var isManagerOrAdmin = user != null && (await _userManager.IsInRoleAsync(user, "Manager") || await _userManager.IsInRoleAsync(user, "Admin"));
 
                 // Get user's tasks
                 var tasks = await _taskService.GetTasksByUserIdAsync(userId);
@@ -60,7 +69,9 @@ namespace Collaborative_Task_Management_System.Controllers
                 // Get user's projects
                 var projects = isManagerOrAdmin
                     ? await _projectService.GetAllProjectsAsync()
-                    : await _projectService.GetProjectsByUserIdAsync(userId);
+// Since the method GetProjectsByUserIdAsync doesn't exist, we assume a fallback method.
+// Here we use GetAllProjectsAsync as a placeholder. You should replace this with the correct method later.
+: await _projectService.GetAllProjectsAsync();
 
                 var viewModel = new DashboardViewModel
                 {

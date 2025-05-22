@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Collaborative_Task_Management_System.Data;
 using Collaborative_Task_Management_System.Models;
+using Collaborative_Task_Management_System.Services;
 using Serilog;
 
 namespace Collaborative_Task_Management_System.Controllers
