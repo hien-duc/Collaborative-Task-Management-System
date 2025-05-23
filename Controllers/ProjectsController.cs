@@ -12,18 +12,18 @@ namespace Collaborative_Task_Management_System.Controllers
     [Authorize(Policy = "ManagerOrAdmin")]
     public class ProjectsController : BaseController
     {
-        private readonly IProjectService _projectService;
-        private readonly ILogger<ProjectsController> _logger;
+        private readonly IProjectServiceWithUoW _projectService;
+    private readonly ILogger<ProjectsController> _logger;
 
-        public ProjectsController(
-            IProjectService projectService,
-            UserManager<ApplicationUser> userManager,
-            ILogger<ProjectsController> logger)
-            : base(userManager)
-        {
-            _projectService = projectService;
-            _logger = logger;
-        }
+    public ProjectsController(
+        IProjectServiceWithUoW projectService,
+        UserManager<ApplicationUser> userManager,
+        ILogger<ProjectsController> logger)
+        : base(userManager)
+    {
+        _projectService = projectService;
+        _logger = logger;
+    }
 
         // GET: Projects
         public async Task<IActionResult> Index()

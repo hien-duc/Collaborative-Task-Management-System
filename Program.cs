@@ -2,7 +2,9 @@ using Collaborative_Task_Management_System.Data;
 using Collaborative_Task_Management_System.Hubs;
 using Collaborative_Task_Management_System.Middleware;
 using Collaborative_Task_Management_System.Models;
+using Collaborative_Task_Management_System.Repositories;
 using Collaborative_Task_Management_System.Services;
+using Collaborative_Task_Management_System.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -40,10 +42,22 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// Add Services
-builder.Services.AddScoped<IProjectService, ProjectService>();
-builder.Services.AddScoped<ITaskService, TaskService>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
+// Add Repositories
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IFileAttachmentRepository, FileAttachmentRepository>();
+builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+// Add Unit of Work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
+
+// Register services with Unit of Work pattern
+builder.Services.AddScoped<IProjectServiceWithUoW, ProjectServiceWithUoW>();
+builder.Services.AddScoped<ITaskServiceWithUoW, TaskServiceWithUoW>();
+builder.Services.AddScoped<INotificationServiceWithUoW, NotificationServiceWithUoW>();
 builder.Services.AddMemoryCache();
 
 // Add SignalR

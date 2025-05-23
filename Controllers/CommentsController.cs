@@ -14,15 +14,15 @@ namespace Collaborative_Task_Management_System.Controllers
     [Authorize(Policy = "TeamMemberOrHigher")]
     public class CommentsController : BaseController
     {
-        private readonly ITaskService _taskService;
-        private readonly INotificationService _notificationService;
+        private readonly ITaskServiceWithUoW _taskService;
+        private readonly INotificationServiceWithUoW _notificationService;
         private readonly ILogger<CommentsController> _logger;
 
         private readonly ApplicationDbContext _context;
 
         public CommentsController(
-            ITaskService taskService,
-            INotificationService notificationService,
+            ITaskServiceWithUoW taskService,
+            INotificationServiceWithUoW notificationService,
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             ILogger<CommentsController> logger)

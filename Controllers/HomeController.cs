@@ -12,27 +12,27 @@ namespace Collaborative_Task_Management_System.Controllers
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IProjectService _projectService;
-        private readonly ITaskService _taskService;
+        private readonly IProjectServiceWithUoW _projectService;
+        private readonly ITaskServiceWithUoW _taskService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMemoryCache _cache;
         private const string DashboardCacheKey = "DashboardData_";
         private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(5);
 
-        public HomeController(
-            ILogger<HomeController> logger,
-            IProjectService projectService,
-            ITaskService taskService,
-            UserManager<ApplicationUser> userManager,
-            IMemoryCache cache)
-            : base(userManager)
-        {
-            _logger = logger;
-            _projectService = projectService;
-            _taskService = taskService;
-            _userManager = userManager;
-            _cache = cache;
-        }
+    public HomeController(
+        ILogger<HomeController> logger,
+        IProjectServiceWithUoW projectService,
+        ITaskServiceWithUoW taskService,
+        UserManager<ApplicationUser> userManager,
+        IMemoryCache cache)
+        : base(userManager)
+    {
+        _logger = logger;
+        _projectService = projectService;
+        _taskService = taskService;
+        _userManager = userManager;
+        _cache = cache;
+    }
 
         public IActionResult Index()
         {
@@ -64,7 +64,7 @@ var user = await _userManager.GetUserAsync(User);
 var isManagerOrAdmin = user != null && (await _userManager.IsInRoleAsync(user, "Manager") || await _userManager.IsInRoleAsync(user, "Admin"));
 
                 // Get user's tasks
-                var tasks = await _taskService.GetTasksByUserIdAsync(userId);
+                var tasks = await _taskService.GetTasksByAssignedUserAsync(userId);
 
                 // Get user's projects
                 var projects = isManagerOrAdmin

@@ -10,24 +10,24 @@ namespace Collaborative_Task_Management_System.Controllers
     [Authorize]
     public class TasksController : BaseController
     {
-        private readonly ITaskService _taskService;
-        private readonly IProjectService _projectService;
-        private readonly INotificationService _notificationService;
-        private readonly ILogger<TasksController> _logger;
+        private readonly ITaskServiceWithUoW _taskService;
+    private readonly IProjectServiceWithUoW _projectService;
+    private readonly INotificationServiceWithUoW _notificationService;
+    private readonly ILogger<TasksController> _logger;
 
-        public TasksController(
-            ITaskService taskService,
-            IProjectService projectService,
-            INotificationService notificationService,
-            UserManager<ApplicationUser> userManager,
-            ILogger<TasksController> logger)
-            : base(userManager)
-        {
-            _taskService = taskService;
-            _projectService = projectService;
-            _notificationService = notificationService;
-            _logger = logger;
-        }
+    public TasksController(
+        ITaskServiceWithUoW taskService,
+        IProjectServiceWithUoW projectService,
+        INotificationServiceWithUoW notificationService,
+        UserManager<ApplicationUser> userManager,
+        ILogger<TasksController> logger)
+        : base(userManager)
+    {
+        _taskService = taskService;
+        _projectService = projectService;
+        _notificationService = notificationService;
+        _logger = logger;
+    }
 
         // GET: Tasks/Create/5 (projectId)
         public async Task<IActionResult> Create(int? projectId)
@@ -258,7 +258,7 @@ namespace Collaborative_Task_Management_System.Controllers
         {
             try
             {
-                var tasks = await _taskService.GetTasksByUserIdAsync(GetCurrentUserId());
+                var tasks = await _taskService.GetTasksByAssignedUserAsync(GetCurrentUserId());
                 return View(tasks);
             }
             catch (Exception ex)
@@ -274,7 +274,7 @@ namespace Collaborative_Task_Management_System.Controllers
             try
             {
                 var userId = GetCurrentUserId();
-                var tasks = await _taskService.GetTasksByUserIdAsync(userId);
+                var tasks = await _taskService.GetTasksByAssignedUserAsync(userId);
                 var viewModel = new TaskSearchViewModel
                 {
                     Tasks = tasks,
