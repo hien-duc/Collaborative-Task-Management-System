@@ -29,5 +29,12 @@ namespace Collaborative_Task_Management_System.Models
 
         [Required]
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+        
+        [Required]
+        public long FileSize { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string ContentType { get; set; }
     }
 }

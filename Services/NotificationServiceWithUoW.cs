@@ -20,6 +20,9 @@ namespace Collaborative_Task_Management_System.Services
         Task<int> GetUnreadCountAsync(string userId);
         Task CreateTaskNotificationAsync(string userId, string title, string message, NotificationType type, int? taskId = null, int? projectId = null);
         Task CreateAuditLogAsync(string userId, string action, string details);
+        Task SendTaskCommentNotificationAsync(Comment comment);
+        Task SendTaskAssignmentNotificationAsync(TaskItem task);
+        Task SendTaskStatusUpdateNotificationAsync(TaskItem task, string updatedByUserId);
     }
 
     public class NotificationServiceWithUoW : INotificationServiceWithUoW
@@ -112,7 +115,7 @@ namespace Collaborative_Task_Management_System.Services
         {
             try
             {
-                var notifications = await _unitOfWork.Notifications.GetRecentNotificationsAsync(count);
+                var notifications = await _unitOfWork.Notifications.GetRecentNotificationsAsync(count.ToString());
                 return notifications.ToList();
             }
             catch (Exception ex)
@@ -158,7 +161,7 @@ namespace Collaborative_Task_Management_System.Services
                 existingNotification.Message = notification.Message;
                 existingNotification.Type = notification.Type;
                 existingNotification.IsRead = notification.IsRead;
-                existingNotification.ReadAt = notification.ReadAt;
+                // ReadAt property is not defined in Notification model, removing this line
 
                 _unitOfWork.Notifications.Update(existingNotification);
                 await _unitOfWork.SaveChangesAsync();
@@ -303,6 +306,73 @@ namespace Collaborative_Task_Management_System.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating audit log for user {UserId}", userId);
+                throw;
+            }
+        }
+
+        public async Task SendTaskCommentNotificationAsync(Comment comment)
+        {
+            try
+            {
+                var task = await _unitOfWork.Tasks.GetByIdWithIncludesAsync(comment.TaskId, t => t.AssignedTo, t => t.Project);
+                if (task?.AssignedTo != null && task.AssignedTo.Id != comment.UserId)
+                {
+                    await CreateTaskNotificationAsync(
+                        task.AssignedTo.Id,
+                        "New Comment on Task",
+                        $"A new comment was added to task '{task.Title}'",
+                        NotificationType.TaskCommented,
+                        task.Id,
+                        task.ProjectId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending task comment notification for comment {CommentId}", comment.Id);
+                throw;
+            }
+        }
+
+        public async Task SendTaskAssignmentNotificationAsync(TaskItem task)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(task.AssignedToId))
+                {
+                    await CreateTaskNotificationAsync(
+                        task.AssignedToId,
+                        "Task Assigned",
+                        $"You have been assigned to task '{task.Title}'",
+                        NotificationType.TaskAssigned,
+                        task.Id,
+                        task.ProjectId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending task assignment notification for task {TaskId}", task.Id);
+                throw;
+            }
+        }
+
+        public async Task SendTaskStatusUpdateNotificationAsync(TaskItem task, string updatedByUserId)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(task.AssignedToId) && task.AssignedToId != updatedByUserId)
+                {
+                    await CreateTaskNotificationAsync(
+                        task.AssignedToId,
+                        "Task Status Updated",
+                        $"The status of task '{task.Title}' has been updated to {task.Status}",
+                        NotificationType.TaskStatusChanged,
+                        task.Id,
+                        task.ProjectId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending task status update notification for task {TaskId}", task.Id);
                 throw;
             }
         }

@@ -11,7 +11,7 @@ namespace Collaborative_Task_Management_System.Repositories
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
         Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
-        Task<int> CountAsync(Expression<Func<T, bool>> predicate = null);
+        Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null);
         
         // Get with includes
         Task<T> GetByIdWithIncludesAsync(int id, params Expression<Func<T, object>>[] includes);
@@ -20,7 +20,7 @@ namespace Collaborative_Task_Management_System.Repositories
         Task<IEnumerable<T>> FindWithIncludesAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
         
         // Pagination
-        Task<IEnumerable<T>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<T, bool>> predicate = null);
+        Task<IEnumerable<T>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? predicate = null);
         
         // Add operations
         Task<T> AddAsync(T entity);

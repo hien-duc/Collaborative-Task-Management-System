@@ -77,21 +77,18 @@ var isManagerOrAdmin = user != null && (await _userManager.IsInRoleAsync(user, "
                 {
                     Tasks = tasks,
                     Projects = projects,
-                    TotalProjects = projects.Count(),
-                    TotalTasks = tasks.Count(),
-                    CompletedTasks = tasks.Count(t => t.Status == TaskStatus.Completed),
-                    ProjectProgress = projects.Select(p => new DashboardViewModel.ProjectProgress
+                    ProjectAnalytics = projects.Select(p => new DashboardViewModel.ProjectProgress
                     {
                         ProjectName = p.Name,
                         TotalTasks = p.Tasks.Count,
                         CompletedTasks = p.Tasks.Count(t => t.Status == TaskStatus.Completed)
                     }).ToList(),
-                    TaskStatusSummary = new DashboardViewModel.TaskStatusSummary
+                    StatusSummary = new DashboardViewModel.TaskStatusSummary
                     {
-                        PendingTasks = tasks.Count(t => t.Status == TaskStatus.Pending),
-                        InProgressTasks = tasks.Count(t => t.Status == TaskStatus.InProgress),
-                        CompletedTasks = tasks.Count(t => t.Status == TaskStatus.Completed),
-                        BlockedTasks = tasks.Count(t => t.Status == TaskStatus.Blocked)
+                        Pending = tasks.Count(t => t.Status == TaskStatus.ToDo),
+                        InProgress = tasks.Count(t => t.Status == TaskStatus.InProgress),
+                        Completed = tasks.Count(t => t.Status == TaskStatus.Completed),
+                        Blocked = tasks.Count(t => t.Status == TaskStatus.Blocked)
                     }
                 };
 
@@ -129,8 +126,7 @@ var isManagerOrAdmin = user != null && (await _userManager.IsInRoleAsync(user, "
 
             return View(new ErrorViewModel
             {
-                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
-                ShowRequestId = true
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
             });
         }
     }

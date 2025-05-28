@@ -13,16 +13,16 @@ namespace Collaborative_Task_Management_System.Controllers
     public class ProjectsController : BaseController
     {
         private readonly IProjectServiceWithUoW _projectService;
-    private readonly ILogger<ProjectsController> _logger;
+        private readonly ILogger<ProjectsController> _logger;
 
-    public ProjectsController(
-        IProjectServiceWithUoW projectService,
-        UserManager<ApplicationUser> userManager,
-        ILogger<ProjectsController> logger)
-        : base(userManager)
-    {
-        _projectService = projectService;
-        _logger = logger;
+        public ProjectsController(
+            IProjectServiceWithUoW projectService,
+            UserManager<ApplicationUser> userManager,
+            ILogger<ProjectsController> logger)
+            : base(userManager)
+        {
+            _projectService = projectService;
+            _logger = logger;
     }
 
         // GET: Projects
@@ -104,7 +104,7 @@ namespace Collaborative_Task_Management_System.Controllers
         }
 
         // GET: Projects/Edit/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
@@ -119,15 +119,11 @@ namespace Collaborative_Task_Management_System.Controllers
                     return NotFound();
                 }
 
-                // Load tasks with comments and attachments
-                var tasks = await _taskService.GetTasksByProjectIdAsync(id.Value);
-                project.Tasks = tasks;
-
                 return View(project);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving project details for {ProjectId}", id);
+                _logger.LogError(ex, "Error retrieving project for editing {ProjectId}", id);
                 return Problem("Error loading project details. Please try again later.");
             }
         }

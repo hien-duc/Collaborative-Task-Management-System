@@ -11,6 +11,10 @@ namespace Collaborative_Task_Management_System.Models
         [StringLength(100)]
         public string Title { get; set; }
 
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; }
+
         public string Description { get; set; }
 
         [Required]
@@ -21,11 +25,22 @@ namespace Collaborative_Task_Management_System.Models
         public string CreatedById { get; set; }
 
         [Required]
+        public string OwnerId { get; set; }
+
+        [Required]
+        public ProjectStatus Status { get; set; } = ProjectStatus.Planning;
+
+        [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        
+        public DateTime? UpdatedAt { get; set; }
 
         // Navigation properties
         [ForeignKey("CreatedById")]
         public virtual ApplicationUser CreatedBy { get; set; }
+
+        [ForeignKey("OwnerId")]
+        public virtual ApplicationUser Owner { get; set; }
         
         public virtual ICollection<TaskItem> Tasks { get; set; }
     }

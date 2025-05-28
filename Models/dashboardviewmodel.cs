@@ -17,21 +17,21 @@ namespace Collaborative_Task_Management_System.Models
                 : 0;
         }
         
-        public List<ProjectProgress> ProjectProgress { get; set; } = new();
+        public List<ProjectProgress> ProjectAnalytics { get; set; } = new();
         
         public class TaskStatusSummary
         {
-            public int PendingTasks { get; set; }
-            public int InProgressTasks { get; set; }
-            public int CompletedTasks { get; set; }
-            public int BlockedTasks { get; set; }
+            public int Pending { get; set; }
+            public int InProgress { get; set; }
+            public int Completed { get; set; }
+            public int Blocked { get; set; }
         }
         
-        public TaskStatusSummary TaskStatusSummary { get; set; } = new();
+        public TaskStatusSummary StatusSummary { get; set; } = new();
         
-        public int TotalProjects { get; set; }
-        public int TotalTasks { get; set; }
-        public int CompletedTasks { get; set; }
+        public int TotalProjects => Projects?.Count ?? 0;
+        public int TotalTasks => Tasks?.Count ?? 0;
+        public int CompletedTasks => Tasks?.Count(t => t.Status == TaskStatus.Completed) ?? 0;
         public double OverallCompletionRate => TotalTasks > 0 
             ? (double)CompletedTasks / TotalTasks * 100 
             : 0;
