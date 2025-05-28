@@ -41,8 +41,8 @@
                         </div>
                         <div class="col-sm-6 col-lg-3">
                             <h6 class="text-muted mb-2">Status</h6>
-                            <span class="badge bg-@(Model.Status == "Completed" ? "success" : 
-                                                Model.Status == "InProgress" ? "warning" : "primary")">@Model.Status</span>
+                            <span class="badge bg-@(Model.Status == ProjectStatus.Completed ? "success" : 
+                                                Model.Status == ProjectStatus.Active ? "warning" : "primary")">@Model.Status</span>
                         </div>
                         <div class="col-sm-6 col-lg-3">
                             <h6 class="text-muted mb-2">Created By</h6>
