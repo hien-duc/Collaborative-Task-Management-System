@@ -6,6 +6,7 @@ using Collaborative_Task_Management_System.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus;
 
 namespace Collaborative_Task_Management_System.Controllers
 {
@@ -87,6 +88,7 @@ var isManagerOrAdmin = user != null && (await _userManager.IsInRoleAsync(user, "
                     {
                         Pending = tasks.Count(t => t.Status == TaskStatus.ToDo),
                         InProgress = tasks.Count(t => t.Status == TaskStatus.InProgress),
+                        UnderReview = tasks.Count(t => t.Status == TaskStatus.UnderReview),
                         Completed = tasks.Count(t => t.Status == TaskStatus.Completed),
                         Blocked = tasks.Count(t => t.Status == TaskStatus.Blocked)
                     }

@@ -81,19 +81,22 @@ namespace Collaborative_Task_Management_System.Models
     }
 }
 
-public enum TaskPriority
+namespace Collaborative_Task_Management_System.Models
 {
-    Low,
-    Medium,
-    High,
-    Urgent
-}
+    public enum TaskPriority
+    {
+        Low,
+        Medium,
+        High,
+        Urgent
+    }
 
-public enum TaskStatus
-{
-    ToDo,
-    InProgress,
-    UnderReview,
-    Completed,
-    Blocked
+    public enum TaskStatus
+    {
+        ToDo,
+        InProgress,
+        UnderReview,
+        Completed,
+        Blocked
+    }
 }

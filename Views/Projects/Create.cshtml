@@ -44,14 +44,13 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="TeamMembers" class="form-label">Team Members</label>
-                            <select asp-for="TeamMembers" asp-items="ViewBag.Users" class="form-select" 
-                                    multiple aria-describedby="teamMembersHelp">
+                            <label class="form-label">Team Members</label>
+                            <select asp-items="ViewBag.Users" class="form-select" 
+                                    multiple aria-describedby="teamMembersHelp" name="teamMembers">
                             </select>
                             <div id="teamMembersHelp" class="form-text">
                                 Hold Ctrl (Windows) or Command (Mac) to select multiple members
                             </div>
-                            <span asp-validation-for="TeamMembers" class="text-danger"></span>
                         </div>
 
                         <div class="d-flex justify-content-between">

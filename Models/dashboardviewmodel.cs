@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Collaborative_Task_Management_System.Models
 {
@@ -23,6 +24,7 @@ namespace Collaborative_Task_Management_System.Models
         {
             public int Pending { get; set; }
             public int InProgress { get; set; }
+            public int UnderReview { get; set; }
             public int Completed { get; set; }
             public int Blocked { get; set; }
         }

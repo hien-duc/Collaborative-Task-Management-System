@@ -31,6 +31,9 @@ namespace Collaborative_Task_Management_System.Models
         public ProjectStatus Status { get; set; } = ProjectStatus.Planning;
 
         [Required]
+        public string Priority { get; set; } = "Medium";
+
+        [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         
         public DateTime? UpdatedAt { get; set; }
@@ -43,6 +46,8 @@ namespace Collaborative_Task_Management_System.Models
         public virtual ApplicationUser Owner { get; set; }
         
         public virtual ICollection<TaskItem> Tasks { get; set; }
+        
+        public virtual ICollection<ApplicationUser> TeamMembers { get; set; }
     }
 
     public enum ProjectStatus

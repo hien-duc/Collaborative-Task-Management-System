@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Collaborative_Task_Management_System.Models;
 using Collaborative_Task_Management_System.Models.ViewModels;
 using Collaborative_Task_Management_System.Services;
+using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus;
 
 namespace Collaborative_Task_Management_System.Controllers
 {
@@ -359,12 +360,12 @@ namespace Collaborative_Task_Management_System.Controllers
                 var totalTasks = await query.CountAsync();
 
                 // Apply pagination
-                var tasks = await query
+                var paginatedTasks = await query
                     .Skip((model.Page - 1) * model.PageSize)
                     .Take(model.PageSize)
                     .ToListAsync();
 
-                model.Tasks = tasks;
+                model.Tasks = paginatedTasks;
                 model.TotalTasks = totalTasks;
 
                 // Create audit log for search

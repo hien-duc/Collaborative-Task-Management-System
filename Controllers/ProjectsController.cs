@@ -76,7 +76,7 @@ namespace Collaborative_Task_Management_System.Controllers
         // POST: Projects/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Description,Deadline")] Project project)
+        public async Task<IActionResult> Create([Bind("Title,Description,Deadline,Priority")] Project project)
         {
             try
             {
