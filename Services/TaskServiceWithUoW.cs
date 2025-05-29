@@ -502,8 +502,6 @@ namespace Collaborative_Task_Management_System.Services
                     TaskId = taskId,
                     FileName = file.FileName,
                     FilePath = $"/uploads/{fileName}",
-                    FileSize = file.Length,
-                    ContentType = file.ContentType,
                     UploadedById = uploadedByUserId,
                     UploadedAt = DateTime.UtcNow
                 };

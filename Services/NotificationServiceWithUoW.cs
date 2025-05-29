@@ -1,27 +1,9 @@
 using Collaborative_Task_Management_System.Models;
+using Collaborative_Task_Management_System.Services;
 using Collaborative_Task_Management_System.UnitOfWork;
 
 namespace Collaborative_Task_Management_System.Services
 {
-    public interface INotificationServiceWithUoW
-    {
-        Task<List<Notification>> GetAllNotificationsAsync();
-        Task<Notification> GetNotificationByIdAsync(int id);
-        Task<List<Notification>> GetNotificationsByUserIdAsync(string userId);
-        Task<List<Notification>> GetUnreadNotificationsByUserIdAsync(string userId);
-        Task<List<Notification>> GetNotificationsByTypeAsync(NotificationType type);
-        Task<List<Notification>> GetRecentNotificationsAsync(int count = 10);
-        Task<Notification> CreateNotificationAsync(Notification notification);
-        Task<Notification> UpdateNotificationAsync(Notification notification);
-        Task MarkAsReadAsync(int notificationId);
-        Task MarkAllAsReadAsync(string userId);
-        Task DeleteNotificationAsync(int id);
-        Task<bool> NotificationExistsAsync(int id);
-        Task<int> GetUnreadCountAsync(string userId);
-        Task CreateTaskNotificationAsync(string userId, string title, string message, NotificationType type, int? taskId = null, int? projectId = null);
-        Task CreateAuditLogAsync(string userId, string action, string details);
-    }
-
     public class NotificationServiceWithUoW : INotificationServiceWithUoW
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -108,11 +90,11 @@ namespace Collaborative_Task_Management_System.Services
             }
         }
 
-        public async Task<List<Notification>> GetRecentNotificationsAsync(int count = 10)
+        public async Task<List<Notification>> GetRecentNotificationsAsync(string userId)
         {
             try
             {
-                var notifications = await _unitOfWork.Notifications.GetRecentNotificationsAsync(count);
+                var notifications = await _unitOfWork.Notifications.GetRecentNotificationsAsync(userId);
                 return notifications.ToList();
             }
             catch (Exception ex)
@@ -158,7 +140,6 @@ namespace Collaborative_Task_Management_System.Services
                 existingNotification.Message = notification.Message;
                 existingNotification.Type = notification.Type;
                 existingNotification.IsRead = notification.IsRead;
-                existingNotification.ReadAt = notification.ReadAt;
 
                 _unitOfWork.Notifications.Update(existingNotification);
                 await _unitOfWork.SaveChangesAsync();
@@ -303,6 +284,21 @@ namespace Collaborative_Task_Management_System.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating audit log for user {UserId}", userId);
+                throw;
+            }
+        }
+
+        public async Task SendTaskCommentNotificationAsync(Comment comment)
+        {
+            try
+            {
+                await _unitOfWork.Comments.AddAsync(comment);
+                await _unitOfWork.SaveChangesAsync();
+                _logger.LogInformation("Comment created by user {UserId}", comment.UserId);;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating audit log for user {UserId}", comment.UserId);
                 throw;
             }
         }

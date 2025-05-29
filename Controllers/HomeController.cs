@@ -80,13 +80,13 @@ var isManagerOrAdmin = user != null && (await _userManager.IsInRoleAsync(user, "
                     TotalProjects = projects.Count(),
                     TotalTasks = tasks.Count(),
                     CompletedTasks = tasks.Count(t => t.Status == TaskStatus.Completed),
-                    ProjectProgress = projects.Select(p => new DashboardViewModel.ProjectProgress
+                    ProjectProgresses = projects.Select(p => new DashboardViewModel.ProjectProgress
                     {
                         ProjectName = p.Name,
                         TotalTasks = p.Tasks.Count,
                         CompletedTasks = p.Tasks.Count(t => t.Status == TaskStatus.Completed)
                     }).ToList(),
-                    TaskStatusSummary = new DashboardViewModel.TaskStatusSummary
+                    TaskStatusSummaries = new DashboardViewModel.TaskStatusSummary
                     {
                         PendingTasks = tasks.Count(t => t.Status == TaskStatus.Pending),
                         InProgressTasks = tasks.Count(t => t.Status == TaskStatus.InProgress),

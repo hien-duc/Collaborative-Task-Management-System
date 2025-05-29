@@ -17,7 +17,7 @@ namespace Collaborative_Task_Management_System.Models
                 : 0;
         }
 
-        // public List<ProjectProgress> ProjectProgress { get; set; } = new();
+        public List<ProjectProgress> ProjectProgresses { get; set; } = new();
 
         public class TaskStatusSummary
         {
@@ -27,7 +27,7 @@ namespace Collaborative_Task_Management_System.Models
             public int BlockedTasks { get; set; }
         }
 
-        // public TaskStatusSummary TaskStatusSummary { get; set; } = new();
+        public TaskStatusSummary TaskStatusSummaries { get; set; } = new();
 
         public int TotalProjects { get; set; }
         public int TotalTasks { get; set; }

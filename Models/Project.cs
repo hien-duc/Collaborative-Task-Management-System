@@ -22,6 +22,10 @@ namespace Collaborative_Task_Management_System.Models
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [Required]
+        public ProjectStatus Status { get; set; } = ProjectStatus.Active;
+        [DataType(DataType.Date)]
+        public DateTime? UpdatedAt { get; set; }
 
         // Navigation properties
         [ForeignKey("CreatedById")]
