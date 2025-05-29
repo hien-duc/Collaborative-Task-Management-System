@@ -1,9 +1,30 @@
 using Collaborative_Task_Management_System.Models;
-using Collaborative_Task_Management_System.Services;
 using Collaborative_Task_Management_System.UnitOfWork;
 
 namespace Collaborative_Task_Management_System.Services
 {
+    public interface INotificationServiceWithUoW
+    {
+        Task<List<Notification>> GetAllNotificationsAsync();
+        Task<Notification> GetNotificationByIdAsync(int id);
+        Task<List<Notification>> GetNotificationsByUserIdAsync(string userId);
+        Task<List<Notification>> GetUnreadNotificationsByUserIdAsync(string userId);
+        Task<List<Notification>> GetNotificationsByTypeAsync(NotificationType type);
+        Task<List<Notification>> GetRecentNotificationsAsync(int count = 10);
+        Task<Notification> CreateNotificationAsync(Notification notification);
+        Task<Notification> UpdateNotificationAsync(Notification notification);
+        Task MarkAsReadAsync(int notificationId);
+        Task MarkAllAsReadAsync(string userId);
+        Task DeleteNotificationAsync(int id);
+        Task<bool> NotificationExistsAsync(int id);
+        Task<int> GetUnreadCountAsync(string userId);
+        Task CreateTaskNotificationAsync(string userId, string title, string message, NotificationType type, int? taskId = null, int? projectId = null);
+        Task CreateAuditLogAsync(string userId, string action, string details);
+        Task SendTaskCommentNotificationAsync(Comment comment);
+        Task SendTaskAssignmentNotificationAsync(TaskItem task);
+        Task SendTaskStatusUpdateNotificationAsync(TaskItem task, string updatedByUserId);
+    }
+
     public class NotificationServiceWithUoW : INotificationServiceWithUoW
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -90,11 +111,11 @@ namespace Collaborative_Task_Management_System.Services
             }
         }
 
-        public async Task<List<Notification>> GetRecentNotificationsAsync(string userId)
+        public async Task<List<Notification>> GetRecentNotificationsAsync(int count = 10)
         {
             try
             {
-                var notifications = await _unitOfWork.Notifications.GetRecentNotificationsAsync(userId);
+                var notifications = await _unitOfWork.Notifications.GetRecentNotificationsAsync(count.ToString());
                 return notifications.ToList();
             }
             catch (Exception ex)
@@ -140,6 +161,7 @@ namespace Collaborative_Task_Management_System.Services
                 existingNotification.Message = notification.Message;
                 existingNotification.Type = notification.Type;
                 existingNotification.IsRead = notification.IsRead;
+                // ReadAt property is not defined in Notification model, removing this line
 
                 _unitOfWork.Notifications.Update(existingNotification);
                 await _unitOfWork.SaveChangesAsync();
@@ -292,13 +314,65 @@ namespace Collaborative_Task_Management_System.Services
         {
             try
             {
-                await _unitOfWork.Comments.AddAsync(comment);
-                await _unitOfWork.SaveChangesAsync();
-                _logger.LogInformation("Comment created by user {UserId}", comment.UserId);;
+                var task = await _unitOfWork.Tasks.GetByIdWithIncludesAsync(comment.TaskId, t => t.AssignedTo, t => t.Project);
+                if (task?.AssignedTo != null && task.AssignedTo.Id != comment.UserId)
+                {
+                    await CreateTaskNotificationAsync(
+                        task.AssignedTo.Id,
+                        "New Comment on Task",
+                        $"A new comment was added to task '{task.Title}'",
+                        NotificationType.TaskCommented,
+                        task.Id,
+                        task.ProjectId);
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating audit log for user {UserId}", comment.UserId);
+                _logger.LogError(ex, "Error sending task comment notification for comment {CommentId}", comment.Id);
+                throw;
+            }
+        }
+
+        public async Task SendTaskAssignmentNotificationAsync(TaskItem task)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(task.AssignedToId))
+                {
+                    await CreateTaskNotificationAsync(
+                        task.AssignedToId,
+                        "Task Assigned",
+                        $"You have been assigned to task '{task.Title}'",
+                        NotificationType.TaskAssigned,
+                        task.Id,
+                        task.ProjectId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending task assignment notification for task {TaskId}", task.Id);
+                throw;
+            }
+        }
+
+        public async Task SendTaskStatusUpdateNotificationAsync(TaskItem task, string updatedByUserId)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(task.AssignedToId) && task.AssignedToId != updatedByUserId)
+                {
+                    await CreateTaskNotificationAsync(
+                        task.AssignedToId,
+                        "Task Status Updated",
+                        $"The status of task '{task.Title}' has been updated to {task.Status}",
+                        NotificationType.TaskStatusChanged,
+                        task.Id,
+                        task.ProjectId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending task status update notification for task {TaskId}", task.Id);
                 throw;
             }
         }

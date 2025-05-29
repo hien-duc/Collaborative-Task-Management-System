@@ -45,7 +45,7 @@ namespace Collaborative_Task_Management_System.Repositories
             return await _dbSet.AnyAsync(predicate);
         }
 
-        public virtual async Task<int> CountAsync(Expression<Func<T, bool>> predicate = null)
+        public virtual async Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null)
         {
             if (predicate == null)
                 return await _dbSet.CountAsync();
@@ -92,7 +92,7 @@ namespace Collaborative_Task_Management_System.Repositories
             return await query.Where(predicate).ToListAsync();
         }
 
-        public virtual async Task<IEnumerable<T>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<T, bool>> predicate = null)
+        public virtual async Task<IEnumerable<T>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? predicate = null)
         {
             IQueryable<T> query = _dbSet;
             if (predicate != null)

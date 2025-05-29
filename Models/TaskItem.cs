@@ -33,9 +33,31 @@ namespace Collaborative_Task_Management_System.Models
 
         // Assignment
         public string AssignedUserId { get; set; }
+        
+        // Alias for compatibility
+        public string AssignedToId 
+        { 
+            get => AssignedUserId; 
+            set => AssignedUserId = value; 
+        }
+        
+        // Alias for compatibility  
+        public string AssigneeId 
+        { 
+            get => AssignedUserId; 
+            set => AssignedUserId = value; 
+        }
 
         [ForeignKey("AssignedUserId")]
         public virtual ApplicationUser AssignedUser { get; set; }
+        
+        // Alias for compatibility
+        [NotMapped]
+        public virtual ApplicationUser AssignedTo 
+        { 
+            get => AssignedUser; 
+            set => AssignedUser = value; 
+        }
 
         // Creator
         [Required]
@@ -59,19 +81,22 @@ namespace Collaborative_Task_Management_System.Models
     }
 }
 
-public enum TaskPriority
+namespace Collaborative_Task_Management_System.Models
 {
-    Low,
-    Medium,
-    High,
-    Urgent
-}
+    public enum TaskPriority
+    {
+        Low,
+        Medium,
+        High,
+        Urgent
+    }
 
-public enum TaskStatus
-{
-    ToDo,
-    InProgress,
-    UnderReview,
-    Completed,
-    Blocked
+    public enum TaskStatus
+    {
+        ToDo,
+        InProgress,
+        UnderReview,
+        Completed,
+        Blocked
+    }
 }

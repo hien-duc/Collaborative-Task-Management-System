@@ -40,6 +40,11 @@ namespace Collaborative_Task_Management_System.Controllers
             return false;
         }
 
+        protected async Task<bool> IsManagerOrAdmin()
+        {
+            return await IsUserInRoleAsync("Manager") || await IsUserInRoleAsync("Admin");
+        }
+
         protected void AddModelError(string message)
         {
             ModelState.AddModelError(string.Empty, message);

@@ -61,7 +61,7 @@
                                         @log.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")
                                     </small>
                                 </td>
-                                <td>@log.UserName</td>
+                                <td>@log.User?.UserName</td>
                                 <td>
                                     <span class="badge bg-@(log.Action switch {
                                         "Create" => "success",
@@ -95,16 +95,13 @@
                                                         <dd class="col-sm-8">@log.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")</dd>
 
                                                         <dt class="col-sm-4">User</dt>
-                                                        <dd class="col-sm-8">@log.UserName</dd>
+                                                        <dd class="col-sm-8">@log.User?.UserName</dd>
 
                                                         <dt class="col-sm-4">Action</dt>
                                                         <dd class="col-sm-8">@log.Action</dd>
 
-                                                        <dt class="col-sm-4">Entity Type</dt>
-                                                        <dd class="col-sm-8">@log.EntityType</dd>
-
-                                                        <dt class="col-sm-4">Entity ID</dt>
-                                                        <dd class="col-sm-8">@log.EntityId</dd>
+                                                        <dt class="col-sm-4">Details</dt>
+                                                        <dd class="col-sm-8">@log.Details</dd>
 
                                                         <dt class="col-sm-4">IP Address</dt>
                                                         <dd class="col-sm-8">@log.IpAddress</dd>

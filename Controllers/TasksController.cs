@@ -2,8 +2,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Collaborative_Task_Management_System.Models;
+using Collaborative_Task_Management_System.Models.ViewModels;
 using Collaborative_Task_Management_System.Services;
+using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus;
 
 namespace Collaborative_Task_Management_System.Controllers
 {
@@ -11,11 +14,11 @@ namespace Collaborative_Task_Management_System.Controllers
     public class TasksController : BaseController
     {
         private readonly ITaskServiceWithUoW _taskService;
-    private readonly IProjectServiceWithUoW _projectService;
-    private readonly INotificationServiceWithUoW _notificationService;
-    private readonly ILogger<TasksController> _logger;
+        private readonly IProjectServiceWithUoW _projectService;
+        private readonly INotificationServiceWithUoW _notificationService;
+        private readonly ILogger<TasksController> _logger;
 
-    public TasksController(
+        public TasksController(
         ITaskServiceWithUoW taskService,
         IProjectServiceWithUoW projectService,
         INotificationServiceWithUoW notificationService,
@@ -71,19 +74,11 @@ namespace Collaborative_Task_Management_System.Controllers
                     }
 
                     // Create audit log
-                    var auditLog = new AuditLog
-                    {
-                        UserId = GetCurrentUserId(),
-                        Action = "TaskCreated",
-                        EntityName = "Task",
-                        EntityId = createdTask.Id.ToString(),
-                        Changes = $"Created task '{createdTask.Title}' in project {task.ProjectId}",
-                        Timestamp = DateTime.UtcNow,
-                        IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                        UserAgent = Request.Headers["User-Agent"].ToString()
-                    };
-                    _context.AuditLogs.Add(auditLog);
-                    await _context.SaveChangesAsync();
+                    await _notificationService.CreateAuditLogAsync(
+                        GetCurrentUserId(),
+                        "TaskCreated",
+                        $"Created task '{createdTask.Title}' in project {task.ProjectId}"
+                    );
 
                     await _notificationService.SendTaskAssignmentNotificationAsync(createdTask);
 
@@ -215,7 +210,7 @@ namespace Collaborative_Task_Management_System.Controllers
                     return Forbid();
                 }
 
-                task = await _taskService.UpdateTaskStatusAsync(id, status);
+                task = await _taskService.UpdateTaskStatusAsync(id, status, currentUserId);
                 await _notificationService.SendTaskStatusUpdateNotificationAsync(task, currentUserId);
 
                 return Json(new { success = true });
@@ -298,11 +293,8 @@ namespace Collaborative_Task_Management_System.Controllers
             {
                 var userId = GetCurrentUserId();
                 var isManagerOrAdmin = await IsManagerOrAdmin();
-                var query = _context.Tasks
-                    .Include(t => t.Project)
-                    .Include(t => t.AssignedTo)
-                    .Include(t => t.CreatedBy)
-                    .AsNoTracking();
+                var tasks = await _taskService.GetAllTasksAsync();
+                var query = tasks.AsQueryable();
 
                 // Apply search filters
                 if (!string.IsNullOrEmpty(model.Query))
@@ -368,28 +360,21 @@ namespace Collaborative_Task_Management_System.Controllers
                 var totalTasks = await query.CountAsync();
 
                 // Apply pagination
-                var tasks = await query
+                var paginatedTasks = await query
                     .Skip((model.Page - 1) * model.PageSize)
                     .Take(model.PageSize)
                     .ToListAsync();
 
-                model.Tasks = tasks;
+                model.Tasks = paginatedTasks;
                 model.TotalTasks = totalTasks;
 
                 // Create audit log for search
-                var auditLog = new AuditLog
-                {
-                    UserId = userId,
-                    Action = "TaskSearch",
-                    EntityName = "Task",
-                    Changes = $"Searched tasks with query: {model.Query}",
-                    Timestamp = DateTime.UtcNow,
-                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
-                    UserAgent = Request.Headers["User-Agent"].ToString(),
-                    AdditionalInfo = $"Filters: Status={model.Status}, AssigneeId={model.AssigneeId}, ProjectId={model.ProjectId}"
-                };
-                _context.AuditLogs.Add(auditLog);
-                await _context.SaveChangesAsync();
+                // Create audit log for search
+                await _notificationService.CreateAuditLogAsync(
+                    userId,
+                    "TaskSearch",
+                    $"Searched tasks with query: {model.Query}. Filters: Status={model.Status}, AssigneeId={model.AssigneeId}, ProjectId={model.ProjectId}"
+                );
 
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {

@@ -1,4 +1,4 @@
-@model IEnumerable<Task>
+@model IEnumerable<TaskItem>
 
 @if (!Model.Any())
 {
@@ -22,15 +22,21 @@ else
                                             task.Priority == "Medium" ? "warning" : "info")">
                             @task.Priority
                         </span>
-                        <span class="badge bg-@(task.Status == "Completed" ? "success" : 
-                                            task.Status == "InProgress" ? "warning" : "primary")">
+                        <span class="badge bg-@(task.Status switch {
+                            TaskStatus.ToDo => "secondary",
+                            TaskStatus.InProgress => "primary",
+                            TaskStatus.UnderReview => "info",
+                            TaskStatus.Completed => "success",
+                            TaskStatus.Blocked => "danger",
+                            _ => "secondary"
+                        })">
                             @task.Status
                         </span>
                     </div>
                 </div>
                 <div class="mt-1">
                     <small class="text-muted">
-                        <i class="bi bi-person"></i> @(task.Assignee?.UserName ?? "Unassigned") |
+                        <i class="bi bi-person"></i> @(task.AssignedTo?.UserName ?? "Unassigned") |
                         <i class="bi bi-calendar"></i> Due: @task.DueDate.ToString("MMM dd, yyyy")
                     </small>
                 </div>

@@ -52,7 +52,7 @@ builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Add Unit of Work
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IUnitOfWork, Collaborative_Task_Management_System.UnitOfWork.UnitOfWork>();
 
 // Register services with Unit of Work pattern
 builder.Services.AddScoped<IProjectServiceWithUoW, ProjectServiceWithUoW>();

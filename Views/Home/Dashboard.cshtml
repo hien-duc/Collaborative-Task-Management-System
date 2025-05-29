@@ -89,11 +89,12 @@
                             <tr>
                                 <td>@task.Title</td>
                                 <td>@task.Project?.Title</td>
-                                <td>@task.DueDate?.ToString("MMM dd, yyyy")</td>
+                                <td>@task.DueDate.ToString("MMM dd, yyyy")</td>
                                 <td>
                                     <span class="badge bg-@(task.Status switch {
-                                        TaskStatus.Pending => "secondary",
+                                        TaskStatus.ToDo => "secondary",
                                         TaskStatus.InProgress => "primary",
+                                        TaskStatus.UnderReview => "info",
                                         TaskStatus.Completed => "success",
                                         TaskStatus.Blocked => "danger",
                                         _ => "secondary"
@@ -121,11 +122,11 @@
         new Chart(taskStatusCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Pending', 'In Progress', 'Completed', 'Blocked'],
+                labels: ['To Do', 'In Progress', 'Under Review', 'Completed', 'Blocked'],
                 datasets: [{
                     data: [@Model.StatusSummary.Pending, @Model.StatusSummary.InProgress,
-                          @Model.StatusSummary.Completed, @Model.StatusSummary.Blocked],
-                    backgroundColor: ['#6c757d', '#0d6efd', '#198754', '#dc3545']
+                          @Model.StatusSummary.UnderReview, @Model.StatusSummary.Completed, @Model.StatusSummary.Blocked],
+                    backgroundColor: ['#6c757d', '#0d6efd', '#17a2b8', '#198754', '#dc3545']
                 }]
             },
             options: {

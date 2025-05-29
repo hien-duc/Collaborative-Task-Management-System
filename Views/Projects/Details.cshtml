@@ -41,8 +41,8 @@
                         </div>
                         <div class="col-sm-6 col-lg-3">
                             <h6 class="text-muted mb-2">Status</h6>
-                            <span class="badge bg-@(Model.Status == "Completed" ? "success" : 
-                                                Model.Status == "InProgress" ? "warning" : "primary")">@Model.Status</span>
+                            <span class="badge bg-@(Model.Status == ProjectStatus.Completed ? "success" : 
+                                                Model.Status == ProjectStatus.Active ? "warning" : "primary")">@Model.Status</span>
                         </div>
                         <div class="col-sm-6 col-lg-3">
                             <h6 class="text-muted mb-2">Created By</h6>
@@ -109,13 +109,13 @@
                                         @task.Title
                                     </a>
                                 </td>
-                                <td>@(task.Assignee?.UserName ?? "Unassigned")</td>
+                                <td>@(task.AssignedUser?.UserName ?? "Unassigned")</td>
                                 <td>
                                     <select class="form-select form-select-sm task-status-select"
                                             data-task-id="@task.Id" aria-label="Change task status">
-                                        <option value="ToDo" selected=@(task.Status == "ToDo")>To Do</option>
-                                        <option value="InProgress" selected=@(task.Status == "InProgress")>In Progress</option>
-                                        <option value="Completed" selected=@(task.Status == "Completed")>Completed</option>
+                                        <option value="ToDo" selected=@(task.Status == TaskStatus.ToDo)>To Do</option>
+                                        <option value="InProgress" selected=@(task.Status == TaskStatus.InProgress)>In Progress</option>
+                                        <option value="Completed" selected=@(task.Status == TaskStatus.Completed)>Completed</option>
                                     </select>
                                 </td>
                                 <td>
@@ -150,7 +150,7 @@
                                                             <div class="card-body">
                                                                 <p class="card-text">@comment.Text</p>
                                                                 <small class="text-muted">
-                                                                    @comment.Author.UserName - @comment.CreatedAt.ToString("MM/dd/yyyy HH:mm")
+                                                                    @comment.User.UserName - @comment.CreatedAt.ToString("MM/dd/yyyy HH:mm")
                                                                 </small>
                                                             </div>
                                                         </div>
@@ -172,10 +172,10 @@
                                             <div>
                                                 <h5>Attachments</h5>
                                                 <div id="files-@task.Id" class="mb-3">
-                                                    @if (task.Attachments != null && task.Attachments.Any())
+                                                    @if (task.FileAttachments != null && task.FileAttachments.Any())
                                                     {
                                                         <ul class="list-unstyled">
-                                                            @foreach (var file in task.Attachments)
+                                                            @foreach (var file in task.FileAttachments)
                                                             {
                                                                 <li class="mb-2">
                                                                     <a href="/Tasks/DownloadFile/@file.Id" 

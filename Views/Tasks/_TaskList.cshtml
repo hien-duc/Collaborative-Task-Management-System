@@ -1,4 +1,5 @@
 @model IEnumerable<TaskItem>
+@using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus
 
 @if (Model != null && Model.Any())
 {
@@ -12,8 +13,9 @@
                             @task.Title
                         </h5>
                         <span class="badge bg-@(task.Status switch {
-                            TaskStatus.Pending => "secondary",
+                            TaskStatus.ToDo => "secondary",
                             TaskStatus.InProgress => "primary",
+                            TaskStatus.UnderReview => "info",
                             TaskStatus.Completed => "success",
                             TaskStatus.Blocked => "danger",
                             _ => "secondary"
@@ -26,12 +28,9 @@
                         <p class="card-text text-muted mb-2">
                             <i class="bi bi-person"></i> Assigned to: @task.AssignedTo?.FullName
                         </p>
-                        @if (task.DueDate.HasValue)
-                        {
-                            <p class="card-text text-muted mb-2">
-                                <i class="bi bi-calendar"></i> Due: @task.DueDate.Value.ToString("MMM dd, yyyy")
-                            </p>
-                        }
+                        <p class="card-text text-muted mb-2">
+                            <i class="bi bi-calendar"></i> Due: @task.DueDate.ToString("MMM dd, yyyy")
+                        </p>
                         <p class="card-text description-text">
                             @(task.Description?.Length > 100 ? task.Description.Substring(0, 97) + "..." : task.Description)
                         </p>
