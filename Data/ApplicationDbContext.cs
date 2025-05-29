@@ -28,6 +28,19 @@ namespace Collaborative_Task_Management_System.Data
                 .WithMany(u => u.CreatedProjects)
                 .HasForeignKey(p => p.CreatedById)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            // Configure Project -> Owner relationship
+            builder.Entity<Project>()
+                .HasOne(p => p.Owner)
+                .WithMany() // No navigation property in ApplicationUser for Owner (optional)
+                .HasForeignKey(p => p.OwnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            // Configure Project -> TeamMembers (many-to-many, assuming a join table)
+            builder.Entity<Project>()
+                .HasMany(p => p.TeamMembers)
+                .WithMany() // No navigation property in ApplicationUser for TeamMembers
+                .UsingEntity(j => j.ToTable("ProjectTeamMembers")); // Join table for many-to-many
 
             // Configure TaskItem relationships
             builder.Entity<TaskItem>()
