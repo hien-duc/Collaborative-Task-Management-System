@@ -1,0 +1,4 @@
+2025-06-02 02:11:30.467 +07:00 [INF] Starting web application
+2025-06-02 02:11:30.751 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-02 02:11:35.159 +07:00 [INF] User logged in.
+2025-06-02 02:11:35.254 +07:00 [INF] Cached dashboard data for user 70dd00f7-01ac-440b-b31f-2856bc1670ce

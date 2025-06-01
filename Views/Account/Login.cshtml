@@ -1,0 +1,52 @@
+@model Collaborative_Task_Management_System.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="text-center mb-0">@ViewData["Title"]</h2>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" class="form-control" placeholder="Enter your email" autocomplete="username" aria-required="true" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input asp-for="Password" class="form-control" placeholder="Enter your password" autocomplete="current-password" aria-required="true" />
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label">Remember me</label>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Log in</button>
+                        </div>
+                        <hr />
+                        <div class="text-center">
+                            <p>Don't have an account? <a asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">Register</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
