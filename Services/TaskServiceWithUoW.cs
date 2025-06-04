@@ -355,16 +355,31 @@ namespace Collaborative_Task_Management_System.Services
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-                
-                var task = await _unitOfWork.Tasks.GetByIdAsync(id);
+        
+                // Get the task with related notifications
+                var task = await _unitOfWork.Tasks.GetByIdWithIncludesAsync(
+                    id,
+                    t => t.Notifications // Include notifications in the query
+                );
+
                 if (task == null)
                 {
                     throw new KeyNotFoundException($"Task with ID {id} not found");
                 }
 
+                // Delete related notifications first
+                if (task.Notifications != null && task.Notifications.Any())
+                {
+                    foreach (var notification in task.Notifications.ToList())
+                    {
+                        _unitOfWork.Notifications.Delete(notification);
+                    }
+                }
+
+                // Now delete the task
                 _unitOfWork.Tasks.Delete(task);
                 await _unitOfWork.SaveChangesAsync();
-                
+        
                 // Log the deletion
                 var auditLog = new AuditLog
                 {
@@ -374,9 +389,9 @@ namespace Collaborative_Task_Management_System.Services
                     Timestamp = DateTime.UtcNow
                 };
                 await _unitOfWork.AuditLogs.AddAsync(auditLog);
-                
+        
                 await _unitOfWork.CommitTransactionAsync();
-                
+        
                 _logger.LogInformation("Task deleted: {TaskId}", id);
             }
             catch (Exception ex)

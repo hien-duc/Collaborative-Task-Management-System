@@ -64,34 +64,6 @@
                                             </button>
                                         }
                                     </div>
-
-                                    <!-- Delete Confirmation Modal -->
-                                    <div class="modal fade" id="deleteModal@(project.Id)" tabindex="-1" 
-                                         aria-labelledby="deleteModalLabel@(project.Id)" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteModalLabel@(project.Id)">
-                                                        Confirm Delete
-                                                    </h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" 
-                                                            aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    Are you sure you want to delete project "@project.Title"?
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" 
-                                                            data-bs-dismiss="modal">Cancel</button>
-                                                    <form asp-action="Delete" asp-route-id="@project.Id" 
-                                                          method="post" class="d-inline">
-                                                        @Html.AntiForgeryToken()
-                                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </td>
                             </tr>
                         }
@@ -100,11 +72,42 @@
             </div>
         </div>
     </div>
+
+    <!-- Move modals outside the table -->
+    @foreach (var project in Model)
+    {
+        <div class="modal fade" id="deleteModal@(project.Id)" tabindex="-1" 
+             aria-labelledby="deleteModalLabel@(project.Id)" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel@(project.Id)">
+                            Confirm Delete
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" 
+                                aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete project "@project.Title"?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" 
+                                data-bs-dismiss="modal">Cancel</button>
+                        <form asp-action="Delete" asp-route-id="@project.Id" 
+                              method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @section Scripts {
     <script>
-        // Initialize tooltips
+        // Initialize tooltips (if used elsewhere)
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);

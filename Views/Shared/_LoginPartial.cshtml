@@ -1,0 +1,35 @@
+@using Microsoft.AspNetCore.Identity
+@using Collaborative_Task_Management_System.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+        <a class="nav-link" href="#" title="Manage">
+            <i class="bi bi-person-circle" aria-hidden="true"></i> @User.Identity?.Name
+        </a>
+    </li>
+    <li class="nav-item">
+        <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+            <button type="submit" class="btn btn-link nav-link">
+                <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Logout
+            </button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Account" asp-action="Register">
+            <i class="bi bi-person-plus" aria-hidden="true"></i> Register
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Account" asp-action="Login">
+            <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Login
+        </a>
+    </li>
+}
+</ul>

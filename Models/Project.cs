@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Collaborative_Task_Management_System.Attributes;
 
 namespace Collaborative_Task_Management_System.Models
 {
@@ -11,14 +12,11 @@ namespace Collaborative_Task_Management_System.Models
         [StringLength(100)]
         public string Title { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string Name { get; set; }
-
         public string Description { get; set; }
 
         [Required]
         [DataType(DataType.Date)]
+        [FutureDate(ErrorMessage = "Deadline must be a future date")]
         public DateTime Deadline { get; set; }
 
         [Required]
@@ -35,7 +33,7 @@ namespace Collaborative_Task_Management_System.Models
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        
+    
         public DateTime? UpdatedAt { get; set; }
 
         // Navigation properties
@@ -44,10 +42,10 @@ namespace Collaborative_Task_Management_System.Models
 
         [ForeignKey("OwnerId")]
         public virtual ApplicationUser Owner { get; set; }
-        
-        public virtual ICollection<TaskItem> Tasks { get; set; }
-        
-        public virtual ICollection<ApplicationUser> TeamMembers { get; set; }
+    
+        public virtual ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
+    
+        public virtual ICollection<ApplicationUser> TeamMembers { get; set; } = new List<ApplicationUser>();
     }
 
     public enum ProjectStatus

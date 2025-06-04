@@ -1,7 +1,13 @@
 // Initialize SignalR connection for real-time updates
 const connection = new signalR.HubConnectionBuilder()
     .withUrl("/notificationHub")
-    .withAutomaticReconnect()
+    .withAutomaticReconnect({
+        nextRetryDelayInMilliseconds: retryContext => {
+            // Retry with exponential backoff, max 10 seconds
+            return Math.min(retryContext.previousRetryCount * 1000, 10000);
+        }
+    })
+    .configureLogging(signalR.LogLevel.Information)
     .build();
 
 // Theme Management
@@ -391,9 +397,54 @@ document.addEventListener('DOMContentLoaded', function() {
     const popovers = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     popovers.forEach(popover => new bootstrap.Popover(popover));
 
-    // Start SignalR connection
-    connection.start().catch(err => {
+    // Start SignalR connection after a short delay to ensure auth is ready
+    setTimeout(() => {
+        startSignalRConnection();
+    }, 1000);
+});
+
+// Function to start SignalR connection with retry logic
+async function startSignalRConnection() {
+    try {
+        await connection.start();
+        console.log('SignalR Connected.');
+        notificationSystem.showNotification('Connected to real-time updates', 'success');
+    } catch (err) {
         console.error('SignalR Connection Error:', err);
-        notificationSystem.showNotification('Failed to connect to real-time updates', 'danger');
-    });
+        
+        let errorMessage = 'Failed to connect to real-time updates';
+        if (err.message.includes('WebSocket failed to connect')) {
+            errorMessage += '. WebSocket connection failed. Trying fallback transport...';
+        } else if (err.message.includes('404')) {
+            errorMessage += '. Server endpoint not found. Please refresh the page.';
+        } else if (err.message.includes('401')) {
+            errorMessage += '. Authentication required. Please sign in again.';
+        }
+        
+        notificationSystem.showNotification(errorMessage, 'warning');
+        
+        // Retry after 5 seconds
+        setTimeout(() => startSignalRConnection(), 5000);
+    }
+}
+
+// Handle connection status changes
+connection.onclose(async (error) => {
+    if (error) {
+        console.error('SignalR connection closed with error:', error);
+    }
+    notificationSystem.showNotification('Connection lost. Reconnecting...', 'warning');
+    await startSignalRConnection();
+});
+
+// Handle reconnecting event
+connection.onreconnecting(error => {
+    console.log('SignalR reconnecting:', error);
+    notificationSystem.showNotification('Reconnecting to real-time updates...', 'info');
+});
+
+// Handle reconnected event
+connection.onreconnected(connectionId => {
+    console.log('SignalR reconnected. Connection ID:', connectionId);
+    notificationSystem.showNotification('Reconnected to real-time updates', 'success');
 });

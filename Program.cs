@@ -16,7 +16,7 @@ builder.Services.AddControllersWithViews();
 
 // Add Identity services
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
-    options.SignIn.RequireConfirmedAccount = true;
+    options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
@@ -24,7 +24,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequiredLength = 8;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultUI()
 .AddDefaultTokenProviders();
 
 // Add Authorization Policies
@@ -94,7 +93,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapRazorPages(); // For Identity pages
 app.MapHub<NotificationHub>("/notificationHub"); // SignalR hub
 
 // Seed Roles and Admin User

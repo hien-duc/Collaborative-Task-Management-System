@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Collaborative_Task_Management_System.Models;
 using Collaborative_Task_Management_System.Models.ViewModels;
 using Collaborative_Task_Management_System.Services;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus;
 
 namespace Collaborative_Task_Management_System.Controllers
@@ -47,7 +48,15 @@ namespace Collaborative_Task_Management_System.Controllers
             }
 
             ViewBag.ProjectId = projectId.Value;
-            ViewBag.Users = await _userManager.Users.ToListAsync();
+            
+            // Convert users to SelectListItems
+            var users = await _userManager.Users.ToListAsync();
+            ViewBag.Users = users.Select(u => new SelectListItem()
+            {
+                Value = u.Id,
+                Text = u.FullName ?? u.UserName
+            }).ToList();
+            
             return View();
         }
 
@@ -56,13 +65,13 @@ namespace Collaborative_Task_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             [Bind("ProjectId,Title,Description,DueDate,Priority,Status,AssignedToId")] TaskItem task,
-            IFormFile attachment)
+            IFormFile? attachment)
         {
             try
             {
-                if (ModelState.IsValid)
-                {
-                    task.CreatedById = GetCurrentUserId();
+                task.CreatedById = GetCurrentUserId();
+                ModelState.Remove("CreatedById");
+                if (ModelState.IsValid) {
                     task.CreatedAt = DateTime.UtcNow;
 
                     var createdTask = await _taskService.CreateTaskAsync(task);
@@ -84,17 +93,42 @@ namespace Collaborative_Task_Management_System.Controllers
 
                     return RedirectToAction("Details", "Projects", new { id = task.ProjectId });
                 }
+                var errors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .Select(x => new { x.Key, x.Value.Errors })
+                        .ToList();
+                    _logger.LogWarning("ModelState is invalid. Errors: {Errors}", 
+                        string.Join(", ", errors.Select(e => $"{e.Key}: {string.Join(", ", e.Errors.Select(er => er.ErrorMessage))}")));
+                
 
+
+                // If we got this far, something failed; repopulate the users list
+                var users = await _userManager.Users.ToListAsync();
+                ViewBag.Users = users.Select(u => new SelectListItem
+                {
+                    Value = u.Id,
+                    Text = u.FullName ?? u.UserName,
+                    Selected = u.Id == task.AssignedToId
+                }).ToList();
+                
                 ViewBag.ProjectId = task.ProjectId;
-                ViewBag.Users = await _userManager.Users.ToListAsync();
                 return View(task);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating task");
                 ModelState.AddModelError("", "Error creating task. Please try again later.");
-                ViewBag.ProjectId = task.ProjectId;
-                ViewBag.Users = await _userManager.Users.ToListAsync();
+                
+                // Repopulate the users list in case of error
+                var users = await _userManager.Users.ToListAsync();
+                ViewBag.Users = users.Select(u => new SelectListItem
+                {
+                    Value = u.Id,
+                    Text = u.FullName ?? u.UserName,
+                    Selected = u.Id == task?.AssignedToId
+                }).ToList();
+                
+                ViewBag.ProjectId = task?.ProjectId;
                 return View(task);
             }
         }
@@ -113,7 +147,14 @@ namespace Collaborative_Task_Management_System.Controllers
                 return NotFound();
             }
 
-            ViewBag.Users = await _userManager.Users.ToListAsync();
+            var users = await _userManager.Users.ToListAsync();
+            ViewBag.Users = users.Select(u => new SelectListItem
+            {
+                Value = u.Id,
+                Text = u.FullName ?? u.UserName,
+                Selected = u.Id == task.AssignedToId
+            }).ToList();
+            
             return View(task);
         }
 
@@ -182,6 +223,11 @@ namespace Collaborative_Task_Management_System.Controllers
                     GetCurrentUserId(),
                     "TaskDeleted",
                     $"Deleted task {id}");
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = true });
+                }
+                
 
                 return RedirectToAction("Details", "Projects", new { id = projectId });
             }
@@ -368,7 +414,6 @@ namespace Collaborative_Task_Management_System.Controllers
                 model.Tasks = paginatedTasks;
                 model.TotalTasks = totalTasks;
 
-                // Create audit log for search
                 // Create audit log for search
                 await _notificationService.CreateAuditLogAsync(
                     userId,
