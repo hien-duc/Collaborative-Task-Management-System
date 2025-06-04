@@ -1,21 +1,10 @@
+using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using Collaborative_Task_Management_System.Models;
 using Collaborative_Task_Management_System.UnitOfWork;
 
 namespace Collaborative_Task_Management_System.Services
 {
-    public interface IProjectServiceWithUoW
-    {
-        Task<List<Project>> GetAllProjectsAsync();
-        Task<Project> GetProjectByIdAsync(int id);
-        Task<Project> GetProjectWithTasksAsync(int id);
-        Task<List<Project>> GetProjectsByOwnerAsync(string ownerId);
-        Task<List<Project>> GetProjectsByStatusAsync(ProjectStatus status);
-        Task<Project> CreateProjectAsync(Project project);
-        Task<Project> UpdateProjectAsync(Project project);
-        Task DeleteProjectAsync(int id);
-        Task<bool> ProjectExistsAsync(int id);
-        Task<List<Project>> SearchProjectsAsync(string searchTerm);
-    }
 
     public class ProjectServiceWithUoW : IProjectServiceWithUoW
     {
@@ -46,8 +35,9 @@ namespace Collaborative_Task_Management_System.Services
         {
             try
             {
-                return await _unitOfWork.Projects.GetByIdWithIncludesAsync(id, 
-                    p => p.CreatedBy, 
+                return await _unitOfWork.Projects.GetByIdWithIncludesAsync(id,
+                    p => p.CreatedBy,
+                    p => p.TeamMembers,
                     p => p.Tasks);
             }
             catch (Exception ex)
@@ -98,37 +88,53 @@ namespace Collaborative_Task_Management_System.Services
             }
         }
 
-        public async Task<Project> CreateProjectAsync(Project project)
+        public async Task<Project> CreateProjectAsync(Project project, string? ipAddress)
         {
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-                
-                project.CreatedAt = DateTime.UtcNow;
+        
+                // Check for duplicate project title
+                var existingProject = await _unitOfWork.Projects
+                    .FindAsync(p => p.Title.ToLower() == project.Title.ToLower());
+            
+                if (existingProject.Count() != 0)
+                {
+                    throw new InvalidOperationException($"A project with the title '{project.Title}' already exists.");
+                }
+
+                // Add the project
                 await _unitOfWork.Projects.AddAsync(project);
                 await _unitOfWork.SaveChangesAsync();
-                
+        
                 // Log the creation
+                if (ipAddress == null)
+                {
+                    ipAddress = "Unknown";
+                }
                 var auditLog = new AuditLog
                 {
                     UserId = project.CreatedById,
                     Action = "Project Created",
                     Details = $"Created project: {project.Title}",
-                    Timestamp = DateTime.UtcNow
+                    IpAddress = ipAddress,
+                    Timestamp = DateTime.UtcNow,
+                    EntityType = nameof(Project),
+                    EntityId = project.Id.ToString()
                 };
                 await _unitOfWork.AuditLogs.AddAsync(auditLog);
-                
+        
                 await _unitOfWork.CommitTransactionAsync();
-                
+        
                 _logger.LogInformation("Project created: {ProjectId} by user {UserId}", 
                     project.Id, project.CreatedById);
-                
+        
                 return project;
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackTransactionAsync();
-                _logger.LogError(ex, "Error creating project");
+                _logger.LogError(ex, "Error creating project: {Message}", ex.Message);
                 throw;
             }
         }

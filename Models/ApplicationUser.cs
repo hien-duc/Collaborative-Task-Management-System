@@ -8,6 +8,10 @@ namespace Collaborative_Task_Management_System.Models
         [Required]
         [StringLength(100)]
         public string FullName { get; set; }
+        
+        [Required]
+        public bool IsDeleted { get; set; } = false;
+        
 
         // Navigation properties for projects created by the user
         public virtual ICollection<Project> CreatedProjects { get; set; }

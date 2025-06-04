@@ -80,7 +80,7 @@ var isManagerOrAdmin = user != null && (await _userManager.IsInRoleAsync(user, "
                     Projects = projects,
                     ProjectAnalytics = projects.Select(p => new DashboardViewModel.ProjectProgress
                     {
-                        ProjectName = p.Name,
+                        ProjectName = p.Title,
                         TotalTasks = p.Tasks.Count,
                         CompletedTasks = p.Tasks.Count(t => t.Status == TaskStatus.Completed)
                     }).ToList(),

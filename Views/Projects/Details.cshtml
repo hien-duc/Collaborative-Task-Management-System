@@ -129,10 +129,15 @@
                                            class="btn btn-sm btn-warning" aria-label="Edit task">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-danger"
-                                                onclick="deleteTask(@task.Id)" aria-label="Delete task">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                        <form method="post" action="/Tasks/Delete/@task.Id" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" 
+                                                    class="btn btn-danger btn-sm" 
+                                                    onclick="return confirm('Are you sure you want to delete this task?')"
+                                                    aria-label="Delete task">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -240,31 +245,5 @@
                 });
             });
         });
-
-        // Delete task function
-        function deleteTask(taskId) {
-            if (confirm('Are you sure you want to delete this task?')) {
-                fetch(`/Tasks/Delete/${taskId}`, {
-                    method: 'POST',
-                    headers: {
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const taskRow = document.querySelector(`tr[data-task-id="${taskId}"]`);
-                        taskRow.remove();
-                        notificationSystem.showNotification('Task deleted successfully', 'success');
-                    } else {
-                        notificationSystem.showNotification('Failed to delete task', 'danger');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    notificationSystem.showNotification('An error occurred while deleting the task', 'danger');
-                });
-            }
-        }
     </script>
 }

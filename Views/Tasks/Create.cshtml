@@ -66,12 +66,12 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <select asp-for="AssigneeId" asp-items="ViewBag.Users" class="form-select">
+                                    <select asp-for="AssignedToId" asp-items="ViewBag.Users" class="form-select">
                                         <option value="">-- Select Assignee --</option>
                                     </select>
-                                    <label asp-for="AssigneeId">Assignee</label>
+                                    <label asp-for="AssignedToId">Assignee</label>
                                 </div>
-                                <span asp-validation-for="AssigneeId" class="text-danger"></span>
+                                <span asp-validation-for="AssignedToId" class="text-danger"></span>
                             </div>
                         </div>
 

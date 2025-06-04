@@ -3,150 +3,160 @@
     ViewData["Title"] = "Audit Logs";
 }
 
-<div class="container py-4">
-    <div class="card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">Audit Logs</h1>
-                <div class="d-flex gap-2">
-                    <div class="input-group">
-                        <input type="text" id="logSearch" class="form-control" 
-                               placeholder="Search logs..." aria-label="Search logs">
-                        <button class="btn btn-outline-secondary" type="button">
-                            <i class="bi bi-search"></i>
-                        </button>
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Admin Sidebar -->
+        <div class="col-md-2 mb-4">
+            @await Html.PartialAsync("_AdminSidebar")
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h1 class="h3 mb-0">Audit Logs</h1>
+                        <div class="d-flex gap-2">
+                            <div class="input-group">
+                                <input type="text" id="logSearch" class="form-control" 
+                                       placeholder="Search logs..." aria-label="Search logs">
+                                <button class="btn btn-outline-secondary" type="button">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                            <select id="logFilter" class="form-select" aria-label="Filter logs by action">
+                                <option value="">All Actions</option>
+                                <option value="Create">Create</option>
+                                <option value="Update">Update</option>
+                                <option value="Delete">Delete</option>
+                                <option value="Login">Login</option>
+                                <option value="Logout">Logout</option>
+                            </select>
+                        </div>
                     </div>
-                    <select id="logFilter" class="form-select" aria-label="Filter logs by action">
-                        <option value="">All Actions</option>
-                        <option value="Create">Create</option>
-                        <option value="Update">Update</option>
-                        <option value="Delete">Delete</option>
-                        <option value="Login">Login</option>
-                        <option value="Logout">Logout</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover" aria-label="Audit logs table">
-                    <thead>
-                        <tr>
-                            <th scope="col" role="columnheader" aria-sort="none">
-                                <button class="btn btn-link text-decoration-none p-0" onclick="sortTable(0)">
-                                    Timestamp
-                                    <i class="bi bi-arrow-down-up"></i>
-                                </button>
-                            </th>
-                            <th scope="col" role="columnheader" aria-sort="none">
-                                <button class="btn btn-link text-decoration-none p-0" onclick="sortTable(1)">
-                                    User
-                                    <i class="bi bi-arrow-down-up"></i>
-                                </button>
-                            </th>
-                            <th scope="col" role="columnheader" aria-sort="none">
-                                <button class="btn btn-link text-decoration-none p-0" onclick="sortTable(2)">
-                                    Action
-                                    <i class="bi bi-arrow-down-up"></i>
-                                </button>
-                            </th>
-                            <th scope="col" role="columnheader">Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var log in Model.OrderByDescending(l => l.Timestamp))
-                        {
+                    <div class="table-responsive">
+                        <table class="table table-hover" aria-label="Audit logs table">
+                            <thead>
                             <tr>
-                                <td>
-                                    <small class="text-muted">
-                                        @log.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")
-                                    </small>
-                                </td>
-                                <td>@log.User?.UserName</td>
-                                <td>
-                                    <span class="badge bg-@(log.Action switch {
-                                        "Create" => "success",
-                                        "Update" => "warning",
-                                        "Delete" => "danger",
-                                        "Login" => "info",
-                                        "Logout" => "secondary",
-                                        _ => "primary"
-                                    })">@log.Action</span>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-link p-0" 
-                                            data-bs-toggle="modal" data-bs-target="#logDetails-@log.Id"
-                                            aria-label="View details for log @log.Id">
-                                        View Details
+                                <th scope="col" role="columnheader" aria-sort="none">
+                                    <button class="btn btn-link text-decoration-none p-0" onclick="sortTable(0)">
+                                        Timestamp
+                                        <i class="bi bi-arrow-down-up"></i>
                                     </button>
+                                </th>
+                                <th scope="col" role="columnheader" aria-sort="none">
+                                    <button class="btn btn-link text-decoration-none p-0" onclick="sortTable(1)">
+                                        User
+                                        <i class="bi bi-arrow-down-up"></i>
+                                    </button>
+                                </th>
+                                <th scope="col" role="columnheader" aria-sort="none">
+                                    <button class="btn btn-link text-decoration-none p-0" onclick="sortTable(2)">
+                                        Action
+                                        <i class="bi bi-arrow-down-up"></i>
+                                    </button>
+                                </th>
+                                <th scope="col" role="columnheader">Details</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var log in Model.OrderByDescending(l => l.Timestamp))
+                            {
+                                <tr>
+                                    <td>
+                                        <small class="text-muted">
+                                            @log.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")
+                                        </small>
+                                    </td>
+                                    <td>@log.User?.UserName</td>
+                                    <td>
+                                        <span class="badge bg-@(log.Action switch {
+                                                                  "Create" => "success",
+                                                                  "Update" => "warning",
+                                                                  "Delete" => "danger",
+                                                                  "Login" => "info",
+                                                                  "Logout" => "secondary",
+                                                                  _ => "primary"
+                                                              })">@log.Action</span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-link p-0" 
+                                                data-bs-toggle="modal" data-bs-target="#logDetails-@log.Id"
+                                                aria-label="View details for log @log.Id">
+                                            View Details
+                                        </button>
 
-                                    <!-- Log Details Modal -->
-                                    <div class="modal fade" id="logDetails-@log.Id" tabindex="-1" 
-                                         aria-labelledby="logDetailsLabel-@log.Id" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="logDetailsLabel-@log.Id">Log Details</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" 
-                                                            aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <dl class="row">
-                                                        <dt class="col-sm-4">Timestamp</dt>
-                                                        <dd class="col-sm-8">@log.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")</dd>
+                                        <!-- Log Details Modal -->
+                                        <div class="modal fade" id="logDetails-@log.Id" tabindex="-1" 
+                                             aria-labelledby="logDetailsLabel-@log.Id" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="logDetailsLabel-@log.Id">Log Details</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" 
+                                                                aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <dl class="row">
+                                                            <dt class="col-sm-4">Timestamp</dt>
+                                                            <dd class="col-sm-8">@log.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")</dd>
 
-                                                        <dt class="col-sm-4">User</dt>
-                                                        <dd class="col-sm-8">@log.User?.UserName</dd>
+                                                            <dt class="col-sm-4">User</dt>
+                                                            <dd class="col-sm-8">@log.User?.UserName</dd>
 
-                                                        <dt class="col-sm-4">Action</dt>
-                                                        <dd class="col-sm-8">@log.Action</dd>
+                                                            <dt class="col-sm-4">Action</dt>
+                                                            <dd class="col-sm-8">@log.Action</dd>
 
-                                                        <dt class="col-sm-4">Details</dt>
-                                                        <dd class="col-sm-8">@log.Details</dd>
+                                                            <dt class="col-sm-4">Details</dt>
+                                                            <dd class="col-sm-8">@log.Details</dd>
 
-                                                        <dt class="col-sm-4">IP Address</dt>
-                                                        <dd class="col-sm-8">@log.IpAddress</dd>
+                                                            <dt class="col-sm-4">IP Address</dt>
+                                                            <dd class="col-sm-8">@log.IpAddress</dd>
 
-                                                        <dt class="col-sm-4">Details</dt>
-                                                        <dd class="col-sm-8">
-                                                            <pre class="mb-0"><code>@log.Details</code></pre>
-                                                        </dd>
-                                                    </dl>
+                                                            <dt class="col-sm-4">Details</dt>
+                                                            <dd class="col-sm-8">
+                                                                <pre class="mb-0"><code>@log.Details</code></pre>
+                                                            </dd>
+                                                        </dl>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
 
-            <!-- Pagination -->
-            <nav aria-label="Audit logs pagination">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                        <a class="page-link" href="?page=@(ViewBag.CurrentPage - 1)" 
-                           aria-label="Previous page">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                    </li>
-                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                    {
-                        <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
-                            <a class="page-link" href="?page=@i">@i</a>
-                        </li>
-                    }
-                    <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                        <a class="page-link" href="?page=@(ViewBag.CurrentPage + 1)" 
-                           aria-label="Next page">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+                    <!-- Pagination -->
+                    <nav aria-label="Audit logs pagination">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" href="?page=@(ViewBag.CurrentPage - 1)" 
+                                   aria-label="Previous page">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                            {
+                                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                                    <a class="page-link" href="?page=@i">@i</a>
+                                </li>
+                            }
+                            <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                                <a class="page-link" href="?page=@(ViewBag.CurrentPage + 1)" 
+                                   aria-label="Next page">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
         </div>
-    </div>
 </div>
 
 @section Scripts {

@@ -19,11 +19,12 @@ namespace Collaborative_Task_Management_System.Models
 
         public string Details { get; set; }
 
-        public string IpAddress { get; set; }
-
-        public string UserAgent { get; set; }
+        public string? IpAddress { get; set; }
 
         [Required]
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+        
+        public string? EntityType { get; set; }
+        public string? EntityId { get; set; } 
     }
 }

@@ -29,7 +29,7 @@ namespace Collaborative_Task_Management_System.Models
         public int ProjectId { get; set; }
 
         [ForeignKey("ProjectId")]
-        public virtual Project Project { get; set; }
+        public virtual Project? Project { get; set; }
 
         // Assignment
         public string AssignedUserId { get; set; }
@@ -49,11 +49,11 @@ namespace Collaborative_Task_Management_System.Models
         }
 
         [ForeignKey("AssignedUserId")]
-        public virtual ApplicationUser AssignedUser { get; set; }
+        public virtual ApplicationUser? AssignedUser { get; set; }
         
         // Alias for compatibility
         [NotMapped]
-        public virtual ApplicationUser AssignedTo 
+        public virtual ApplicationUser? AssignedTo 
         { 
             get => AssignedUser; 
             set => AssignedUser = value; 
@@ -64,14 +64,15 @@ namespace Collaborative_Task_Management_System.Models
         public string CreatedById { get; set; }
 
         [ForeignKey("CreatedById")]
-        public virtual ApplicationUser CreatedBy { get; set; }
+        public virtual ApplicationUser? CreatedBy { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
-        public virtual ICollection<Comment> Comments { get; set; }
-        public virtual ICollection<FileAttachment> FileAttachments { get; set; }
+        public virtual ICollection<Comment>? Comments { get; set; }
+        public virtual ICollection<Notification>? Notifications { get; set; }
+        public virtual ICollection<FileAttachment>? FileAttachments { get; set; }
 
         public TaskItem()
         {
