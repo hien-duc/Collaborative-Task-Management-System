@@ -93,78 +93,101 @@
                 <div class="table-responsive">
                     <table class="table table-hover" aria-label="Project tasks table">
                         <thead>
-                            <tr>
-                                <th scope="col" aria-label="Task title">Title</th>
-                                <th scope="col" aria-label="Task assignee">Assignee</th>
-                                <th scope="col" aria-label="Task status">Status</th>
-                                <th scope="col" aria-label="Task priority">Priority</th>
-                                <th scope="col" aria-label="Task due date">Due Date</th>
-                                <th scope="col" aria-label="Task actions">Actions</th>
-                            </tr>
+                        <tr>
+                            <th scope="col" aria-label="Task title">Title</th>
+                            <th scope="col" aria-label="Task assignee">Assignee</th>
+                            <th scope="col" aria-label="Task status">Status</th>
+                            <th scope="col" aria-label="Task priority">Priority</th>
+                            <th scope="col" aria-label="Task due date">Due Date</th>
+                            <th scope="col" aria-label="Task actions">Actions</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            @foreach (var task in Model.Tasks)
-                            {
-                                <tr>
-                                    <td>
-                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#task-@task.Id" aria-expanded="false" aria-controls="task-@task.Id">
-                                            @task.Title
+                        @foreach (var task in Model.Tasks)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="#" data-bs-toggle="collapse" data-bs-target="#task-@task.Id" aria-expanded="false" aria-controls="task-@task.Id">
+                                        @task.Title
+                                    </a>
+                                </td>
+                                <td>
+                                    @if (task.AssignedTo != null)
+                                    {
+                                        @(string.IsNullOrEmpty(task.AssignedTo.FullName) ? task.AssignedTo.UserName : task.AssignedTo.FullName)
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Unassigned</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (Model.IsManager || User.IsInRole("Admin") ||
+                                         task.AssignedToId == User.Identity.GetUserId())
+                                    {
+                                        <select class="form-select form-select-sm task-status-select" data-task-id="@task.Id" aria-label="Change task status">
+                                            @if (task.Status == TaskStatus.ToDo)
+                                            {
+                                                <option value="To Do" selected>To Do</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="To Do">To Do</option>
+                                            }
+                                            
+                                            @if (task.Status == TaskStatus.InProgress)
+                                            {
+                                                <option value="In Progress" selected>In Progress</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="In Progress">In Progress</option>
+                                            }
+                                            
+                                            @if (task.Status == TaskStatus.Completed)
+                                            {
+                                                <option value="Completed" selected>Completed</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="Completed">Completed</option>
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-@(task.Status == TaskStatus.Completed ? "success" :
+                                                              task.Status == TaskStatus.InProgress ? "warning" : "secondary")">@task.Status</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-@(task.Priority == "High" ? "danger" :
+                                                          task.Priority == "Medium" ? "warning" : "info")">@task.Priority</span>
+                                </td>
+                                <td>@task.DueDate.ToString("MM/dd/yyyy")</td>
+                                <td>
+                                    @if (Model.IsManager || User.IsInRole("Admin") || task.AssignedToId == User.Identity.GetUserId())
+                                    {
+                                        <a asp-controller="Tasks" asp-action="Edit" asp-route-id="@task.Id" class="btn btn-sm btn-warning me-1" aria-label="Edit task">
+                                            <i class="bi bi-pencil"></i> Edit
                                         </a>
-                                    </td>
-                                    <td>
-                                        @if (task.AssignedTo != null)
-                                        {
-                                            @(string.IsNullOrEmpty(task.AssignedTo.FullName) ? task.AssignedTo.UserName : task.AssignedTo.FullName)
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">Unassigned</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        @if (Model.IsManager || User.IsInRole("Admin") || 
-                                            task.AssignedToId == User.Identity.GetUserId())
-                                        {
-                                            <select class="form-select form-select-sm task-status-select" data-task-id="@task.Id" aria-label="Change task status">
-                                                <option value="To Do" @(task.Status == TaskStatus.ToDo ? "selected" : "")>To Do</option>
-                                                <option value="In Progress" @(task.Status == TaskStatus.InProgress ? "selected" : "")>In Progress</option>
-                                                <option value="Completed" @(task.Status == TaskStatus.Completed ? "selected" : "")>Completed</option>
-                                            </select>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-@(task.Status == TaskStatus.Completed ? "success" : 
-                                                                task.Status == TaskStatus.InProgress ? "warning" : "secondary")">@task.Status</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-@(task.Priority == "High" ? "danger" : 
-                                                            task.Priority == "Medium" ? "warning" : "info")">@task.Priority</span>
-                                    </td>
-                                    <td>@(task.DueDate.HasValue ? task.DueDate.Value.ToString("MM/dd/yyyy") : "No due date")</td>
-                                    <td>
-                                        @if (Model.IsManager || User.IsInRole("Admin") || task.AssignedToId == User.Identity.GetUserId())
-                                        {
-                                            <a asp-controller="Tasks" asp-action="Edit" asp-route-id="@task.Id" class="btn btn-sm btn-warning me-1" aria-label="Edit task">
-                                                <i class="bi bi-pencil"></i> Edit
-                                            </a>
-                                        }
-                                        @if (Model.IsManager || User.IsInRole("Admin"))
-                                        {
-                                            <a asp-controller="Tasks" asp-action="Delete" asp-route-id="@task.Id" class="btn btn-sm btn-danger" aria-label="Delete task">
-                                                <i class="bi bi-trash"></i> Delete
-                                            </a>
-                                        }
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="6" class="p-0">
-                                        <div class="collapse" id="task-@task.Id">
-                                            <div class="card card-body border-0 bg-light">
-                                                <div class="mb-3">
-                                                    <h6 class="mb-2">Description</h6>
-                                                    <p class="mb-0">@(string.IsNullOrEmpty(task.Description) ? "No description provided" : task.Description)</p>
-                                                </div>
+                                    }
+                                    @if (Model.IsManager || User.IsInRole("Admin"))
+                                    {
+                                        <a asp-controller="Tasks" asp-action="Delete" asp-route-id="@task.Id" class="btn btn-sm btn-danger" aria-label="Delete task">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="6" class="p-0">
+                                    <div class="collapse" id="task-@task.Id">
+                                        <div class="card card-body border-0 bg-light">
+                                            <div class="mb-3">
+                                                <h6 class="mb-2">Description</h6>
+                                                <p class="mb-0">@(string.IsNullOrEmpty(task.Description) ? "No description provided" : task.Description)</p>
+                                            </div>
                                             <!-- Comments Section -->
                                             <div class="mb-4">
                                                 <h6 class="mb-3">Comments</h6>
@@ -175,7 +198,7 @@
                                                         {
                                                             <div class="card mb-2" role="article" aria-label="Comment by @(string.IsNullOrEmpty(comment.User.FullName) ? comment.User.UserName : comment.User.FullName)">
                                                                 <div class="card-body py-2 px-3">
-                                                                    <p class="mb-1">@comment.Content</p>
+                                                                    <p class="mb-1">@comment.Text</p>
                                                                     <small class="text-muted">@(string.IsNullOrEmpty(comment.User.FullName) ? comment.User.UserName : comment.User.FullName) - @comment.CreatedAt.ToString("MM/dd/yyyy HH:mm")</small>
                                                                 </div>
                                                             </div>
@@ -187,7 +210,7 @@
                                                     }
                                                 </div>
                                                 <form asp-controller="Comments" asp-action="Create" method="post" class="comment-form">
-                                                    <input type="hidden" name="TaskId" value="@task.Id" />
+                                                    <input type="hidden" name="TaskId" value="@task.Id"/>
                                                     <div class="form-group mb-2">
                                                         <label for="comment-@task.Id" class="visually-hidden">Add a comment</label>
                                                         <textarea id="comment-@task.Id" name="Content" class="form-control" rows="3" placeholder="Add a comment..." required maxlength="1000" aria-describedby="comment-help-@task.Id"></textarea>
@@ -202,10 +225,10 @@
                                             <!-- File Attachments Section -->
                                             <div>
                                                 <h6 class="mb-3">Attachments</h6>
-                                                @if (task.Attachments != null && task.Attachments.Any())
+                                                @if (task.FileAttachments != null && task.FileAttachments.Any())
                                                 {
                                                     <ul class="list-group mb-3" aria-label="File attachments for task">
-                                                        @foreach (var attachment in task.Attachments)
+                                                        @foreach (var attachment in task.FileAttachments)
                                                         {
                                                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                                                 <a href="@Url.Action("DownloadFile", "Tasks", new { id = attachment.Id })" class="text-decoration-none" aria-label="Download @attachment.FileName">
@@ -221,7 +244,7 @@
                                                     <p class="text-muted mb-3">No attachments yet</p>
                                                 }
                                                 <form asp-controller="Tasks" asp-action="UploadFile" method="post" enctype="multipart/form-data">
-                                                    <input type="hidden" name="TaskId" value="@task.Id" />
+                                                    <input type="hidden" name="TaskId" value="@task.Id"/>
                                                     <div class="input-group mb-3">
                                                         <label for="file-upload-@task.Id" class="visually-hidden">Upload file</label>
                                                         <input type="file" id="file-upload-@task.Id" name="file" class="form-control" required aria-describedby="file-help-@task.Id">
@@ -237,9 +260,10 @@
                                 </td>
                             </tr>
                         }
-                    </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
     </div>
 </div>

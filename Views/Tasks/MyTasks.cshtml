@@ -15,7 +15,14 @@
                 <select name="projectId" class="form-select form-select-sm" aria-label="Filter by project" onchange="this.form.submit()">
                     @foreach (var project in projects)
                     {
-                        <option value="@project.Value" @(project.Selected ? "selected" : "")>@project.Text</option>
+                        if (project.Selected)
+                        {
+                            <option value="@project.Value" selected>@project.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@project.Value">@project.Text</option>
+                        }
                     }
                 </select>
             </div>
@@ -62,7 +69,14 @@
                                         aria-label="Change task status">
                                     @foreach (TaskStatus status in Enum.GetValues(typeof(TaskStatus)))
                                     {
-                                        <option value="@status" @(task.Status == status ? "selected" : "")>@status</option>
+                                        if (task.Status == status)
+                                        {
+                                            <option value="@status" selected>@status</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@status">@status</option>
+                                        }
                                     }
                                 </select>
                             </td>

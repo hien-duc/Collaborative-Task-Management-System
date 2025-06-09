@@ -271,6 +271,7 @@ namespace Collaborative_Task_Management_System.Services
                     UserId = userId,
                     Action = "Added to project",
                     EntityId = projectId.ToString(),
+                    Details = "Add Project Member",
                     EntityType = "Project",
                     Timestamp = DateTime.UtcNow,
                     IpAddress = ipAddress

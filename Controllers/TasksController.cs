@@ -66,7 +66,7 @@ namespace Collaborative_Task_Management_System.Controllers
             ViewBag.ProjectId = projectId.Value;
             
             // Get project members and manager for the assignee dropdown
-            var project = await _projectService.GetProjectByIdAsync(projectId.Value);
+            project = await _projectService.GetProjectByIdAsync(projectId.Value);
             var projectMembers = await _projectService.GetProjectMembersAsync(projectId.Value);
             var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
             

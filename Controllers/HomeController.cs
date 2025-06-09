@@ -116,13 +116,13 @@ namespace Collaborative_Task_Management_System.Controllers
                 {
                     Tasks = combinedTasks,
                     Projects = filteredProjects,
-                    ProjectProgress = filteredProjects.Select(p => new DashboardViewModel.ProjectProgress
+                    ProjectProgress = filteredProjects.Select(p => new ProjectProgress()
                     {
                         ProjectTitle = p.Title,
                         TotalTasks = p.Tasks.Count,
                         CompletedTasks = p.Tasks.Count(t => t.Status == TaskStatus.Completed)
                     }).ToList(),
-                    TaskStatusSummary = new DashboardViewModel.TaskStatusSummary
+                    TaskStatusSummary = new TaskStatusSummary()
                     {
                         ToDoCount = combinedTasks.Count(t => t.Status == TaskStatus.ToDo),
                         InProgressCount = combinedTasks.Count(t => t.Status == TaskStatus.InProgress),

@@ -294,7 +294,7 @@ namespace Collaborative_Task_Management_System.Services
                 {
                     UserId = userId,
                     Action = action,
-                    Details = details,
+                    Details = details ?? "{}",
                     Timestamp = DateTime.UtcNow
                 };
 

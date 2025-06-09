@@ -11,6 +11,7 @@ using Collaborative_Task_Management_System.Services;
 using Collaborative_Task_Management_System.Hubs;
 using Serilog;
 using System.Security.Claims;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Collaborative_Task_Management_System.Controllers
 {
@@ -20,22 +21,27 @@ namespace Collaborative_Task_Management_System.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<ProjectsController> _logger;
         private readonly IHubContext<NotificationHub> _hubContext;
-        private readonly HomeController _homeController;
-
+        private const string DashboardCacheKey = "DashboardData_";
+        private readonly IMemoryCache _cache;
+        // Remove this line
+        // private readonly HomeController _homeController;
+    
         public ProjectsController(
             IProjectServiceWithUoW projectService,
             UserManager<ApplicationUser> userManager,
             ILogger<ProjectsController> logger,
-            IHubContext<NotificationHub> hubContext,
-            HomeController homeController) : base(userManager)
+            IMemoryCache cache,
+            IHubContext<NotificationHub> hubContext) : base(userManager)
         {
             _projectService = projectService;
             _userManager = userManager;
             _logger = logger;
             _hubContext = hubContext;
-            _homeController = homeController;
+            _cache = cache;
+            // Remove this line
+            // _homeController = homeController;
         }
-
+        
         // GET: Projects
         [Authorize]
         public async Task<IActionResult> Index()
@@ -90,7 +96,7 @@ namespace Collaborative_Task_Management_System.Controllers
                 // Check if user has access to this project
                 var currentUserId = GetCurrentUserId();
                 var isAdminOrManager = User.IsInRole("Admin") || User.IsInRole("Manager");
-                var isMember = await _projectService.IsUserProjectMemberAsync(id.Value, currentUserId);
+                bool isMember = await _projectService.IsUserProjectMemberAsync(id.Value, currentUserId);
                 
                 // If user is not admin/manager and not a member, forbid access
                 if (!isAdminOrManager && !isMember && project.CreatedById != currentUserId)
@@ -117,7 +123,7 @@ namespace Collaborative_Task_Management_System.Controllers
 
                 // Determine if current user is a project member or manager
                 bool isManager = project.CreatedById == currentUserId || await IsUserInRoleAsync("Admin");
-                bool isMember = isManager || await _projectService.IsUserProjectMemberAsync(id.Value, currentUserId);
+                isMember = isManager || await _projectService.IsUserProjectMemberAsync(id.Value, currentUserId);
 
                 // Filter tasks based on user role and membership
                 var filteredTasks = project.Tasks;
@@ -136,7 +142,7 @@ namespace Collaborative_Task_Management_System.Controllers
                 }
 
                 // Create the view model
-                var viewModel = new ViewModels.ProjectDetailsViewModel
+                var viewModel = new ProjectDetailsViewModel
                 {
                     Project = project,
                     Tasks = filteredTasks.ToList(),
@@ -457,7 +463,7 @@ private async Task<bool> ProjectExists(int id)
                         "project-membership");
                     
                     // Broadcast dashboard update to the added user
-                    await _homeController.BroadcastDashboardUpdate(userId);
+                    await BroadcastDashboardUpdate(userId);
                 }
                 
                 // Broadcast dashboard update to all project members
@@ -520,7 +526,7 @@ private async Task<bool> ProjectExists(int id)
                     "project-membership");
                 
                 // Broadcast dashboard update to the removed user
-                await _homeController.BroadcastDashboardUpdate(userId);
+                await BroadcastDashboardUpdate(userId);
                 
                 // Broadcast dashboard update to all remaining project members
                 await BroadcastDashboardUpdateToProjectMembers(projectId);
@@ -559,7 +565,7 @@ private async Task<bool> ProjectExists(int id)
                 // Broadcast dashboard update to each member
                 foreach (var userId in members)
                 {
-                    await _homeController.BroadcastDashboardUpdate(userId, projectId);
+                    await BroadcastDashboardUpdate(userId, projectId);
                 }
                 
                 _logger.LogInformation("Dashboard update broadcast sent to {MemberCount} members of project {ProjectId}", members.Count, projectId);
@@ -633,5 +639,23 @@ private async Task<bool> ProjectExists(int id)
                 return StatusCode(500, "An error occurred while retrieving team members.");
             }
         }
+        public async Task BroadcastDashboardUpdate(string userId, int? projectId = null)
+        {
+            try
+            {
+                // Clear the dashboard cache for this user
+                var cacheKey = $"{DashboardCacheKey}{userId}_{projectId}";
+                _cache.Remove(cacheKey);
+                
+                // Send the dashboard update notification
+                await _hubContext.Clients.User(userId).SendAsync("DashboardDataUpdated", projectId);
+                _logger.LogInformation("Dashboard update broadcast sent to user {UserId}", userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error broadcasting dashboard update to user {UserId}", userId);
+            }
+        }
+        
     }
 }
