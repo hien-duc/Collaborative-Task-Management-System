@@ -17,6 +17,7 @@ namespace Collaborative_Task_Management_System.Data
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<FileAttachment> FileAttachments { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<ProjectMember> ProjectMembers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -41,6 +42,24 @@ namespace Collaborative_Task_Management_System.Data
                 .HasMany(p => p.TeamMembers)
                 .WithMany() // No navigation property in ApplicationUser for TeamMembers
                 .UsingEntity(j => j.ToTable("ProjectTeamMembers")); // Join table for many-to-many
+                
+            // Configure ProjectMember relationships
+            builder.Entity<ProjectMember>()
+                .HasOne(pm => pm.Project)
+                .WithMany(p => p.ProjectMembers)
+                .HasForeignKey(pm => pm.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            builder.Entity<ProjectMember>()
+                .HasOne(pm => pm.User)
+                .WithMany(u => u.ProjectMemberships)
+                .HasForeignKey(pm => pm.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            // Add unique constraint on ProjectId and UserId
+            builder.Entity<ProjectMember>()
+                .HasIndex(pm => new { pm.ProjectId, pm.UserId })
+                .IsUnique();
 
             // Configure TaskItem relationships
             builder.Entity<TaskItem>()

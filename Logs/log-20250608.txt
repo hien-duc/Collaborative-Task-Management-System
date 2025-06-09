@@ -1,0 +1,29 @@
+2025-06-08 15:35:50.204 +07:00 [INF] Starting web application
+2025-06-08 15:36:17.991 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-08 15:36:25.223 +07:00 [INF] User logged in.
+2025-06-08 15:36:25.446 +07:00 [INF] Cached dashboard data for user 6391dde9-5e86-4569-bc0f-c337ceef6f75
+2025-06-08 15:36:34.855 +07:00 [INF] Retrieved dashboard data from cache for user 6391dde9-5e86-4569-bc0f-c337ceef6f75
+2025-06-08 15:36:36.683 +07:00 [INF] Retrieved dashboard data from cache for user 6391dde9-5e86-4569-bc0f-c337ceef6f75
+2025-06-08 15:36:37.343 +07:00 [ERR] The view 'MyTasks' was not found. Searched locations: ["/Views/Tasks/MyTasks.cshtml","/Views/Shared/MyTasks.cshtml"]
+2025-06-08 15:36:37.356 +07:00 [ERR] An unhandled exception occurred. Request: GET /Tasks/MyTasks
+System.InvalidOperationException: The view 'MyTasks' was not found. The following locations were searched:
+/Views/Tasks/MyTasks.cshtml
+/Views/Shared/MyTasks.cshtml
+   at Microsoft.AspNetCore.Mvc.ViewEngines.ViewEngineResult.EnsureSuccessful(IEnumerable`1 originalLocations)
+   at Microsoft.AspNetCore.Mvc.ViewFeatures.ViewResultExecutor.ExecuteAsync(ActionContext context, ViewResult result)
+   at Microsoft.AspNetCore.Mvc.ViewResult.ExecuteResultAsync(ActionContext context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResultFilterAsync>g__Awaited|30_0[TFilter,TFilterAsync](ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResultExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.ResultNext[TFilter,TFilterAsync](State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeResultFilters()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|25_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Collaborative_Task_Management_System.Middleware.ErrorHandlingMiddleware.InvokeAsync(HttpContext context) in E:\Collaborative-Task-Management-System\Middleware\ErrorHandlingMiddleware.cs:line 22
+2025-06-08 15:36:45.374 +07:00 [INF] Retrieved dashboard data from cache for user 6391dde9-5e86-4569-bc0f-c337ceef6f75

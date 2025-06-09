@@ -7,6 +7,7 @@ using Collaborative_Task_Management_System.Models;
 using Collaborative_Task_Management_System.Models.ViewModels;
 using Collaborative_Task_Management_System.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus;
 
 namespace Collaborative_Task_Management_System.Controllers
@@ -47,6 +48,12 @@ namespace Collaborative_Task_Management_System.Controllers
                 return NotFound();
             }
 
+            // Check if user can access this project
+            if (!await CanAccessTaskAsync(projectId.Value))
+            {
+                return Forbid();
+            }
+
             ViewBag.ProjectId = projectId.Value;
             
             // Convert users to SelectListItems
@@ -69,6 +76,11 @@ namespace Collaborative_Task_Management_System.Controllers
         {
             try
             {
+                // Check if user can access this project
+                if (!await CanAccessTaskAsync(task.ProjectId))
+                {
+                    return Forbid();
+                }
                 task.CreatedById = GetCurrentUserId();
                 ModelState.Remove("CreatedById");
                 if (ModelState.IsValid) {
@@ -147,6 +159,12 @@ namespace Collaborative_Task_Management_System.Controllers
                 return NotFound();
             }
 
+            // Check if user can access this task
+            if (!await CanAccessTaskAsync(task.ProjectId))
+            {
+                return Forbid();
+            }
+
             var users = await _userManager.Users.ToListAsync();
             ViewBag.Users = users.Select(u => new SelectListItem
             {
@@ -168,6 +186,12 @@ namespace Collaborative_Task_Management_System.Controllers
             if (id != task.Id)
             {
                 return NotFound();
+            }
+
+            // Check if user can access this task
+            if (!await CanAccessTaskAsync(task.ProjectId))
+            {
+                return Forbid();
             }
 
             try
@@ -216,6 +240,12 @@ namespace Collaborative_Task_Management_System.Controllers
                     return NotFound();
                 }
 
+                // Check if user can access this task
+                if (!await CanAccessTaskAsync(task.ProjectId))
+                {
+                    return Forbid();
+                }
+
                 var projectId = task.ProjectId;
                 await _taskService.DeleteTaskAsync(id);
 
@@ -238,6 +268,22 @@ namespace Collaborative_Task_Management_System.Controllers
             }
         }
 
+        // Helper method to check if the current user can access a task
+        private async Task<bool> CanAccessTaskAsync(int projectId)
+        {
+            var currentUserId = GetCurrentUserId();
+            
+            // Admin and Manager can access all tasks
+            if (await IsUserInRoleAsync("Admin") || 
+                await IsUserInRoleAsync("Manager"))
+            {
+                return true;
+            }
+            
+            // Project members can access tasks in their projects
+            return await _projectService.IsUserProjectMemberAsync(projectId, currentUserId);
+        }
+
         // POST: Tasks/UpdateStatus/5
         [HttpPost]
         public async Task<IActionResult> UpdateStatus(int id, TaskStatus status)
@@ -248,6 +294,12 @@ namespace Collaborative_Task_Management_System.Controllers
                 if (task == null)
                 {
                     return NotFound();
+                }
+
+                // Check if user can access this task
+                if (!await CanAccessTaskAsync(task.ProjectId))
+                {
+                    return Json(new { success = false, message = "You don't have permission to update this task." });
                 }
 
                 var currentUserId = GetCurrentUserId();

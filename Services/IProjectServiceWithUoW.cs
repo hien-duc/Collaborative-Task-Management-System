@@ -14,4 +14,11 @@ public interface IProjectServiceWithUoW
     Task DeleteProjectAsync(int id);
     Task<bool> ProjectExistsAsync(int id);
     Task<List<Project>> SearchProjectsAsync(string searchTerm);
+    
+    // Project member management
+    Task<ProjectMember> AddProjectMemberAsync(int projectId, string userId, string? ipAddress);
+    Task RemoveProjectMemberAsync(int projectId, string userId, string? ipAddress);
+    Task<List<ProjectMember>> GetProjectMembersAsync(int projectId);
+    Task<List<Project>> GetProjectsByMemberAsync(string userId);
+    Task<bool> IsUserProjectMemberAsync(int projectId, string userId);
 }

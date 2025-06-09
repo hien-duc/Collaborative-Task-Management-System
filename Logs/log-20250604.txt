@@ -322,3 +322,195 @@ System.InvalidOperationException: The view 'MyTasks' was not found. The followin
 2025-06-04 15:00:39.705 +07:00 [INF] Starting web application
 2025-06-04 15:00:40.305 +07:00 [WRN] Failed to determine the https port for redirect.
 2025-06-04 15:00:41.048 +07:00 [INF] Cached dashboard data for user 95b3b4da-6fcc-43f5-9b22-5f0740a52d98
+2025-06-04 15:14:44.222 +07:00 [INF] Starting web application
+2025-06-04 15:15:46.348 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-04 15:16:23.568 +07:00 [INF] User logged in.
+2025-06-04 15:16:23.670 +07:00 [INF] Cached dashboard data for user 2d496564-ab6b-4be9-9732-fc2a39ca8d8e
+2025-06-04 15:16:29.508 +07:00 [INF] Retrieved dashboard data from cache for user 2d496564-ab6b-4be9-9732-fc2a39ca8d8e
+2025-06-04 15:16:31.377 +07:00 [ERR] The view 'MyTasks' was not found. Searched locations: ["/Views/Tasks/MyTasks.cshtml","/Views/Shared/MyTasks.cshtml"]
+2025-06-04 15:16:31.386 +07:00 [ERR] An unhandled exception occurred. Request: GET /Tasks/MyTasks
+System.InvalidOperationException: The view 'MyTasks' was not found. The following locations were searched:
+/Views/Tasks/MyTasks.cshtml
+/Views/Shared/MyTasks.cshtml
+   at Microsoft.AspNetCore.Mvc.ViewEngines.ViewEngineResult.EnsureSuccessful(IEnumerable`1 originalLocations)
+   at Microsoft.AspNetCore.Mvc.ViewFeatures.ViewResultExecutor.ExecuteAsync(ActionContext context, ViewResult result)
+   at Microsoft.AspNetCore.Mvc.ViewResult.ExecuteResultAsync(ActionContext context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResultFilterAsync>g__Awaited|30_0[TFilter,TFilterAsync](ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResultExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.ResultNext[TFilter,TFilterAsync](State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeResultFilters()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|25_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Collaborative_Task_Management_System.Middleware.ErrorHandlingMiddleware.InvokeAsync(HttpContext context) in E:\testing\Collaborative-Task-Management-System\Middleware\ErrorHandlingMiddleware.cs:line 22
+2025-06-04 15:16:32.819 +07:00 [ERR] Error counting errors from log files
+System.IO.IOException: The process cannot access the file 'E:\testing\Collaborative-Task-Management-System\Logs\log-20250604.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetErrorCountFromLogs() in E:\testing\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 379
+2025-06-04 15:16:32.839 +07:00 [ERR] Error getting last error time from log files
+System.IO.IOException: The process cannot access the file 'E:\testing\Collaborative-Task-Management-System\Logs\log-20250604.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllLinesAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetLastErrorTimeFromLogs() in E:\testing\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 404
+2025-06-04 15:18:22.093 +07:00 [ERR] Error counting errors from log files
+System.IO.IOException: The process cannot access the file 'E:\testing\Collaborative-Task-Management-System\Logs\log-20250604.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetErrorCountFromLogs() in E:\testing\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 379
+2025-06-04 15:18:22.113 +07:00 [ERR] Error getting last error time from log files
+System.IO.IOException: The process cannot access the file 'E:\testing\Collaborative-Task-Management-System\Logs\log-20250604.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllLinesAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetLastErrorTimeFromLogs() in E:\testing\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 404
+2025-06-04 20:42:45.559 +07:00 [INF] Starting web application
+2025-06-04 20:42:57.937 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-04 20:43:01.394 +07:00 [INF] Cached dashboard data for user 2d496564-ab6b-4be9-9732-fc2a39ca8d8e
+2025-06-04 20:43:05.326 +07:00 [INF] User logged out.
+2025-06-04 20:44:15.503 +07:00 [INF] User created a new account with password.
+2025-06-04 20:44:15.566 +07:00 [INF] User signed in after registration.
+2025-06-04 20:44:15.593 +07:00 [INF] Cached dashboard data for user 6391dde9-5e86-4569-bc0f-c337ceef6f75
+2025-06-04 20:44:25.149 +07:00 [ERR] The view 'MyTasks' was not found. Searched locations: ["/Views/Tasks/MyTasks.cshtml","/Views/Shared/MyTasks.cshtml"]
+2025-06-04 20:44:25.157 +07:00 [ERR] An unhandled exception occurred. Request: GET /Tasks/MyTasks
+System.InvalidOperationException: The view 'MyTasks' was not found. The following locations were searched:
+/Views/Tasks/MyTasks.cshtml
+/Views/Shared/MyTasks.cshtml
+   at Microsoft.AspNetCore.Mvc.ViewEngines.ViewEngineResult.EnsureSuccessful(IEnumerable`1 originalLocations)
+   at Microsoft.AspNetCore.Mvc.ViewFeatures.ViewResultExecutor.ExecuteAsync(ActionContext context, ViewResult result)
+   at Microsoft.AspNetCore.Mvc.ViewResult.ExecuteResultAsync(ActionContext context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResultFilterAsync>g__Awaited|30_0[TFilter,TFilterAsync](ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResultExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.ResultNext[TFilter,TFilterAsync](State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeResultFilters()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|25_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Collaborative_Task_Management_System.Middleware.ErrorHandlingMiddleware.InvokeAsync(HttpContext context) in E:\testing\Collaborative-Task-Management-System\Middleware\ErrorHandlingMiddleware.cs:line 22
+2025-06-04 20:44:27.383 +07:00 [INF] Retrieved dashboard data from cache for user 6391dde9-5e86-4569-bc0f-c337ceef6f75
+2025-06-04 20:44:32.058 +07:00 [INF] Retrieved dashboard data from cache for user 6391dde9-5e86-4569-bc0f-c337ceef6f75
+2025-06-04 20:44:33.099 +07:00 [INF] Retrieved dashboard data from cache for user 6391dde9-5e86-4569-bc0f-c337ceef6f75
+2025-06-04 20:44:33.739 +07:00 [INF] Retrieved dashboard data from cache for user 6391dde9-5e86-4569-bc0f-c337ceef6f75
+2025-06-04 20:44:34.009 +07:00 [INF] Retrieved dashboard data from cache for user 6391dde9-5e86-4569-bc0f-c337ceef6f75
+2025-06-04 20:44:34.189 +07:00 [INF] Retrieved dashboard data from cache for user 6391dde9-5e86-4569-bc0f-c337ceef6f75
+2025-06-04 20:44:34.370 +07:00 [INF] Retrieved dashboard data from cache for user 6391dde9-5e86-4569-bc0f-c337ceef6f75
+2025-06-04 20:44:49.418 +07:00 [INF] User logged out.
+2025-06-04 20:45:19.520 +07:00 [INF] User logged in.
+2025-06-04 20:45:19.530 +07:00 [INF] Retrieved dashboard data from cache for user 2d496564-ab6b-4be9-9732-fc2a39ca8d8e
+2025-06-04 20:45:21.784 +07:00 [ERR] The view 'MyTasks' was not found. Searched locations: ["/Views/Tasks/MyTasks.cshtml","/Views/Shared/MyTasks.cshtml"]
+2025-06-04 20:45:21.786 +07:00 [ERR] An unhandled exception occurred. Request: GET /Tasks/MyTasks
+System.InvalidOperationException: The view 'MyTasks' was not found. The following locations were searched:
+/Views/Tasks/MyTasks.cshtml
+/Views/Shared/MyTasks.cshtml
+   at Microsoft.AspNetCore.Mvc.ViewEngines.ViewEngineResult.EnsureSuccessful(IEnumerable`1 originalLocations)
+   at Microsoft.AspNetCore.Mvc.ViewFeatures.ViewResultExecutor.ExecuteAsync(ActionContext context, ViewResult result)
+   at Microsoft.AspNetCore.Mvc.ViewResult.ExecuteResultAsync(ActionContext context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResultFilterAsync>g__Awaited|30_0[TFilter,TFilterAsync](ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResultExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.ResultNext[TFilter,TFilterAsync](State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeResultFilters()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|25_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Collaborative_Task_Management_System.Middleware.ErrorHandlingMiddleware.InvokeAsync(HttpContext context) in E:\testing\Collaborative-Task-Management-System\Middleware\ErrorHandlingMiddleware.cs:line 22
+2025-06-04 20:45:23.451 +07:00 [INF] Retrieved dashboard data from cache for user 2d496564-ab6b-4be9-9732-fc2a39ca8d8e
+2025-06-04 20:45:24.424 +07:00 [ERR] Error counting errors from log files
+System.IO.IOException: The process cannot access the file 'E:\testing\Collaborative-Task-Management-System\Logs\log-20250604.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetErrorCountFromLogs() in E:\testing\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 379
+2025-06-04 20:45:24.441 +07:00 [ERR] Error getting last error time from log files
+System.IO.IOException: The process cannot access the file 'E:\testing\Collaborative-Task-Management-System\Logs\log-20250604.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllLinesAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetLastErrorTimeFromLogs() in E:\testing\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 404
+2025-06-04 20:45:49.135 +07:00 [ERR] Error counting errors from log files
+System.IO.IOException: The process cannot access the file 'E:\testing\Collaborative-Task-Management-System\Logs\log-20250604.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetErrorCountFromLogs() in E:\testing\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 379
+2025-06-04 20:45:49.143 +07:00 [ERR] Error getting last error time from log files
+System.IO.IOException: The process cannot access the file 'E:\testing\Collaborative-Task-Management-System\Logs\log-20250604.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllLinesAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetLastErrorTimeFromLogs() in E:\testing\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 404
+2025-06-04 20:45:57.939 +07:00 [INF] Retrieved dashboard data from cache for user 2d496564-ab6b-4be9-9732-fc2a39ca8d8e
+2025-06-04 20:45:59.594 +07:00 [ERR] The view 'MyTasks' was not found. Searched locations: ["/Views/Tasks/MyTasks.cshtml","/Views/Shared/MyTasks.cshtml"]
+2025-06-04 20:45:59.598 +07:00 [ERR] An unhandled exception occurred. Request: GET /Tasks/MyTasks
+System.InvalidOperationException: The view 'MyTasks' was not found. The following locations were searched:
+/Views/Tasks/MyTasks.cshtml
+/Views/Shared/MyTasks.cshtml
+   at Microsoft.AspNetCore.Mvc.ViewEngines.ViewEngineResult.EnsureSuccessful(IEnumerable`1 originalLocations)
+   at Microsoft.AspNetCore.Mvc.ViewFeatures.ViewResultExecutor.ExecuteAsync(ActionContext context, ViewResult result)
+   at Microsoft.AspNetCore.Mvc.ViewResult.ExecuteResultAsync(ActionContext context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResultFilterAsync>g__Awaited|30_0[TFilter,TFilterAsync](ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResultExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.ResultNext[TFilter,TFilterAsync](State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeResultFilters()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|25_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Collaborative_Task_Management_System.Middleware.ErrorHandlingMiddleware.InvokeAsync(HttpContext context) in E:\testing\Collaborative-Task-Management-System\Middleware\ErrorHandlingMiddleware.cs:line 22

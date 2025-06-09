@@ -46,6 +46,8 @@ namespace Collaborative_Task_Management_System.Models
         public virtual ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     
         public virtual ICollection<ApplicationUser> TeamMembers { get; set; } = new List<ApplicationUser>();
+        
+        public virtual ICollection<ProjectMember> ProjectMembers { get; set; } = new List<ProjectMember>();
     }
 
     public enum ProjectStatus

@@ -34,6 +34,9 @@ builder.Services.AddAuthorization(options =>
     
     options.AddPolicy("TeamMemberOrHigher", policy =>
         policy.RequireRole("Team Member", "Manager", "Admin"));
+    
+    options.AddPolicy("AuthenticatedUser", policy =>
+        policy.RequireAuthenticatedUser());
 });
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");

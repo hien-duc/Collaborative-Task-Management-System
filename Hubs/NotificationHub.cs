@@ -120,5 +120,51 @@ namespace Collaborative_Task_Management_System.Hubs
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"Project_{projectId}");
         }
+
+        // Method to send project membership notification
+        public async Task SendProjectMembershipNotification(string userId, string projectTitle, int projectId)
+        {
+            try
+            {
+                var throttleKey = $"{ThrottlePrefix}{userId}_{projectId}_membership";
+
+                // Check if we've sent a notification recently
+                if (!_cache.TryGetValue(throttleKey, out _))
+                {
+                    await Clients.User(userId).SendAsync("ReceiveProjectMembershipNotification",
+                        new
+                        {
+                            message = $"You were added to project: {projectTitle}",
+                            projectId,
+                            projectTitle,
+                            timestamp = DateTime.UtcNow
+                        });
+
+                    // Set throttle cache
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(ThrottleSeconds))
+                        .SetPriority(CacheItemPriority.Low);
+
+                    _cache.Set(throttleKey, true, cacheEntryOptions);
+
+                    _logger.LogInformation(
+                        "Project membership notification sent to user {UserId} for project {ProjectId}",
+                        userId, projectId);
+                }
+                else
+                {
+                    _logger.LogDebug(
+                        "Project membership notification throttled for user {UserId} and project {ProjectId}",
+                        userId, projectId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error sending project membership notification to user {UserId} for project {ProjectId}",
+                    userId, projectId);
+                throw;
+            }
+        }
     }
 }
