@@ -1,14 +1,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.SignalR;
 using Collaborative_Task_Management_System.Data;
 using Collaborative_Task_Management_System.Models;
 using Collaborative_Task_Management_System.Models.ViewModels;
 using Collaborative_Task_Management_System.Services;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Collaborative_Task_Management_System.Hubs;
 using Serilog;
+using System.Security.Claims;
 
 namespace Collaborative_Task_Management_System.Controllers
 {
@@ -17,24 +19,46 @@ namespace Collaborative_Task_Management_System.Controllers
         private readonly IProjectServiceWithUoW _projectService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<ProjectsController> _logger;
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly HomeController _homeController;
 
         public ProjectsController(
             IProjectServiceWithUoW projectService,
             UserManager<ApplicationUser> userManager,
-            ILogger<ProjectsController> logger) : base(userManager)
+            ILogger<ProjectsController> logger,
+            IHubContext<NotificationHub> hubContext,
+            HomeController homeController) : base(userManager)
         {
             _projectService = projectService;
             _userManager = userManager;
             _logger = logger;
+            _hubContext = hubContext;
+            _homeController = homeController;
         }
 
         // GET: Projects
-        [Authorize(Policy = "ManagerOrAdmin")]
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             try
             {
-                var projects = await _projectService.GetAllProjectsAsync();
+                var currentUserId = GetCurrentUserId();
+                var isAdminOrManager = User.IsInRole("Admin") || User.IsInRole("Manager");
+                
+                // If user is Admin or Manager, show all projects
+                // Otherwise, show only projects where they are a member
+                var projects = isAdminOrManager 
+                    ? await _projectService.GetAllProjectsAsync()
+                    : await _projectService.GetProjectsForUserAsync(currentUserId);
+
+                // Ensure each project has its ProjectMembers loaded
+                foreach (var project in projects)
+                {
+                    if (project.ProjectMembers == null)
+                    {
+                        project.ProjectMembers = await _projectService.GetProjectMembersAsync(project.Id);
+                    }
+                }
 
                 return View(projects);
             }
@@ -46,7 +70,7 @@ namespace Collaborative_Task_Management_System.Controllers
         }
 
         // GET: Projects/Details/5
-        [Authorize(Policy = "ManagerOrAdmin")]
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -61,6 +85,17 @@ namespace Collaborative_Task_Management_System.Controllers
                 if (project == null)
                 {
                     return NotFound();
+                }
+                
+                // Check if user has access to this project
+                var currentUserId = GetCurrentUserId();
+                var isAdminOrManager = User.IsInRole("Admin") || User.IsInRole("Manager");
+                var isMember = await _projectService.IsUserProjectMemberAsync(id.Value, currentUserId);
+                
+                // If user is not admin/manager and not a member, forbid access
+                if (!isAdminOrManager && !isMember && project.CreatedById != currentUserId)
+                {
+                    return Forbid();
                 }
 
                 // Get project members
@@ -81,7 +116,6 @@ namespace Collaborative_Task_Management_System.Controllers
                     .ToList();
 
                 // Determine if current user is a project member or manager
-                var currentUserId = GetCurrentUserId();
                 bool isManager = project.CreatedById == currentUserId || await IsUserInRoleAsync("Admin");
                 bool isMember = isManager || await _projectService.IsUserProjectMemberAsync(id.Value, currentUserId);
 
@@ -101,16 +135,18 @@ namespace Collaborative_Task_Management_System.Controllers
                     }
                 }
 
-                // Update the project with filtered tasks
-                project.Tasks = filteredTasks;
+                // Create the view model
+                var viewModel = new ViewModels.ProjectDetailsViewModel
+                {
+                    Project = project,
+                    Tasks = filteredTasks.ToList(),
+                    ProjectMembers = projectMembers,
+                    AvailableUsers = availableUsers,
+                    IsManager = isManager,
+                    IsMember = isMember
+                };
 
-                // Pass data to view
-                ViewData["ProjectMembers"] = projectMembers;
-                ViewData["AvailableUsers"] = availableUsers;
-                ViewData["IsManager"] = isManager;
-                ViewData["IsMember"] = isMember;
-
-                return View(project);
+                return View(viewModel);
             }
             catch (Exception ex)
             {
@@ -187,7 +223,8 @@ namespace Collaborative_Task_Management_System.Controllers
             // Create a ProjectMember entry for the creator
             await _projectService.AddProjectMemberAsync(createdProject.Id, currentUserId, ipAddress);
 
-            TempData["SuccessMessage"] = "Project created successfully!";
+            // Add success message indicating user is now the Manager of the project
+            TempData["SuccessMessage"] = $"Project created successfully! You're now the Manager of {createdProject.Title}";
             return RedirectToAction(nameof(Details), new { id = createdProject.Id });
         }
         catch (Exception ex)
@@ -373,7 +410,7 @@ private async Task<bool> ProjectExists(int id)
         // POST: Projects/AddMember/{projectId}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = "ManagerOrAdmin")]
+        [Authorize]
         public async Task<IActionResult> AddMember(int projectId, string userId)
         {
             if (string.IsNullOrEmpty(userId))
@@ -415,14 +452,16 @@ private async Task<bool> ProjectExists(int id)
                 if (user != null)
                 {
                     // Send SignalR notification to the added user
-                    var hubContext = HttpContext.RequestServices.GetService<Microsoft.AspNetCore.SignalR.IHubContext<Hubs.NotificationHub>>();
-                    if (hubContext != null)
-                    {
-                        await hubContext.Clients.User(userId).SendAsync("ReceiveNotification", 
-                            $"You were added to project: {project.Title}", 
-                            "project-membership");
-                    }
+                    await _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", 
+                        $"You were added to project: {project.Title}", 
+                        "project-membership");
+                    
+                    // Broadcast dashboard update to the added user
+                    await _homeController.BroadcastDashboardUpdate(userId);
                 }
+                
+                // Broadcast dashboard update to all project members
+                await BroadcastDashboardUpdateToProjectMembers(projectId);
 
                 TempData["SuccessMessage"] = "Team member added successfully!";
                 return RedirectToAction(nameof(Details), new { id = projectId });
@@ -438,7 +477,7 @@ private async Task<bool> ProjectExists(int id)
         // POST: Projects/RemoveMember/{projectId}/{userId}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = "ManagerOrAdmin")]
+        [Authorize]
         public async Task<IActionResult> RemoveMember(int projectId, string userId)
         {
             if (string.IsNullOrEmpty(userId))
@@ -474,6 +513,17 @@ private async Task<bool> ProjectExists(int id)
                 // Remove the member from the project
                 string? ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
                 await _projectService.RemoveProjectMemberAsync(projectId, userId, ipAddress);
+                
+                // Send notification to the removed user
+                await _hubContext.Clients.User(userId).SendAsync("ReceiveNotification", 
+                    $"You were removed from project: {project.Title}", 
+                    "project-membership");
+                
+                // Broadcast dashboard update to the removed user
+                await _homeController.BroadcastDashboardUpdate(userId);
+                
+                // Broadcast dashboard update to all remaining project members
+                await BroadcastDashboardUpdateToProjectMembers(projectId);
 
                 TempData["SuccessMessage"] = "Team member removed successfully!";
                 return RedirectToAction(nameof(Details), new { id = projectId });
@@ -483,6 +533,104 @@ private async Task<bool> ProjectExists(int id)
                 _logger.LogError(ex, "Error removing user {UserId} from project {ProjectId}", userId, projectId);
                 TempData["ErrorMessage"] = "An error occurred while removing the team member.";
                 return RedirectToAction(nameof(Details), new { id = projectId });
+            }
+        }
+        
+        // Helper method to broadcast dashboard updates to all project members
+        private async Task BroadcastDashboardUpdateToProjectMembers(int projectId)
+        {
+            try
+            {
+                // Get all project members
+                var project = await _projectService.GetProjectByIdAsync(projectId);
+                if (project == null)
+                {
+                    _logger.LogWarning("Cannot broadcast dashboard update: Project {ProjectId} not found", projectId);
+                    return;
+                }
+                
+                // Get all project members including the creator
+                var members = project.ProjectMembers.Select(pm => pm.UserId).ToList();
+                if (!members.Contains(project.CreatedById))
+                {
+                    members.Add(project.CreatedById);
+                }
+                
+                // Broadcast dashboard update to each member
+                foreach (var userId in members)
+                {
+                    await _homeController.BroadcastDashboardUpdate(userId, projectId);
+                }
+                
+                _logger.LogInformation("Dashboard update broadcast sent to {MemberCount} members of project {ProjectId}", members.Count, projectId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error broadcasting dashboard update to project members for project {ProjectId}", projectId);
+            }
+        }
+        
+        // GET: Projects/GetTeamMembers/{projectId}
+        [HttpGet]
+        public async Task<IActionResult> GetTeamMembers(int projectId)
+        {
+            try
+            {
+                // Get the project
+                var project = await _projectService.GetProjectByIdAsync(projectId);
+                if (project == null)
+                {
+                    return NotFound();
+                }
+                
+                // Check if user has access to the project
+                var currentUserId = GetCurrentUserId();
+                bool isAdmin = await IsUserInRoleAsync("Admin");
+                bool isMember = await _projectService.IsUserProjectMemberAsync(projectId, currentUserId);
+                bool isManager = project.CreatedById == currentUserId;
+                
+                if (!isAdmin && !isMember && !isManager)
+                {
+                    return Forbid();
+                }
+                
+                // Get project members
+                var projectMembers = await _projectService.GetProjectMembersAsync(projectId);
+                
+                // Get available users for adding to the project
+                var availableUsers = new List<SelectListItem>();
+                if (isManager || isAdmin)
+                {
+                    var allUsers = await _userManager.Users.ToListAsync();
+                    var existingMemberIds = projectMembers.Select(pm => pm.UserId).ToList();
+                    
+                    availableUsers = allUsers
+                        .Where(u => !existingMemberIds.Contains(u.Id))
+                        .Select(u => new SelectListItem
+                        {
+                            Value = u.Id,
+                            Text = string.IsNullOrEmpty(u.FullName) ? u.UserName : u.FullName
+                        })
+                        .OrderBy(u => u.Text)
+                        .ToList();
+                }
+                
+                // Create view model
+                var viewModel = new ProjectDetailsViewModel
+                {
+                    Project = project,
+                    ProjectMembers = projectMembers,
+                    AvailableUsers = availableUsers,
+                    IsManager = isManager,
+                    IsMember = isMember
+                };
+                
+                return PartialView("_TeamMembers", viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting team members for project {ProjectId}", projectId);
+                return StatusCode(500, "An error occurred while retrieving team members.");
             }
         }
     }

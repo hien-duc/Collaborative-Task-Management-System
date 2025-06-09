@@ -1,19 +1,19 @@
-@model Project
+@model Collaborative_Task_Management_System.Models.ViewModels.ProjectDetailsViewModel
 @inject UserManager<ApplicationUser> UserManager
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = Model.Project.Title;
 }
 
 <div class="container py-4">
     <div class="card mb-4">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="card-title h2 mb-0">@Model.Title</h1>
+                <h1 class="card-title h2 mb-0">@Model.Project.Title</h1>
                 <div class="btn-group">
                     @if (User.IsInRole("Manager") || User.IsInRole("Admin") || 
-                         Model.CreatedBy.Id == User.Identity.GetUserId())
+                         Model.Project.CreatedBy.Id == User.Identity.GetUserId())
                     {
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                        <a asp-action="Edit" asp-route-id="@Model.Project.Id" class="btn btn-warning">
                             <i class="bi bi-pencil"></i> Edit Project
                         </a>
                     }
@@ -27,182 +27,171 @@
                 <div class="col-md-8">
                     <div class="mb-4">
                         <h6 class="text-muted mb-2">Description</h6>
-                        <p class="mb-0">@Model.Description</p>
+                        <p class="mb-0">@Model.Project.Description</p>
                     </div>
 
                     <div class="row mb-4">
                         <div class="col-sm-6 col-lg-3">
                             <h6 class="text-muted mb-2">Deadline</h6>
-                            <p class="mb-0">@Model.Deadline.ToString("MMM dd, yyyy")</p>
+                            <p class="mb-0">@Model.Project.Deadline.ToString("MM/dd/yyyy")</p>
                         </div>
                         <div class="col-sm-6 col-lg-3">
                             <h6 class="text-muted mb-2">Priority</h6>
-                            <span class="badge bg-@(Model.Priority == "High" ? "danger" : 
-                                                Model.Priority == "Medium" ? "warning" : "info")">@Model.Priority</span>
+                            <span class="badge bg-@(Model.Project.Priority == "High" ? "danger" : 
+                                                Model.Project.Priority == "Medium" ? "warning" : "info")">@Model.Project.Priority</span>
                         </div>
                         <div class="col-sm-6 col-lg-3">
                             <h6 class="text-muted mb-2">Status</h6>
-                            <span class="badge bg-@(Model.Status == ProjectStatus.Completed ? "success" : 
-                                                Model.Status == ProjectStatus.Active ? "warning" : "primary")">@Model.Status</span>
+                            <span class="badge bg-@(Model.Project.Status == ProjectStatus.Completed ? "success" : 
+                                                Model.Project.Status == ProjectStatus.Active ? "warning" : "primary")">@Model.Project.Status</span>
                         </div>
                         <div class="col-sm-6 col-lg-3">
                             <h6 class="text-muted mb-2">Created By</h6>
-                            <p class="mb-0">@Model.CreatedBy.UserName</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card bg-light">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="card-title mb-0">Team Members</h6>
-                                @if (ViewData["IsManager"] != null && (bool)ViewData["IsManager"])
-                                {
-                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal">
-                                        <i class="bi bi-person-plus"></i> Add
-                                    </button>
-                                }
-                            </div>
-                            <div class="list-group list-group-flush">
-                                @{
-                                    var projectMembers = ViewData["ProjectMembers"] as List<ProjectMember>;
-                                    var isManager = ViewData["IsManager"] != null && (bool)ViewData["IsManager"];
-                                }
-                                
-                                @if (projectMembers != null && projectMembers.Any())
-                                {
-                                    foreach (var member in projectMembers)
-                                    {
-                                        var user = await UserManager.FindByIdAsync(member.UserId);
-                                        if (user != null)
-                                        {
-                                            <div class="list-group-item bg-transparent px-0">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar-circle bg-primary text-white me-2">
-                                                            @user.UserName.Substring(0, 1).ToUpper()
-                                                        </div>
-                                                        <span>@(string.IsNullOrEmpty(user.FullName) ? user.UserName : user.FullName)</span>
-                                                    </div>
-                                                    @if (isManager && user.Id != Model.CreatedById)
-                                                    {
-                                                        <form asp-action="RemoveMember" asp-route-projectId="@Model.Id" asp-route-userId="@user.Id" method="post" class="d-inline">
-                                                            @Html.AntiForgeryToken()
-                                                            <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                                                    onclick="return confirm('Are you sure you want to remove this member?')">
-                                                                <i class="bi bi-person-dash"></i>
-                                                            </button>
-                                                        </form>
-                                                    }
-                                                </div>
-                                            </div>
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    <div class="text-muted">No team members yet</div>
-                                }
-                            </div>
+                            <p class="mb-0">@(string.IsNullOrEmpty(Model.Project.CreatedBy.FullName) ? Model.Project.CreatedBy.UserName : Model.Project.CreatedBy.FullName)</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Team Members Section -->
+    <div class="card mb-4">
+        <div class="card-body p-3 team-members-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0">Team Members</h2>
+                @if (Model.IsManager || User.IsInRole("Admin"))
+                {
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal" 
+                            aria-label="Add team member">
+                        <i class="bi bi-person-plus"></i> Add Member
+                    </button>
+                }
+            </div>
+            
+            <div id="team-members-container">
+                <partial name="_TeamMembers" model="Model" />
+            </div>
+        </div>
+    </div>
 
     <!-- Tasks Section -->
     <div class="card mb-4">
-        <div class="card-body">
+        <div class="card-body p-3">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="h4 mb-0">Tasks</h2>
-                <a asp-controller="Tasks" asp-action="Create" asp-route-projectId="@Model.Id" 
-                   class="btn btn-primary">
-                    <i class="bi bi-plus-lg"></i> Add Task
-                </a>
+                @if (Model.IsManager || User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Tasks" asp-action="Create" asp-route-projectId="@Model.Project.Id" class="btn btn-primary">
+                        <i class="bi bi-plus"></i> Add Task
+                    </a>
+                }
             </div>
 
-            <div class="table-responsive">
-                <table class="table table-hover" aria-label="Project tasks table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Title</th>
-                            <th scope="col">Assignee</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Priority</th>
-                            <th scope="col">Due Date</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var task in Model.Tasks)
-                        {
-                            <tr data-task-id="@task.Id">
-                                <td>
-                                    <a href="#" class="text-decoration-none" data-bs-toggle="collapse" 
-                                       data-bs-target="#task-details-@task.Id" aria-expanded="false" 
-                                       aria-controls="task-details-@task.Id">
-                                        @task.Title
-                                    </a>
-                                </td>
-                                <td>@(task.AssignedUser?.UserName ?? "Unassigned")</td>
-                                <td>
-                                    <select class="form-select form-select-sm task-status-select"
-                                            data-task-id="@task.Id" aria-label="Change task status">
-                                        <option value="ToDo" selected=@(task.Status == TaskStatus.ToDo)>To Do</option>
-                                        <option value="InProgress" selected=@(task.Status == TaskStatus.InProgress)>In Progress</option>
-                                        <option value="Completed" selected=@(task.Status == TaskStatus.Completed)>Completed</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <span class="badge bg-@(task.Priority == "High" ? "danger" : 
-                                                        task.Priority == "Medium" ? "warning" : "info")">@task.Priority</span>
-                                </td>
-                                <td>@task.DueDate.ToString("MMM dd, yyyy")</td>
-                                <td>
-                                    <div class="btn-group" role="group" aria-label="Task actions">
-                                        <a asp-controller="Tasks" asp-action="Edit" asp-route-id="@task.Id"
-                                           class="btn btn-sm btn-warning" aria-label="Edit task">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <form method="post" action="/Tasks/Delete/@task.Id" class="d-inline">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" 
-                                                    class="btn btn-danger btn-sm" 
-                                                    onclick="return confirm('Are you sure you want to delete this task?')"
-                                                    aria-label="Delete task">
-                                                <i class="bi bi-trash"></i> Delete
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
+            @if (Model.Tasks != null && Model.Tasks.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover" aria-label="Project tasks table">
+                        <thead>
                             <tr>
-                                <td colspan="6" class="p-0">
-                                    <div class="collapse" id="task-details-@task.Id">
-                                        <div class="card card-body border-0">
+                                <th scope="col" aria-label="Task title">Title</th>
+                                <th scope="col" aria-label="Task assignee">Assignee</th>
+                                <th scope="col" aria-label="Task status">Status</th>
+                                <th scope="col" aria-label="Task priority">Priority</th>
+                                <th scope="col" aria-label="Task due date">Due Date</th>
+                                <th scope="col" aria-label="Task actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in Model.Tasks)
+                            {
+                                <tr>
+                                    <td>
+                                        <a href="#" data-bs-toggle="collapse" data-bs-target="#task-@task.Id" aria-expanded="false" aria-controls="task-@task.Id">
+                                            @task.Title
+                                        </a>
+                                    </td>
+                                    <td>
+                                        @if (task.AssignedTo != null)
+                                        {
+                                            @(string.IsNullOrEmpty(task.AssignedTo.FullName) ? task.AssignedTo.UserName : task.AssignedTo.FullName)
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Unassigned</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (Model.IsManager || User.IsInRole("Admin") || 
+                                            task.AssignedToId == User.Identity.GetUserId())
+                                        {
+                                            <select class="form-select form-select-sm task-status-select" data-task-id="@task.Id" aria-label="Change task status">
+                                                <option value="To Do" @(task.Status == TaskStatus.ToDo ? "selected" : "")>To Do</option>
+                                                <option value="In Progress" @(task.Status == TaskStatus.InProgress ? "selected" : "")>In Progress</option>
+                                                <option value="Completed" @(task.Status == TaskStatus.Completed ? "selected" : "")>Completed</option>
+                                            </select>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-@(task.Status == TaskStatus.Completed ? "success" : 
+                                                                task.Status == TaskStatus.InProgress ? "warning" : "secondary")">@task.Status</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@(task.Priority == "High" ? "danger" : 
+                                                            task.Priority == "Medium" ? "warning" : "info")">@task.Priority</span>
+                                    </td>
+                                    <td>@(task.DueDate.HasValue ? task.DueDate.Value.ToString("MM/dd/yyyy") : "No due date")</td>
+                                    <td>
+                                        @if (Model.IsManager || User.IsInRole("Admin") || task.AssignedToId == User.Identity.GetUserId())
+                                        {
+                                            <a asp-controller="Tasks" asp-action="Edit" asp-route-id="@task.Id" class="btn btn-sm btn-warning me-1" aria-label="Edit task">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </a>
+                                        }
+                                        @if (Model.IsManager || User.IsInRole("Admin"))
+                                        {
+                                            <a asp-controller="Tasks" asp-action="Delete" asp-route-id="@task.Id" class="btn btn-sm btn-danger" aria-label="Delete task">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="6" class="p-0">
+                                        <div class="collapse" id="task-@task.Id">
+                                            <div class="card card-body border-0 bg-light">
+                                                <div class="mb-3">
+                                                    <h6 class="mb-2">Description</h6>
+                                                    <p class="mb-0">@(string.IsNullOrEmpty(task.Description) ? "No description provided" : task.Description)</p>
+                                                </div>
                                             <!-- Comments Section -->
                                             <div class="mb-4">
-                                                <h5>Comments</h5>
-                                                <div id="comments-@task.Id" class="mb-3">
-                                                    @foreach (var comment in task.Comments)
+                                                <h6 class="mb-3">Comments</h6>
+                                                <div class="comments-container mb-3">
+                                                    @if (task.Comments != null && task.Comments.Any())
                                                     {
-                                                        <div class="card mb-2" role="article">
-                                                            <div class="card-body">
-                                                                <p class="card-text">@comment.Text</p>
-                                                                <small class="text-muted">
-                                                                    @comment.User.UserName - @comment.CreatedAt.ToString("MM/dd/yyyy HH:mm")
-                                                                </small>
+                                                        foreach (var comment in task.Comments.OrderByDescending(c => c.CreatedAt))
+                                                        {
+                                                            <div class="card mb-2" role="article" aria-label="Comment by @(string.IsNullOrEmpty(comment.User.FullName) ? comment.User.UserName : comment.User.FullName)">
+                                                                <div class="card-body py-2 px-3">
+                                                                    <p class="mb-1">@comment.Content</p>
+                                                                    <small class="text-muted">@(string.IsNullOrEmpty(comment.User.FullName) ? comment.User.UserName : comment.User.FullName) - @comment.CreatedAt.ToString("MM/dd/yyyy HH:mm")</small>
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="text-muted">No comments yet</p>
                                                     }
                                                 </div>
-                                                <form onsubmit="event.preventDefault(); postComment(@task.Id, this.querySelector('textarea').value);">
-                                                    <div class="mb-3">
-                                                        <label for="commentText-@task.Id" class="form-label">Add Comment</label>
-                                                        <textarea class="form-control" id="commentText-@task.Id" 
-                                                                  rows="3" aria-label="Comment input"></textarea>
+                                                <form asp-controller="Comments" asp-action="Create" method="post" class="comment-form">
+                                                    <input type="hidden" name="TaskId" value="@task.Id" />
+                                                    <div class="form-group mb-2">
+                                                        <label for="comment-@task.Id" class="visually-hidden">Add a comment</label>
+                                                        <textarea id="comment-@task.Id" name="Content" class="form-control" rows="3" placeholder="Add a comment..." required maxlength="1000" aria-describedby="comment-help-@task.Id"></textarea>
+                                                        <small id="comment-help-@task.Id" class="form-text text-muted">Maximum 1000 characters</small>
                                                     </div>
                                                     <button type="submit" class="btn btn-primary">
                                                         <i class="bi bi-chat-dots"></i> Post Comment
@@ -210,34 +199,37 @@
                                                 </form>
                                             </div>
 
-                                            <!-- Attachments Section -->
+                                            <!-- File Attachments Section -->
                                             <div>
-                                                <h5>Attachments</h5>
-                                                <div id="files-@task.Id" class="mb-3">
-                                                    @if (task.FileAttachments != null && task.FileAttachments.Any())
-                                                    {
-                                                        <ul class="list-unstyled">
-                                                            @foreach (var file in task.FileAttachments)
-                                                            {
-                                                                <li class="mb-2">
-                                                                    <a href="/Tasks/DownloadFile/@file.Id" 
-                                                                       class="text-decoration-none" download
-                                                                       aria-label="Download @file.FileName">
-                                                                        <i class="bi bi-file-earmark"></i> @file.FileName
-                                                                    </a>
-                                                                </li>
-                                                            }
-                                                        </ul>
-                                                    }
-                                                </div>
-                                                <form class="mb-3">
-                                                    <div class="mb-3">
-                                                        <label for="fileInput-@task.Id" class="form-label">Upload Files</label>
-                                                        <input type="file" class="form-control" id="fileInput-@task.Id" 
-                                                               multiple aria-label="Upload file" 
-                                                               onchange="handleFileUpload(@task.Id, this)">
-                                                        <div class="form-text">Maximum file size: 5MB. Allowed types: PDF, Word, Images</div>
+                                                <h6 class="mb-3">Attachments</h6>
+                                                @if (task.Attachments != null && task.Attachments.Any())
+                                                {
+                                                    <ul class="list-group mb-3" aria-label="File attachments for task">
+                                                        @foreach (var attachment in task.Attachments)
+                                                        {
+                                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                                <a href="@Url.Action("DownloadFile", "Tasks", new { id = attachment.Id })" class="text-decoration-none" aria-label="Download @attachment.FileName">
+                                                                    <i class="bi bi-file-earmark"></i> @attachment.FileName
+                                                                </a>
+                                                                <small class="text-muted">@attachment.UploadedAt.ToString("MM/dd/yyyy")</small>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                }
+                                                else
+                                                {
+                                                    <p class="text-muted mb-3">No attachments yet</p>
+                                                }
+                                                <form asp-controller="Tasks" asp-action="UploadFile" method="post" enctype="multipart/form-data">
+                                                    <input type="hidden" name="TaskId" value="@task.Id" />
+                                                    <div class="input-group mb-3">
+                                                        <label for="file-upload-@task.Id" class="visually-hidden">Upload file</label>
+                                                        <input type="file" id="file-upload-@task.Id" name="file" class="form-control" required aria-describedby="file-help-@task.Id">
+                                                        <button class="btn btn-primary" type="submit">
+                                                            <i class="bi bi-upload"></i> Upload File
+                                                        </button>
                                                     </div>
+                                                    <small id="file-help-@task.Id" class="form-text text-muted">Upload a file attachment for this task</small>
                                                 </form>
                                             </div>
                                         </div>
@@ -253,7 +245,7 @@
 </div>
 
 <!-- Add Member Modal -->
-@if (ViewData["IsManager"] != null && (bool)ViewData["IsManager"])
+@if (Model.IsManager || User.IsInRole("Admin"))
 {
     <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -262,26 +254,26 @@
                     <h5 class="modal-title" id="addMemberModalLabel">Add Team Member</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form asp-action="AddMember" asp-route-projectId="@Model.Id" method="post">
+                <form asp-action="AddMember" asp-route-projectId="@Model.Project.Id" method="post">
                     <div class="modal-body">
                         @Html.AntiForgeryToken()
                         <div class="mb-3">
-                            <label for="userId" class="form-label">Select User</label>
-                            <select name="userId" id="userId" class="form-select" required>
+                            <label for="modalUserId" class="form-label">Select User</label>
+                            <select name="userId" id="modalUserId" class="form-select" required aria-describedby="modalUserIdHelp">
                                 <option value="">-- Select User --</option>
-                                @if (ViewData["AvailableUsers"] != null)
+                                @foreach (var user in Model.AvailableUsers)
                                 {
-                                    foreach (var user in (List<SelectListItem>)ViewData["AvailableUsers"])
-                                    {
-                                        <option value="@user.Value">@user.Text</option>
-                                    }
+                                    <option value="@user.Value">@user.Text</option>
                                 }
                             </select>
+                            <div id="modalUserIdHelp" class="form-text">Select a user to add to this project</div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Member</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus"></i> Add Member
+                        </button>
                     </div>
                 </form>
             </div>
@@ -296,6 +288,11 @@
             select.addEventListener('change', function() {
                 const taskId = this.dataset.taskId;
                 const newStatus = this.value;
+                const statusCell = this.closest('td');
+                
+                // Show loading indicator
+                const originalContent = statusCell.innerHTML;
+                statusCell.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
 
                 fetch(`/Tasks/UpdateStatus/${taskId}`, {
                     method: 'POST',
@@ -307,17 +304,158 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    // Restore original content
+                    statusCell.innerHTML = originalContent;
+                    
                     if (data.success) {
                         notificationSystem.showNotification('Task status updated successfully', 'success');
+                        // Update the select value in case it was reset during the loading state
+                        select.value = newStatus;
                     } else {
                         notificationSystem.showNotification('Failed to update task status', 'danger');
                     }
                 })
                 .catch(error => {
+                    // Restore original content
+                    statusCell.innerHTML = originalContent;
+                    
                     console.error('Error:', error);
                     notificationSystem.showNotification('An error occurred while updating task status', 'danger');
                 });
             });
         });
+        
+        // Initialize event handlers for team member actions
+        function initializeTeamMemberActions() {
+            // Add confirmation for member removal
+            document.querySelectorAll('.remove-member-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const projectId = this.dataset.projectId;
+                    const userId = this.dataset.userId;
+                    const memberName = this.closest('tr').querySelector('td:first-child').textContent;
+                    
+                    if (confirm(`Remove ${memberName} from project?`)) {
+                        removeMember(projectId, userId);
+                    }
+                });
+            });
+            
+            // Handle add member form submission
+            document.querySelectorAll('.add-member-form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const projectId = this.dataset.projectId;
+                    const userId = this.querySelector('select[name="userId"]').value;
+                    
+                    if (!userId) {
+                        notificationSystem.showNotification('Please select a user', 'warning');
+                        return;
+                    }
+                    
+                    addMember(projectId, userId);
+                });
+            });
+        }
+        
+        // Function to remove a member via AJAX
+        function removeMember(projectId, userId) {
+            const teamMembersContainer = document.getElementById('team-members-container');
+            teamMembersContainer.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            
+            const formData = new FormData();
+            formData.append('projectId', projectId);
+            formData.append('userId', userId);
+            
+            // Get the anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            
+            fetch(`/Projects/RemoveMember/${projectId}/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Refresh the team members section
+                    refreshTeamMembers(projectId);
+                    notificationSystem.showNotification('Team member removed successfully', 'success');
+                } else {
+                    throw new Error('Failed to remove team member');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                notificationSystem.showNotification('An error occurred while removing the team member', 'danger');
+                refreshTeamMembers(projectId);
+            });
+        }
+        
+        // Function to add a member via AJAX
+        function addMember(projectId, userId) {
+            const teamMembersContainer = document.getElementById('team-members-container');
+            teamMembersContainer.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            
+            const formData = new FormData();
+            formData.append('projectId', projectId);
+            formData.append('userId', userId);
+            
+            // Get the anti-forgery token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            
+            fetch(`/Projects/AddMember/${projectId}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token
+                },
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Refresh the team members section
+                    refreshTeamMembers(projectId);
+                    notificationSystem.showNotification('Team member added successfully', 'success');
+                    
+                    // Reset the select dropdown
+                    document.querySelectorAll('select[name="userId"]').forEach(select => {
+                        select.selectedIndex = 0;
+                    });
+                    
+                    // Close modal if open
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addMemberModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                } else {
+                    throw new Error('Failed to add team member');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                notificationSystem.showNotification('An error occurred while adding the team member', 'danger');
+                refreshTeamMembers(projectId);
+            });
+        }
+        
+        // Function to refresh the team members section
+        function refreshTeamMembers(projectId) {
+            const teamMembersContainer = document.getElementById('team-members-container');
+            
+            fetch(`/Projects/GetTeamMembers/${projectId}`)
+            .then(response => response.text())
+            .then(html => {
+                teamMembersContainer.innerHTML = html;
+                initializeTeamMemberActions();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                teamMembersContainer.innerHTML = '<div class="alert alert-danger">Failed to load team members</div>';
+            });
+        }
+        
+        // Initialize team member actions when the page loads
+        initializeTeamMemberActions();
     </script>
 }

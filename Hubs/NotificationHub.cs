@@ -166,5 +166,44 @@ namespace Collaborative_Task_Management_System.Hubs
                 throw;
             }
         }
+        
+        // Method to send dashboard data update notification
+        public async Task SendDashboardUpdateNotification(string userId, int? projectId = null)
+        {
+            try
+            {
+                var throttleKey = $"{ThrottlePrefix}{userId}_dashboard_update";
+
+                // Check if we've sent a notification recently
+                if (!_cache.TryGetValue(throttleKey, out _))
+                {
+                    await Clients.User(userId).SendAsync("DashboardDataUpdated", projectId);
+
+                    // Set throttle cache
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(ThrottleSeconds))
+                        .SetPriority(CacheItemPriority.Low);
+
+                    _cache.Set(throttleKey, true, cacheEntryOptions);
+
+                    _logger.LogInformation(
+                        "Dashboard update notification sent to user {UserId}",
+                        userId);
+                }
+                else
+                {
+                    _logger.LogDebug(
+                        "Dashboard update notification throttled for user {UserId}",
+                        userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error sending dashboard update notification to user {UserId}",
+                    userId);
+                throw;
+            }
+        }
     }
 }

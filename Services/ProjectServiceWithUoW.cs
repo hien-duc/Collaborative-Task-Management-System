@@ -351,6 +351,32 @@ namespace Collaborative_Task_Management_System.Services
                 throw;
             }
         }
+        
+        public async Task<List<Project>> GetProjectsForUserAsync(string userId)
+        {
+            try
+            {
+                // Get projects where user is a member
+                var memberProjects = await _unitOfWork.Projects.GetProjectsByMemberAsync(userId);
+                
+                // Get projects created by the user
+                var ownedProjects = await _unitOfWork.Projects.GetProjectsByOwnerAsync(userId);
+                
+                // Combine both lists and remove duplicates
+                var allProjects = memberProjects.Concat(ownedProjects)
+                    .GroupBy(p => p.Id)
+                    .Select(g => g.First())
+                    .OrderByDescending(p => p.CreatedAt)
+                    .ToList();
+                    
+                return allProjects;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving projects for user {UserId}", userId);
+                throw;
+            }
+        }
 
         public async Task<bool> IsUserProjectMemberAsync(int projectId, string userId)
         {

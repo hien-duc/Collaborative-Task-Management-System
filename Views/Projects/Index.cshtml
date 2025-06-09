@@ -8,70 +8,93 @@
         <h1>Projects</h1>
         @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
         {
-            <a asp-action="Create" class="btn btn-primary">
+            <a asp-action="Create" class="btn btn-primary" data-bs-toggle="tooltip" 
+               title="Creating a project automatically makes you a Manager for that project"
+               aria-label="Create a new project">
                 <i class="bi bi-plus-lg"></i> Create Project
             </a>
         }
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover" aria-label="Projects table">
-                    <thead>
-                        <tr>
-                            <th scope="col" aria-label="Project Title">Title</th>
-                            <th scope="col" aria-label="Project Deadline">Deadline</th>
-                            <th scope="col" aria-label="Project Creator">Created By</th>
-                            <th scope="col" aria-label="Project Status">Status</th>
-                            <th scope="col" aria-label="Actions">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var project in Model)
-                        {
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <p>No projects found. Create one to get started.</p>
+            @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
+            {
+                <a asp-action="Create" class="btn btn-primary mt-2">
+                    <i class="bi bi-plus-lg"></i> Create Project
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive mt-3">
+                    <table class="table table-hover" aria-label="Projects table">
+                        <thead>
                             <tr>
-                                <td>
-                                    <a asp-action="Details" asp-route-id="@project.Id" class="text-decoration-none">
-                                        @project.Title
-                                    </a>
-                                </td>
-                                <td>@project.Deadline.ToString("MMM dd, yyyy")</td>
-                                <td>@project.CreatedBy.UserName</td>
-                                <td>
-                                    <span class="badge bg-@(project.Status == ProjectStatus.Completed ? "success" : 
-                                                        project.Status == ProjectStatus.Active ? "warning" : "primary")">
-                                        @project.Status
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group" aria-label="Project actions">
-                                        <a asp-action="Details" asp-route-id="@project.Id" 
-                                           class="btn btn-sm btn-info" aria-label="View project details">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        @if (User.IsInRole("Manager") || User.IsInRole("Admin") || 
-                                             project.CreatedBy.Id == User.Identity.GetUserId())
-                                        {
-                                            <a asp-action="Edit" asp-route-id="@project.Id" 
-                                               class="btn btn-sm btn-warning" aria-label="Edit project">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-sm btn-danger" 
-                                                    data-bs-toggle="modal" data-bs-target="#deleteModal@(project.Id)"
-                                                    aria-label="Delete project">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        }
-                                    </div>
-                                </td>
+                                <th scope="col" aria-label="Project Title">Title</th>
+                                <th scope="col" aria-label="Project Deadline">Deadline</th>
+                                <th scope="col" aria-label="Project Creator">Created By</th>
+                                <th scope="col" aria-label="Project Members">Members</th>
+                                <th scope="col" aria-label="Project Status">Status</th>
+                                <th scope="col" aria-label="Actions">Actions</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var project in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-action="Details" asp-route-id="@project.Id" class="text-decoration-none">
+                                            @project.Title
+                                        </a>
+                                    </td>
+                                    <td>@project.Deadline.ToString("MM/dd/yyyy")</td>
+                                    <td>@(string.IsNullOrEmpty(project.CreatedBy.FullName) ? project.CreatedBy.UserName : project.CreatedBy.FullName)</td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            @(project.TeamMembers != null ? project.TeamMembers.Count : 0) members
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@(project.Status == ProjectStatus.Completed ? "success" : 
+                                                            project.Status == ProjectStatus.Active ? "warning" : "primary")">
+                                            @project.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group" aria-label="Project actions">
+                                            <a asp-action="Details" asp-route-id="@project.Id" 
+                                               class="btn btn-sm btn-info me-1" aria-label="View project @project.Title details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            @if (User.IsInRole("Manager") || User.IsInRole("Admin") || 
+                                                 project.CreatedBy.Id == User.Identity.GetUserId())
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@project.Id" 
+                                                   class="btn btn-sm btn-warning me-1" aria-label="Edit project @project.Title">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-danger" 
+                                                        data-bs-toggle="modal" data-bs-target="#deleteModal@(project.Id)"
+                                                        aria-label="Delete project @project.Title">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
+    }
 
     <!-- Move modals outside the table -->
     @foreach (var project in Model)

@@ -9,6 +9,166 @@ const connection = new signalR.HubConnectionBuilder()
     })
     .configureLogging(signalR.LogLevel.Information)
     .build();
+    
+// Dashboard update handler
+connection.on('DashboardDataUpdated', function(projectId) {
+    console.log('Dashboard update received', projectId ? `for project ${projectId}` : 'for all projects');
+    updateDashboardData(projectId);
+});
+
+// Function to update dashboard data
+function updateDashboardData(projectId) {
+    // Only update if we're on the dashboard page
+    if (!document.querySelector('.dashboard-container')) {
+        return;
+    }
+    
+    // Show loading indicator in the alerts container
+    const alertsContainer = document.querySelector('.alerts-container');
+    if (alertsContainer) {
+        const loadingAlert = document.createElement('div');
+        loadingAlert.className = 'alert alert-info alert-dismissible fade show';
+        loadingAlert.setAttribute('role', 'alert');
+        loadingAlert.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-2" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span>Updating dashboard data...</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        alertsContainer.appendChild(loadingAlert);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            if (loadingAlert && loadingAlert.parentNode) {
+                const bsAlert = new bootstrap.Alert(loadingAlert);
+                bsAlert.close();
+            }
+        }, 5000);
+    }
+    
+    // Fetch updated dashboard data
+    const url = projectId ? `/Home/GetDashboardData?projectId=${projectId}` : '/Home/GetDashboardData';
+    
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Update summary cards
+            updateSummaryCards(data);
+            
+            // Update charts
+            updateTaskStatusChart(data.taskStatusSummary);
+            updateProjectProgressChart(data.projectProgress);
+            
+            // Show success notification
+            if (alertsContainer) {
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success alert-dismissible fade show';
+                successAlert.setAttribute('role', 'alert');
+                successAlert.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <span>Dashboard updated successfully!</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                alertsContainer.appendChild(successAlert);
+                
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    if (successAlert && successAlert.parentNode) {
+                        const bsAlert = new bootstrap.Alert(successAlert);
+                        bsAlert.close();
+                    }
+                }, 5000);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating dashboard:', error);
+            
+            // Show error notification
+            if (alertsContainer) {
+                const errorAlert = document.createElement('div');
+                errorAlert.className = 'alert alert-danger alert-dismissible fade show';
+                errorAlert.setAttribute('role', 'alert');
+                errorAlert.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span>Error updating dashboard. Please refresh the page.</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                alertsContainer.appendChild(errorAlert);
+                
+                // Auto-dismiss after 10 seconds
+                setTimeout(() => {
+                    if (errorAlert && errorAlert.parentNode) {
+                        const bsAlert = new bootstrap.Alert(errorAlert);
+                        bsAlert.close();
+                    }
+                }, 10000);
+            }
+        });
+}
+
+// Function to update summary cards
+function updateSummaryCards(data) {
+    // Update total projects
+    const totalProjectsElement = document.querySelector('.total-projects');
+    if (totalProjectsElement) {
+        totalProjectsElement.textContent = data.totalProjects;
+    }
+    
+    // Update total tasks
+    const totalTasksElement = document.querySelector('.total-tasks');
+    if (totalTasksElement) {
+        totalTasksElement.textContent = data.totalTasks;
+    }
+    
+    // Update completed tasks
+    const completedTasksElement = document.querySelector('.completed-tasks');
+    if (completedTasksElement) {
+        completedTasksElement.textContent = data.completedTasks;
+    }
+    
+    // Update completion rate
+    const completionRateElement = document.querySelector('.completion-rate');
+    if (completionRateElement) {
+        completionRateElement.textContent = `${Math.round(data.completionRate)}%`;
+    }
+}
+
+// Function to update task status chart
+function updateTaskStatusChart(statusData) {
+    const taskStatusChart = Chart.getChart('taskStatusChart');
+    if (taskStatusChart) {
+        taskStatusChart.data.datasets[0].data = [
+            statusData.toDoCount,
+            statusData.inProgressCount,
+            statusData.underReviewCount,
+            statusData.completedCount,
+            statusData.blockedCount
+        ];
+        taskStatusChart.update();
+    }
+}
+
+// Function to update project progress chart
+function updateProjectProgressChart(projectsData) {
+    const projectProgressChart = Chart.getChart('projectProgressChart');
+    if (projectProgressChart) {
+        projectProgressChart.data.labels = projectsData.map(p => p.projectTitle);
+        projectProgressChart.data.datasets[0].data = projectsData.map(p => p.completionPercentage);
+        projectProgressChart.update();
+    }
+}
 
 // Theme Management
 const themeManager = {
@@ -78,8 +238,38 @@ const notificationSystem = {
 };
 
 // SignalR Event Handlers
-connection.on("ReceiveNotification", (message) => {
-    notificationSystem.showNotification(message);
+connection.on("ReceiveNotification", (message, type) => {
+    notificationSystem.showNotification(message, type || 'info');
+});
+
+// Handle project membership notifications
+connection.on("ProjectMembershipChanged", (projectId, projectTitle, action) => {
+    let message = '';
+    let type = 'info';
+    
+    if (action === 'added') {
+        message = `You were added to project: ${projectTitle}`;
+        type = 'info';
+    } else if (action === 'removed') {
+        message = `You were removed from project: ${projectTitle}`;
+        type = 'warning';
+    }
+    
+    if (message) {
+        const alert = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                <i class="bi bi-info-circle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        
+        const alertsContainer = document.querySelector('.alerts-container');
+        if (alertsContainer) {
+            alertsContainer.innerHTML += alert;
+        } else {
+            notificationSystem.showNotification(message, type);
+        }
+    }
 });
 
 connection.on("TaskUpdated", (taskId, status, taskTitle) => {
@@ -384,6 +574,111 @@ function getStatusColor(status) {
     return statusColors[status] || 'secondary';
 }
 
+// Team Member Management
+function initTeamMemberManagement() {
+    // Add member form submission
+    const addMemberForms = document.querySelectorAll('.add-member-form');
+    addMemberForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const projectId = this.getAttribute('data-project-id');
+            const userId = this.querySelector('select[name="userId"]').value;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            
+            if (!userId) {
+                notificationSystem.showNotification('Please select a user to add', 'warning');
+                return;
+            }
+            
+            fetch(`/Projects/AddMember/${projectId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: `userId=${encodeURIComponent(userId)}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add team member');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Reload the team members section
+                const teamMembersSection = document.querySelector('.team-members-section');
+                if (teamMembersSection) {
+                    teamMembersSection.innerHTML = html;
+                    // Re-initialize event handlers for the new content
+                    initTeamMemberManagement();
+                }
+                notificationSystem.showNotification('Team member added successfully', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                notificationSystem.showNotification('Failed to add team member', 'danger');
+            });
+        });
+    });
+    
+    // Remove member buttons
+    const removeMemberButtons = document.querySelectorAll('.remove-member-btn');
+    removeMemberButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!confirm('Are you sure you want to remove this member?')) {
+                return;
+            }
+            
+            const projectId = this.getAttribute('data-project-id');
+            const userId = this.getAttribute('data-user-id');
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            
+            fetch(`/Projects/RemoveMember/${projectId}/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to remove team member');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Reload the team members section
+                const teamMembersSection = document.querySelector('.team-members-section');
+                if (teamMembersSection) {
+                    teamMembersSection.innerHTML = html;
+                    // Re-initialize event handlers for the new content
+                    initTeamMemberManagement();
+                }
+                notificationSystem.showNotification('Team member removed successfully', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                notificationSystem.showNotification('Failed to remove team member', 'danger');
+            });
+        });
+    });
+}
+
+// Project Filter Functionality
+function initProjectFilters() {
+    // Handle project filter dropdowns
+    const projectFilterForms = document.querySelectorAll('.project-filter-form');
+    projectFilterForms.forEach(form => {
+        const select = form.querySelector('select[name="projectId"]');
+        if (select) {
+            select.addEventListener('change', function() {
+                form.submit();
+            });
+        }
+    });
+}
+
 // Initialize features
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize theme
@@ -396,6 +691,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize popovers
     const popovers = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     popovers.forEach(popover => new bootstrap.Popover(popover));
+    
+    // Initialize team member management
+    initTeamMemberManagement();
+    
+    // Initialize project filters
+    initProjectFilters();
 
     // Start SignalR connection after a short delay to ensure auth is ready
     setTimeout(() => {

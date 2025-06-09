@@ -1,0 +1,164 @@
+@model IEnumerable<TaskItem>
+@{
+    ViewData["Title"] = "My Tasks";
+    var projects = ViewData["Projects"] as List<SelectListItem>;
+    var selectedProjectId = ViewData["SelectedProjectId"];
+}
+
+<div class="container py-4">
+    <h1 class="mb-4">My Tasks</h1>
+    
+    <!-- Project Filter Form -->
+    <form asp-action="MyTasks" method="get" class="mb-3 project-filter-form">
+        <div class="row g-3 align-items-center">
+            <div class="col-auto">
+                <select name="projectId" class="form-select form-select-sm" aria-label="Filter by project" onchange="this.form.submit()">
+                    @foreach (var project in projects)
+                    {
+                        <option value="@project.Value" @(project.Selected ? "selected" : "")>@project.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-sm" aria-label="Apply filter">Filter</button>
+            </div>
+        </div>
+    </form>
+    
+    <!-- Tasks Table -->
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            <i class="bi bi-info-circle me-2"></i> No tasks found.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive mt-3">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col" aria-label="Task title">Title</th>
+                        <th scope="col" aria-label="Project name">Project</th>
+                        <th scope="col" aria-label="Task status">Status</th>
+                        <th scope="col" aria-label="Task priority">Priority</th>
+                        <th scope="col" aria-label="Due date">Due Date</th>
+                        <th scope="col" aria-label="Actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var task in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a href="/Tasks/Details/@task.Id" class="text-decoration-none">@task.Title</a>
+                            </td>
+                            <td>
+                                <a href="/Projects/Details/@task.ProjectId" class="text-decoration-none">@task.Project.Title</a>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm task-status-select" 
+                                        data-task-id="@task.Id" 
+                                        aria-label="Change task status">
+                                    @foreach (TaskStatus status in Enum.GetValues(typeof(TaskStatus)))
+                                    {
+                                        <option value="@status" @(task.Status == status ? "selected" : "")>@status</option>
+                                    }
+                                </select>
+                            </td>
+                            <td>
+                                <span class="badge bg-@(task.Priority == "High" ? "danger" : 
+                                                task.Priority == "Medium" ? "warning" : "info")">
+                                    @task.Priority
+                                </span>
+                            </td>
+                            <td>
+                                <span class="@(task.DueDate < DateTime.Today ? "text-danger" : "")">
+                                    @task.DueDate.ToString("MMM dd, yyyy")
+                                </span>
+                            </td>
+                            <td>
+                                @if (task.AssignedUserId == User.Identity.GetUserId() || User.IsInRole("Manager") || User.IsInRole("Admin"))
+                                {
+                                    <a href="/Tasks/Edit/@task.Id" class="btn btn-warning btn-sm" aria-label="Edit task">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle status change via AJAX
+            $('.task-status-select').change(function() {
+                const taskId = $(this).data('task-id');
+                const newStatus = $(this).val();
+                const $select = $(this);
+                
+                // Show loading indicator
+                $select.prop('disabled', true);
+                
+                $.ajax({
+                    url: '/Tasks/UpdateStatus',
+                    type: 'POST',
+                    data: { id: taskId, status: newStatus },
+                    success: function(response) {
+                        // Show success indicator briefly
+                        $select.addClass('border-success');
+                        setTimeout(function() {
+                            $select.removeClass('border-success');
+                        }, 2000);
+                    },
+                    error: function(xhr, status, error) {
+                        // Show error and revert to previous value
+                        console.error('Error updating status:', error);
+                        $select.addClass('border-danger');
+                        setTimeout(function() {
+                            $select.removeClass('border-danger');
+                        }, 2000);
+                        // You might want to revert the select to its previous value here
+                    },
+                    complete: function() {
+                        $select.prop('disabled', false);
+                    }
+                });
+            });
+            
+            // Optional: AJAX for project filter form
+            // Uncomment this section if you want to implement AJAX filtering
+            /*
+            $('select[name="projectId"]').change(function() {
+                const projectId = $(this).val();
+                
+                $.ajax({
+                    url: '/Tasks/MyTasks',
+                    type: 'GET',
+                    data: { projectId: projectId },
+                    success: function(response) {
+                        // Replace the table content with the new filtered data
+                        $('.table-responsive').html($(response).find('.table-responsive').html());
+                        
+                        // Reattach event handlers to the new elements
+                        $('.task-status-select').change(function() {
+                            // Copy the status change handler here
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error filtering tasks:', error);
+                    }
+                });
+                
+                // Prevent the default form submission
+                return false;
+            });
+            */
+        });
+    </script>
+}

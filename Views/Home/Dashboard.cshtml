@@ -1,16 +1,17 @@
-@model DashboardViewModel
+@model Collaborative_Task_Management_System.Models.DashboardViewModel
+
 @{
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="container-fluid py-4">
+<div class="container-fluid mt-4 dashboard-container">
     <!-- Summary Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Projects</h5>
-                    <h2 class="card-text">@Model.TotalProjects</h2>
+                    <h2 class="card-text total-projects">@Model.TotalProjects</h2>
                 </div>
             </div>
         </div>
@@ -18,7 +19,7 @@
             <div class="card bg-info text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Tasks</h5>
-                    <h2 class="card-text">@Model.TotalTasks</h2>
+                    <h2 class="card-text total-tasks">@Model.TotalTasks</h2>
                 </div>
             </div>
         </div>
@@ -26,7 +27,7 @@
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <h5 class="card-title">Completed Tasks</h5>
-                    <h2 class="card-text">@Model.CompletedTasks</h2>
+                    <h2 class="card-text completed-tasks">@Model.CompletedTasks</h2>
                 </div>
             </div>
         </div>
@@ -34,16 +35,92 @@
             <div class="card bg-warning text-dark">
                 <div class="card-body">
                     <h5 class="card-title">Completion Rate</h5>
-                    <h2 class="card-text">@Model.OverallCompletionRate.ToString("F1")%</h2>
+                    <h2 class="card-text completion-rate">@Model.OverallCompletionRate.ToString("F1")%</h2>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Task Status Chart -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
+    <div class="row mb-3">
+        <!-- Tasks Column -->
+        <div class="col-md-6 mb-3">
+            <!-- My Tasks Section -->
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">My Tasks</h5>
+                    <!-- Project Filter Form -->
+                    <form asp-action="Dashboard" method="get" class="d-flex align-items-center project-filter-form">
+                        <div class="me-2">
+                            <select name="projectId" class="form-select form-select-sm" aria-label="Filter by project" onchange="this.form.submit()">
+                                @foreach (var project in ViewData["Projects"] as List<SelectListItem>)
+                                {
+                                    <option value="@project.Value" @(project.Selected ? "selected" : "")>@project.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm" aria-label="Apply filter">
+                            <i class="bi bi-filter"></i> Filter
+                        </button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Tasks.Any())
+                    {
+                        <div class="alert alert-info" role="alert">
+                            <i class="bi bi-info-circle me-2"></i> No tasks found.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" aria-label="Task title">Title</th>
+                                        <th scope="col" aria-label="Project name">Project</th>
+                                        <th scope="col" aria-label="Task status">Status</th>
+                                        <th scope="col" aria-label="Actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var task in Model.Tasks.OrderBy(t => t.DueDate))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a href="/Tasks/Details/@task.Id" class="text-decoration-none">@task.Title</a>
+                                            </td>
+                                            <td>
+                                                <a href="/Projects/Details/@task.ProjectId" class="text-decoration-none">@task.Project?.Title</a>
+                                            </td>
+                                            <td>
+                                                <select class="form-select form-select-sm task-status-select" 
+                                                        data-task-id="@task.Id" 
+                                                        aria-label="Change task status">
+                                                    @foreach (TaskStatus status in Enum.GetValues(typeof(TaskStatus)))
+                                                    {
+                                                        <option value="@status" @(task.Status == status ? "selected" : "")>@status</option>
+                                                    }
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("Edit", "Tasks", new { id = task.Id })" class="btn btn-warning btn-sm" aria-label="Edit task">
+                                                    <i class="bi bi-pencil"></i> Edit
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Column -->
+        <div class="col-md-6 mb-3">
+            <!-- Task Status Chart -->
+            <div class="card mb-3">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Task Status Distribution</h5>
                 </div>
@@ -51,82 +128,71 @@
                     <canvas id="taskStatusChart"></canvas>
                 </div>
             </div>
-        </div>
 
-        <!-- Project Progress Chart -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
+            <!-- Project Progress Chart -->
+            <div class="card mb-3">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Project Progress</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="projectProgressChart"></canvas>
+                    <canvas id="projectProgressChart" aria-label="Project progress chart" role="img"></canvas>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- My Tasks Table -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="card-title mb-0">My Tasks</h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Project</th>
-                            <th>Due Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var task in Model.Tasks.OrderBy(t => t.DueDate))
-                        {
-                            <tr>
-                                <td>@task.Title</td>
-                                <td>@task.Project?.Title</td>
-                                <td>@task.DueDate.ToString("MMM dd, yyyy")</td>
-                                <td>
-                                    <span class="badge bg-@(task.Status switch {
-                                        TaskStatus.ToDo => "secondary",
-                                        TaskStatus.InProgress => "primary",
-                                        TaskStatus.UnderReview => "info",
-                                        TaskStatus.Completed => "success",
-                                        TaskStatus.Blocked => "danger",
-                                        _ => "secondary"
-                                    })">@task.Status</span>
-                                </td>
-                                <td>
-                                    <a href="@Url.Action("Edit", "Tasks", new { id = task.Id })" class="btn btn-sm btn-primary">
-                                        <i class="bi bi-pencil"></i> Edit
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <style>
+        .dashboard-update-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            min-width: 300px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Task Status Chart
-        const taskStatusCtx = document.getElementById('taskStatusChart').getContext('2d');
-        new Chart(taskStatusCtx, {
+        var taskStatusCtx = document.getElementById('taskStatusChart').getContext('2d');
+        var taskStatusChart = new Chart(taskStatusCtx, {
             type: 'doughnut',
             data: {
                 labels: ['To Do', 'In Progress', 'Under Review', 'Completed', 'Blocked'],
                 datasets: [{
-                    data: [@Model.StatusSummary.Pending, @Model.StatusSummary.InProgress,
-                          @Model.StatusSummary.UnderReview, @Model.StatusSummary.Completed, @Model.StatusSummary.Blocked],
-                    backgroundColor: ['#6c757d', '#0d6efd', '#17a2b8', '#198754', '#dc3545']
+                    data: [
+                        @Model.TaskStatusSummary.ToDoCount,
+                        @Model.TaskStatusSummary.InProgressCount,
+                        @Model.TaskStatusSummary.UnderReviewCount,
+                        @Model.TaskStatusSummary.CompletedCount,
+                        @Model.TaskStatusSummary.BlockedCount
+                    ],
+                    backgroundColor: [
+                        'rgba(108, 117, 125, 0.7)',  // secondary - To Do
+                        'rgba(13, 110, 253, 0.7)',  // primary - In Progress
+                        'rgba(13, 202, 240, 0.7)',  // info - Under Review
+                        'rgba(25, 135, 84, 0.7)',   // success - Completed
+                        'rgba(220, 53, 69, 0.7)'    // danger - Blocked
+                    ],
+                    borderColor: [
+                        'rgba(108, 117, 125, 1)',
+                        'rgba(13, 110, 253, 1)',
+                        'rgba(13, 202, 240, 1)',
+                        'rgba(25, 135, 84, 1)',
+                        'rgba(220, 53, 69, 1)'
+                    ],
+                    borderWidth: 1
                 }]
             },
             options: {
@@ -140,15 +206,17 @@
         });
 
         // Project Progress Chart
-        const projectProgressCtx = document.getElementById('projectProgressChart').getContext('2d');
-        new Chart(projectProgressCtx, {
+        var projectProgressCtx = document.getElementById('projectProgressChart').getContext('2d');
+        var projectProgressChart = new Chart(projectProgressCtx, {
             type: 'bar',
             data: {
-                labels: [@Html.Raw(string.Join(",", Model.ProjectAnalytics.Select(p => $"\"{p.ProjectName}\"")))],
+                labels: [@Html.Raw(string.Join(",", Model.ProjectProgress.Select(p => $"'{p.ProjectTitle}'").ToArray()))],
                 datasets: [{
-                    label: 'Completion Rate (%)',
-                    data: [@string.Join(",", Model.ProjectAnalytics.Select(p => p.CompletionPercentage.ToString("F1")))],
-                    backgroundColor: '#0d6efd'
+                    label: 'Completion %',
+                    data: [@string.Join(",", Model.ProjectProgress.Select(p => p.CompletionPercentage))],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
                 }]
             },
             options: {
@@ -156,44 +224,109 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 100
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
                     }
                 }
             }
         });
 
-        // Handle task status updates
-        document.querySelectorAll('.task-status-select').forEach(select => {
-            select.addEventListener('change', function() {
-                const taskId = this.dataset.taskId;
-                const newStatus = this.value;
-
-                fetch(`/Tasks/UpdateStatus/${taskId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+        // Task Status Update via AJAX
+        $(document).ready(function() {
+            $('.task-status-select').change(function() {
+                var taskId = $(this).data('task-id');
+                var newStatus = $(this).val();
+                
+                $.ajax({
+                    url: '/Tasks/UpdateStatus',
+                    type: 'POST',
+                    data: { id: taskId, status: newStatus },
+                    success: function(result) {
+                        if (result.success) {
+                            toastr.success('Task status updated successfully');
+                            // No need to reload the page - dashboard will be updated via SignalR
+                        } else {
+                            toastr.error('Failed to update task status');
+                        }
                     },
-                    body: JSON.stringify({ status: newStatus })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        notificationSystem.showNotification('Task status updated successfully', 'success');
-                    } else {
-                        notificationSystem.showNotification('Failed to update task status', 'danger');
+                    error: function() {
+                        toastr.error('An error occurred while updating task status');
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    notificationSystem.showNotification('An error occurred while updating task status', 'danger');
                 });
             });
-        })
-        </script>
+        });
+
+        // SignalR connection for real-time notifications
+        var connection = new signalR.HubConnectionBuilder().withUrl("/notificationHub").build();
+        
+        connection.on("ReceiveNotification", function (message) {
+            toastr.info(message);
+        });
+        
+        // Handle dashboard data updates
+        connection.on("DashboardDataUpdated", function () {
+            updateDashboardData();
+        });
+        
+        connection.start().catch(function (err) {
+            console.error(err.toString());
+        });
+        
+        // Function to update dashboard data
+        function updateDashboardData() {
+            // Show loading indicator
+            var loadingAlert = $('<div class="alert alert-info dashboard-update-alert" role="alert"><i class="bi bi-arrow-repeat spinner"></i> Updating dashboard data...</div>');
+            $('.dashboard-container').prepend(loadingAlert);
+            
+            $.ajax({
+                url: '/Home/GetDashboardData',
+                type: 'GET',
+                success: function(data) {
+                    // Update summary cards
+                    $('.total-projects').text(data.totalProjects);
+                    $('.total-tasks').text(data.totalTasks);
+                    $('.completed-tasks').text(data.completedTasks);
+                    $('.completion-rate').text(data.overallCompletionRate.toFixed(1) + '%');
+                    
+                    // Update task status chart
+                    taskStatusChart.data.datasets[0].data = [
+                        data.taskStatusSummary.toDoCount,
+                        data.taskStatusSummary.inProgressCount,
+                        data.taskStatusSummary.underReviewCount,
+                        data.taskStatusSummary.completedCount,
+                        data.taskStatusSummary.blockedCount
+                    ];
+                    taskStatusChart.update();
+                    
+                    // Update project progress chart
+                    projectProgressChart.data.labels = data.projectProgress.map(p => p.projectTitle);
+                    projectProgressChart.data.datasets[0].data = data.projectProgress.map(p => p.completionPercentage);
+                    projectProgressChart.update();
+                    
+                    // Show success message and remove loading indicator
+                    loadingAlert.removeClass('alert-info').addClass('alert-success')
+                        .html('<i class="bi bi-check-circle"></i> Dashboard updated successfully!');
+                    
+                    // Remove the alert after 3 seconds
+                    setTimeout(function() {
+                        loadingAlert.fadeOut('slow', function() { $(this).remove(); });
+                    }, 3000);
+                },
+                error: function() {
+                    // Show error message and remove loading indicator
+                    loadingAlert.removeClass('alert-info').addClass('alert-danger')
+                        .html('<i class="bi bi-exclamation-triangle"></i> Failed to update dashboard data.');
+                    
+                    // Remove the alert after 5 seconds
+                    setTimeout(function() {
+                        loadingAlert.fadeOut('slow', function() { $(this).remove(); });
+                    }, 5000);
+                }
+            });
+        }
+    </script>
 }

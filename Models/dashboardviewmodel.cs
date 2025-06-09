@@ -10,7 +10,7 @@ namespace Collaborative_Task_Management_System.Models
         
         public class ProjectProgress
         {
-            public string ProjectName { get; set; }
+            public string ProjectTitle { get; set; }
             public int TotalTasks { get; set; }
             public int CompletedTasks { get; set; }
             public double CompletionPercentage => TotalTasks > 0 
@@ -18,18 +18,18 @@ namespace Collaborative_Task_Management_System.Models
                 : 0;
         }
         
-        public List<ProjectProgress> ProjectAnalytics { get; set; } = new();
+        public List<ProjectProgress> ProjectProgress { get; set; } = new();
         
         public class TaskStatusSummary
         {
-            public int Pending { get; set; }
-            public int InProgress { get; set; }
-            public int UnderReview { get; set; }
-            public int Completed { get; set; }
-            public int Blocked { get; set; }
+            public int ToDoCount { get; set; }
+            public int InProgressCount { get; set; }
+            public int UnderReviewCount { get; set; }
+            public int CompletedCount { get; set; }
+            public int BlockedCount { get; set; }
         }
         
-        public TaskStatusSummary StatusSummary { get; set; } = new();
+        public TaskStatusSummary TaskStatusSummary { get; set; } = new();
         
         public int TotalProjects => Projects?.Count ?? 0;
         public int TotalTasks => Tasks?.Count ?? 0;

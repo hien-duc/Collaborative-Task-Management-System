@@ -9,6 +9,9 @@ using Collaborative_Task_Management_System.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Security.Claims;
 using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus;
+using Microsoft.AspNetCore.SignalR;
+using Collaborative_Task_Management_System.Hubs;
+using Collaborative_Task_Management_System.Controllers;
 
 namespace Collaborative_Task_Management_System.Controllers
 {
@@ -19,19 +22,25 @@ namespace Collaborative_Task_Management_System.Controllers
         private readonly IProjectServiceWithUoW _projectService;
         private readonly INotificationServiceWithUoW _notificationService;
         private readonly ILogger<TasksController> _logger;
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly HomeController _homeController;
 
         public TasksController(
         ITaskServiceWithUoW taskService,
         IProjectServiceWithUoW projectService,
         INotificationServiceWithUoW notificationService,
         UserManager<ApplicationUser> userManager,
-        ILogger<TasksController> logger)
+        ILogger<TasksController> logger,
+        IHubContext<NotificationHub> hubContext,
+        HomeController homeController)
         : base(userManager)
     {
         _taskService = taskService;
         _projectService = projectService;
         _notificationService = notificationService;
         _logger = logger;
+        _hubContext = hubContext;
+        _homeController = homeController;
     }
 
         // GET: Tasks/Create/5 (projectId)
@@ -56,8 +65,22 @@ namespace Collaborative_Task_Management_System.Controllers
 
             ViewBag.ProjectId = projectId.Value;
             
-            // Convert users to SelectListItems
-            var users = await _userManager.Users.ToListAsync();
+            // Get project members and manager for the assignee dropdown
+            var project = await _projectService.GetProjectByIdAsync(projectId.Value);
+            var projectMembers = await _projectService.GetProjectMembersAsync(projectId.Value);
+            var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+            
+            // Add project manager if not already in the list
+            if (!memberIds.Contains(project.CreatedById))
+            {
+                memberIds.Add(project.CreatedById);
+            }
+            
+            // Filter users to only include project members and manager
+            var users = await _userManager.Users
+                .Where(u => memberIds.Contains(u.Id))
+                .ToListAsync();
+                
             ViewBag.Users = users.Select(u => new SelectListItem()
             {
                 Value = u.Id,
@@ -114,8 +137,22 @@ namespace Collaborative_Task_Management_System.Controllers
                 
 
 
-                // If we got this far, something failed; repopulate the users list
-                var users = await _userManager.Users.ToListAsync();
+                // If we got this far, something failed; repopulate the users list with project members
+                var project = await _projectService.GetProjectByIdAsync(task.ProjectId);
+                var projectMembers = await _projectService.GetProjectMembersAsync(task.ProjectId);
+                var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+                
+                // Add project manager if not already in the list
+                if (!memberIds.Contains(project.CreatedById))
+                {
+                    memberIds.Add(project.CreatedById);
+                }
+                
+                // Filter users to only include project members and manager
+                var users = await _userManager.Users
+                    .Where(u => memberIds.Contains(u.Id))
+                    .ToListAsync();
+                    
                 ViewBag.Users = users.Select(u => new SelectListItem
                 {
                     Value = u.Id,
@@ -131,14 +168,42 @@ namespace Collaborative_Task_Management_System.Controllers
                 _logger.LogError(ex, "Error creating task");
                 ModelState.AddModelError("", "Error creating task. Please try again later.");
                 
-                // Repopulate the users list in case of error
-                var users = await _userManager.Users.ToListAsync();
-                ViewBag.Users = users.Select(u => new SelectListItem
+                // Repopulate the users list in case of error with project members
+                if (task?.ProjectId != null)
                 {
-                    Value = u.Id,
-                    Text = u.FullName ?? u.UserName,
-                    Selected = u.Id == task?.AssignedToId
-                }).ToList();
+                    var project = await _projectService.GetProjectByIdAsync(task.ProjectId);
+                    var projectMembers = await _projectService.GetProjectMembersAsync(task.ProjectId);
+                    var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+                    
+                    // Add project manager if not already in the list
+                    if (!memberIds.Contains(project.CreatedById))
+                    {
+                        memberIds.Add(project.CreatedById);
+                    }
+                    
+                    // Filter users to only include project members and manager
+                    var users = await _userManager.Users
+                        .Where(u => memberIds.Contains(u.Id))
+                        .ToListAsync();
+                        
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task.AssignedToId
+                    }).ToList();
+                }
+                else
+                {
+                    // Fallback if project ID is null
+                    var users = await _userManager.Users.ToListAsync();
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task?.AssignedToId
+                    }).ToList();
+                }
                 
                 ViewBag.ProjectId = task?.ProjectId;
                 return View(task);
@@ -165,7 +230,22 @@ namespace Collaborative_Task_Management_System.Controllers
                 return Forbid();
             }
 
-            var users = await _userManager.Users.ToListAsync();
+            // Get project members and manager for the assignee dropdown
+            var project = await _projectService.GetProjectByIdAsync(task.ProjectId);
+            var projectMembers = await _projectService.GetProjectMembersAsync(task.ProjectId);
+            var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+            
+            // Add project manager if not already in the list
+            if (!memberIds.Contains(project.CreatedById))
+            {
+                memberIds.Add(project.CreatedById);
+            }
+            
+            // Filter users to only include project members and manager
+            var users = await _userManager.Users
+                .Where(u => memberIds.Contains(u.Id))
+                .ToListAsync();
+                
             ViewBag.Users = users.Select(u => new SelectListItem
             {
                 Value = u.Id,
@@ -215,14 +295,88 @@ namespace Collaborative_Task_Management_System.Controllers
                     return RedirectToAction("Details", "Projects", new { id = task.ProjectId });
                 }
 
-                ViewBag.Users = await _userManager.Users.ToListAsync();
+                // Repopulate the users list in case of error with project members
+                if (task?.ProjectId != null)
+                {
+                    var project = await _projectService.GetProjectByIdAsync(task.ProjectId);
+                    var projectMembers = await _projectService.GetProjectMembersAsync(task.ProjectId);
+                    var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+                    
+                    // Add project manager if not already in the list
+                    if (!memberIds.Contains(project.CreatedById))
+                    {
+                        memberIds.Add(project.CreatedById);
+                    }
+                    
+                    // Filter users to only include project members and manager
+                    var users = await _userManager.Users
+                        .Where(u => memberIds.Contains(u.Id))
+                        .ToListAsync();
+                        
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task.AssignedToId
+                    }).ToList();
+                }
+                else
+                {
+                    // Fallback if project ID is null
+                    var users = await _userManager.Users.ToListAsync();
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task?.AssignedToId
+                    }).ToList();
+                }
+                
+                ViewBag.ProjectId = task?.ProjectId;
                 return View(task);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating task {TaskId}", id);
                 ModelState.AddModelError("", "Error updating task. Please try again later.");
-                ViewBag.Users = await _userManager.Users.ToListAsync();
+                // Repopulate the users list in case of error with project members
+                if (task?.ProjectId != null)
+                {
+                    var project = await _projectService.GetProjectByIdAsync(task.ProjectId);
+                    var projectMembers = await _projectService.GetProjectMembersAsync(task.ProjectId);
+                    var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+                    
+                    // Add project manager if not already in the list
+                    if (!memberIds.Contains(project.CreatedById))
+                    {
+                        memberIds.Add(project.CreatedById);
+                    }
+                    
+                    // Filter users to only include project members and manager
+                    var users = await _userManager.Users
+                        .Where(u => memberIds.Contains(u.Id))
+                        .ToListAsync();
+                        
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task.AssignedToId
+                    }).ToList();
+                }
+                else
+                {
+                    // Fallback if project ID is null
+                    var users = await _userManager.Users.ToListAsync();
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task?.AssignedToId
+                    }).ToList();
+                }
+                
+                ViewBag.ProjectId = task?.ProjectId;
                 return View(task);
             }
         }
@@ -310,6 +464,9 @@ namespace Collaborative_Task_Management_System.Controllers
 
                 task = await _taskService.UpdateTaskStatusAsync(id, status, currentUserId);
                 await _notificationService.SendTaskStatusUpdateNotificationAsync(task, currentUserId);
+                
+                // Broadcast dashboard update to all project members
+                await BroadcastDashboardUpdateToProjectMembers(task.ProjectId);
 
                 return Json(new { success = true });
             }
@@ -317,6 +474,40 @@ namespace Collaborative_Task_Management_System.Controllers
             {
                 _logger.LogError(ex, "Error updating task status {TaskId}", id);
                 return Json(new { success = false, message = "Error updating task status" });
+            }
+        }
+        
+        // Helper method to broadcast dashboard updates to all project members
+        private async Task BroadcastDashboardUpdateToProjectMembers(int projectId)
+        {
+            try
+            {
+                // Get all project members
+                var project = await _projectService.GetProjectByIdAsync(projectId);
+                if (project == null)
+                {
+                    _logger.LogWarning("Cannot broadcast dashboard update: Project {ProjectId} not found", projectId);
+                    return;
+                }
+                
+                // Get all project members including the creator
+                var members = project.ProjectMembers.Select(pm => pm.UserId).ToList();
+                if (!members.Contains(project.CreatedById))
+                {
+                    members.Add(project.CreatedById);
+                }
+                
+                // Broadcast dashboard update to each member
+                foreach (var userId in members)
+                {
+                    await _homeController.BroadcastDashboardUpdate(userId, projectId);
+                }
+                
+                _logger.LogInformation("Dashboard update broadcast sent to {MemberCount} members of project {ProjectId}", members.Count, projectId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error broadcasting dashboard update to project members for project {ProjectId}", projectId);
             }
         }
 
@@ -347,12 +538,65 @@ namespace Collaborative_Task_Management_System.Controllers
         }
 
         // GET: Tasks/MyTasks
-        public async Task<IActionResult> MyTasks()
+        public async Task<IActionResult> MyTasks(int? projectId)
         {
             try
             {
-                var tasks = await _taskService.GetTasksByAssignedUserAsync(GetCurrentUserId());
-                return View(tasks);
+                var currentUserId = GetCurrentUserId();
+                var userProjects = await _projectService.GetProjectsForUserAsync(currentUserId);
+                
+                // Get tasks assigned to the user
+                var assignedTasks = await _taskService.GetTasksByAssignedUserAsync(currentUserId);
+                
+                // Get all tasks from projects where the user is a member
+                var allUserTasks = new List<TaskItem>();
+                
+                foreach (var project in userProjects)
+                {
+                    // Skip if we're filtering by project and this isn't the selected project
+                    if (projectId.HasValue && project.Id != projectId.Value)
+                        continue;
+                        
+                    var projectTasks = await _taskService.GetTasksByProjectIdAsync(project.Id);
+                    allUserTasks.AddRange(projectTasks);
+                }
+                
+                // If filtering by project, only include tasks from that project
+                if (projectId.HasValue)
+                {
+                    allUserTasks = allUserTasks.Where(t => t.ProjectId == projectId.Value).ToList();
+                }
+                else
+                {
+                    // Otherwise, combine assigned tasks with project tasks and remove duplicates
+                    allUserTasks = allUserTasks.Concat(assignedTasks)
+                        .GroupBy(t => t.Id)
+                        .Select(g => g.First())
+                        .ToList();
+                }
+                
+                // Create select list for projects dropdown
+                var projectSelectList = userProjects
+                    .Select(p => new SelectListItem
+                    {
+                        Value = p.Id.ToString(),
+                        Text = p.Title,
+                        Selected = projectId.HasValue && p.Id == projectId.Value
+                    })
+                    .ToList();
+                
+                // Add "All Projects" option
+                projectSelectList.Insert(0, new SelectListItem
+                {
+                    Value = "",
+                    Text = "All Projects",
+                    Selected = !projectId.HasValue
+                });
+                
+                ViewData["Projects"] = projectSelectList;
+                ViewData["SelectedProjectId"] = projectId;
+                
+                return View(allUserTasks);
             }
             catch (Exception ex)
             {
@@ -428,12 +672,16 @@ namespace Collaborative_Task_Management_System.Controllers
                     query = query.Where(t => t.ProjectId == model.ProjectId.Value);
                 }
 
+                // Get user's projects (where they are a member or owner)
+                var userProjects = await _projectService.GetProjectsForUserAsync(userId);
+                var userProjectIds = userProjects.Select(p => p.Id).ToList();
+
                 // Apply access restrictions
                 if (!isManagerOrAdmin)
                 {
                     query = query.Where(t =>
-                        t.AssignedToId == userId ||
-                        t.CreatedById == userId);
+                        t.AssignedToId == userId || // User is assigned to the task
+                        userProjectIds.Contains(t.ProjectId)); // Task is in a project where user is a member or owner
                 }
 
                 // Apply sorting

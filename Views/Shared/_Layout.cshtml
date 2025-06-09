@@ -94,19 +94,19 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Index">
+                                <a class="nav-link" asp-area="" asp-controller="Projects" asp-action="Index" aria-label="Projects link">
                                     <i class="bi bi-folder" aria-hidden="true"></i> Projects
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Tasks" asp-action="MyTasks">
+                                <a class="nav-link" asp-area="" asp-controller="Tasks" asp-action="MyTasks" aria-label="My Tasks link">
                                     <i class="bi bi-list-check" aria-hidden="true"></i> My Tasks
                                 </a>
                             </li>
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Dashboard">
+                                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="AuditLogs" aria-label="Admin link">
                                         <i class="bi bi-gear" aria-hidden="true"></i> Admin
                                     </a>
                                 </li>
@@ -145,6 +145,9 @@
 
     <!-- Notification Area -->
     <div class="notification-area" role="alert" aria-live="polite"></div>
+
+    <!-- Alerts Container for Dashboard Updates -->
+    <div class="alerts-container container mt-3" role="alert" aria-live="polite"></div>
 
     <div class="container mt-4">
         <main role="main" class="pb-3">
