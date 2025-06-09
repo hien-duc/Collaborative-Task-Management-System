@@ -1,0 +1,135 @@
+@model TaskSearchViewModel
+@{
+    ViewData["Title"] = "Tasks";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Tasks</h1>
+        <a asp-action="Create" class="btn btn-primary" asp-route-projectId="@null">
+            <i class="bi bi-plus-lg"></i> Create Task
+        </a>
+    </div>
+
+    <!-- Search Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Search Tasks</h5>
+        </div>
+        <div class="card-body">
+            <form id="searchForm" method="post" data-ajax="true" data-ajax-method="post" 
+                  data-ajax-update="#taskList" data-ajax-mode="replace" data-ajax-url="@Url.Action("Search")">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Query" class="form-label">Search</label>
+                        <input type="text" class="form-control" asp-for="Query" placeholder="Search by title, description, or assignee">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="Status" class="form-label">Status</label>
+                        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<TaskStatus>()">
+                            <option value="">All Statuses</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="Priority" class="form-label">Priority</label>
+                        <select asp-for="Priority" class="form-select" asp-items="Model.PriorityList">
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="AssigneeId" class="form-label">Assigned To</label>
+                        <select asp-for="AssigneeId" class="form-select">
+                            <option value="">All Users</option>
+                            @foreach (var user in ViewBag.Users as List<SelectListItem>)
+                            {
+                                <option value="@user.Value">@user.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="FromDate" class="form-label">From Date</label>
+                        <input type="date" class="form-control" asp-for="FromDate">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="ToDate" class="form-label">To Date</label>
+                        <input type="date" class="form-control" asp-for="ToDate">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task List -->
+    <div id="taskList">
+        <partial name="_TaskList" model="Model.Tasks" />
+        
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                        <a class="page-link" href="#" data-page="@(Model.Page - 1)" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    @for (var i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.Page ? "active" : "")">
+                            <a class="page-link" href="#" data-page="@i">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                        <a class="page-link" href="#" data-page="@(Model.Page + 1)" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle pagination clicks
+            $(document).on('click', '.page-link', function(e) {
+                e.preventDefault();
+                var page = $(this).data('page');
+                if (page && !$(this).parent().hasClass('disabled')) {
+                    $('input[name="Page"]').remove();
+                    $('#searchForm').append($('<input>', {
+                        type: 'hidden',
+                        name: 'Page',
+                        value: page
+                    }));
+                    $('#searchForm').submit();
+                }
+            });
+
+            // Handle AJAX form submission
+            $('#searchForm').on('submit', function(e) {
+                e.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action') || window.location.href,
+                    type: form.attr('method'),
+                    data: form.serialize(),
+                    success: function(html) {
+                        $('#taskList').html(html);
+                        // Update URL without reloading the page
+                        var url = new URL(window.location.href);
+                        url.searchParams.set('page', $('input[name="Page"]').val() || '1');
+                        window.history.pushState({}, '', url);
+                    }
+                });
+            });
+        });
+    </script>
+}

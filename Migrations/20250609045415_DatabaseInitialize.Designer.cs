@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Collaborative_Task_Management_System.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250604072038_DatabaseInitialize")]
+    [Migration("20250609045415_DatabaseInitialize")]
     partial class DatabaseInitialize
     {
         /// <inheritdoc />
@@ -334,6 +334,131 @@ namespace Collaborative_Task_Management_System.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskActivityLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("NewValues")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("OldValues")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TaskActivityLogs");
+                });
+
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskChecklistItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("TaskChecklistItems");
+                });
+
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskDependency", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BlockingTaskId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlockingTaskId");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("TaskDependencies");
+                });
+
             modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskItem", b =>
                 {
                     b.Property<int>("Id")
@@ -397,6 +522,56 @@ namespace Collaborative_Task_Management_System.Migrations
                         .HasDatabaseName("IX_Tasks_Status");
 
                     b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskTag", b =>
+                {
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TaskId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("TaskTags");
+                });
+
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskTimeEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TaskTimeEntries");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -638,6 +813,55 @@ namespace Collaborative_Task_Management_System.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskActivityLog", b =>
+                {
+                    b.HasOne("Collaborative_Task_Management_System.Models.TaskItem", "Task")
+                        .WithMany("ActivityLogs")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Collaborative_Task_Management_System.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskChecklistItem", b =>
+                {
+                    b.HasOne("Collaborative_Task_Management_System.Models.TaskItem", "Task")
+                        .WithMany("ChecklistItems")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskDependency", b =>
+                {
+                    b.HasOne("Collaborative_Task_Management_System.Models.TaskItem", "BlockingTask")
+                        .WithMany("BlockingTasks")
+                        .HasForeignKey("BlockingTaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Collaborative_Task_Management_System.Models.TaskItem", "Task")
+                        .WithMany("BlockedByTasks")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("BlockingTask");
+
+                    b.Navigation("Task");
+                });
+
             modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskItem", b =>
                 {
                     b.HasOne("Collaborative_Task_Management_System.Models.ApplicationUser", "AssignedUser")
@@ -663,6 +887,44 @@ namespace Collaborative_Task_Management_System.Migrations
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskTag", b =>
+                {
+                    b.HasOne("Collaborative_Task_Management_System.Models.Tag", "Tag")
+                        .WithMany("TaskTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Collaborative_Task_Management_System.Models.TaskItem", "Task")
+                        .WithMany("TaskTags")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tag");
+
+                    b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskTimeEntry", b =>
+                {
+                    b.HasOne("Collaborative_Task_Management_System.Models.TaskItem", "Task")
+                        .WithMany("TimeEntries")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Collaborative_Task_Management_System.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -736,13 +998,30 @@ namespace Collaborative_Task_Management_System.Migrations
                     b.Navigation("Tasks");
                 });
 
+            modelBuilder.Entity("Collaborative_Task_Management_System.Models.Tag", b =>
+                {
+                    b.Navigation("TaskTags");
+                });
+
             modelBuilder.Entity("Collaborative_Task_Management_System.Models.TaskItem", b =>
                 {
+                    b.Navigation("ActivityLogs");
+
+                    b.Navigation("BlockedByTasks");
+
+                    b.Navigation("BlockingTasks");
+
+                    b.Navigation("ChecklistItems");
+
                     b.Navigation("Comments");
 
                     b.Navigation("FileAttachments");
 
                     b.Navigation("Notifications");
+
+                    b.Navigation("TaskTags");
+
+                    b.Navigation("TimeEntries");
                 });
 #pragma warning restore 612, 618
         }

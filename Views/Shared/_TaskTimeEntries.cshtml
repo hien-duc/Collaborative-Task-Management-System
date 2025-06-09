@@ -1,0 +1,95 @@
+@model IEnumerable<Collaborative_Task_Management_System.Models.TaskTimeEntry>
+
+<div class="task-time-entries">
+    <h5>Time Tracking</h5>
+    
+    <div class="d-flex justify-content-between mb-3">
+        <div>
+            <strong>Total Time:</strong> 
+            <span id="total-time">@TimeSpan.FromHours(Model
+                                      .Where(t => t.Duration.HasValue)
+                                      .Sum(t => t.Duration.Value.TotalHours)
+                                  ).ToString(@"hh\:mm")</span>
+        </div>
+        <div>
+            <button type="button" class="btn btn-sm btn-success" id="start-timer">Start Timer</button>
+            <button type="button" class="btn btn-sm btn-danger d-none" id="stop-timer">Stop Timer</button>
+        </div>
+    </div>
+    
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Duration</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var entry in Model.OrderByDescending(e => e.StartTime))
+            {
+                <tr>
+                    <td>@entry.User.UserName</td>
+                    <td>@entry.StartTime.ToLocalTime().ToString("g")</td>
+                    <td>@(entry.EndTime.HasValue ? entry.EndTime.Value.ToLocalTime().ToString("g") : "Running...")</td>
+                    <td>@(entry.Duration?.ToString(@"hh\:mm") ?? "00:00")</td>
+                    <td>@entry.Notes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        $(function() {
+            let activeTimeEntryId = null;
+            const taskId = @ViewBag.TaskId;
+            
+            // Check if there's an active time entry
+            const checkActiveTimeEntry = function() {
+                // Logic to check for active time entry
+            };
+            
+            // Start timer
+            $('#start-timer').on('click', function() {
+                $.post('/Tasks/StartTimeEntry/' + taskId, function(data) {
+                    if (data.success) {
+                        activeTimeEntryId = data.timeEntryId;
+                        $('#start-timer').addClass('d-none');
+                        $('#stop-timer').removeClass('d-none');
+                    }
+                });
+            });
+            
+            // Stop timer
+            $('#stop-timer').on('click', function() {
+                if (activeTimeEntryId) {
+                    $.post('/Tasks/StopTimeEntry/' + activeTimeEntryId, function(data) {
+                        if (data.success) {
+                            activeTimeEntryId = null;
+                            $('#stop-timer').addClass('d-none');
+                            $('#start-timer').removeClass('d-none');
+                            
+                            // Update total time
+                            const currentTotal = parseFloat($('#total-time').text().split(':')[0]) * 60 + 
+                                               parseFloat($('#total-time').text().split(':')[1]);
+                            const newTotal = currentTotal + (data.duration * 60);
+                            const hours = Math.floor(newTotal / 60);
+                            const minutes = Math.floor(newTotal % 60);
+                            $('#total-time').text(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
+                            
+                            // Reload time entries
+                            location.reload();
+                        }
+                    });
+                }
+            });
+            
+            // Check for active time entry on page load
+            checkActiveTimeEntry();
+        });
+    </script>
+}

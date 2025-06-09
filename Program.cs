@@ -48,15 +48,28 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IFileAttachmentRepository, FileAttachmentRepository>();
 builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+builder.Services.AddScoped<ITaskTagRepository, TaskTagRepository>();
+builder.Services.AddScoped<ITaskChecklistItemRepository, TaskChecklistItemRepository>();
+builder.Services.AddScoped<ITaskTimeEntryRepository, TaskTimeEntryRepository>();
+builder.Services.AddScoped<ITaskActivityLogRepository, TaskActivityLogRepository>();
+builder.Services.AddScoped<ITaskDependencyRepository, TaskDependencyRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 // Add Unit of Work
-builder.Services.AddScoped<IUnitOfWork, Collaborative_Task_Management_System.UnitOfWork.UnitOfWork>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Register services with Unit of Work pattern
+// Existing service registrations
 builder.Services.AddScoped<IProjectServiceWithUoW, ProjectServiceWithUoW>();
 builder.Services.AddScoped<ITaskServiceWithUoW, TaskServiceWithUoW>();
 builder.Services.AddScoped<INotificationServiceWithUoW, NotificationServiceWithUoW>();
+
+// New service registrations
+builder.Services.AddScoped<ITagServiceWithUoW, TagServiceWithUoW>();
+builder.Services.AddScoped<ITaskChecklistItemServiceWithUoW, TaskChecklistItemServiceWithUoW>();
+builder.Services.AddScoped<ITaskTimeEntryServiceWithUoW, TaskTimeEntryServiceWithUoW>();
+builder.Services.AddScoped<ITaskDependencyServiceWithUoW, TaskDependencyServiceWithUoW>();
+builder.Services.AddScoped<ITaskActivityLogServiceWithUoW, TaskActivityLogServiceWithUoW>();
 builder.Services.AddMemoryCache();
 
 // Add SignalR

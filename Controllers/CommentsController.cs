@@ -8,6 +8,7 @@ using Collaborative_Task_Management_System.Models.ViewModels;
 using Collaborative_Task_Management_System.Services;
 using Collaborative_Task_Management_System.Data;
 using Collaborative_Task_Management_System.Hubs;
+using Collaborative_Task_Management_System.UnitOfWork;
 
 namespace Collaborative_Task_Management_System.Controllers
 {
@@ -16,21 +17,23 @@ namespace Collaborative_Task_Management_System.Controllers
     {
         private readonly ITaskServiceWithUoW _taskService;
         private readonly INotificationServiceWithUoW _notificationService;
+        private readonly ITaskActivityLogServiceWithUoW _taskActivityLogService;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<CommentsController> _logger;
-
-        private readonly ApplicationDbContext _context;
 
         public CommentsController(
             ITaskServiceWithUoW taskService,
             INotificationServiceWithUoW notificationService,
-            ApplicationDbContext context,
+            ITaskActivityLogServiceWithUoW taskActivityLogService,
+            IUnitOfWork unitOfWork,
             UserManager<ApplicationUser> userManager,
             ILogger<CommentsController> logger)
             : base(userManager)
         {
             _taskService = taskService;
             _notificationService = notificationService;
-            _context = context;
+            _taskActivityLogService = taskActivityLogService;
+            _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
@@ -62,19 +65,18 @@ namespace Collaborative_Task_Management_System.Controllers
                     CreatedAt = DateTime.UtcNow
                 };
 
-                _context.Comments.Add(comment);
+                // Use the repository through UnitOfWork instead of direct context access
+                _unitOfWork.Comments.AddAsync(comment);
+                await _unitOfWork.SaveChangesAsync();
+
+                // Log comment activity
+                await _taskActivityLogService.LogTaskCommentAddedAsync(model.TaskId, userId);
 
                 // Create audit log
-                var auditLog = new AuditLog
-                {
-                    UserId = userId,
-                    Action = "CommentCreated",
-                    Details = $"Added comment to task '{task.Title}' (Task ID: {task.Id}, Project ID: {task.ProjectId})",
-                    Timestamp = DateTime.UtcNow
-                };
-                _context.AuditLogs.Add(auditLog);
-
-                await _context.SaveChangesAsync();
+                await _notificationService.CreateAuditLogAsync(
+                    userId,
+                    "CommentCreated",
+                    $"Added comment to task '{task.Title}' (Task ID: {task.Id}, Project ID: {task.ProjectId})");
 
                 // Send notification to task assignee and creator
                 await _notificationService.SendTaskCommentNotificationAsync(comment);

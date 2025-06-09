@@ -53,6 +53,20 @@ namespace Collaborative_Task_Management_System.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Tags",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Color = table.Column<string>(type: "nvarchar(7)", maxLength: 7, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tags", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -376,6 +390,139 @@ namespace Collaborative_Task_Management_System.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "TaskActivityLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TaskId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Action = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    OldValues = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    NewValues = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskActivityLogs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TaskActivityLogs_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TaskActivityLogs_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TaskChecklistItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TaskId = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    IsCompleted = table.Column<bool>(type: "bit", nullable: false),
+                    Position = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskChecklistItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TaskChecklistItems_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TaskDependencies",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TaskId = table.Column<int>(type: "int", nullable: false),
+                    BlockingTaskId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskDependencies", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TaskDependencies_Tasks_BlockingTaskId",
+                        column: x => x.BlockingTaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TaskDependencies_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TaskTags",
+                columns: table => new
+                {
+                    TaskId = table.Column<int>(type: "int", nullable: false),
+                    TagId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskTags", x => new { x.TaskId, x.TagId });
+                    table.ForeignKey(
+                        name: "FK_TaskTags_Tags_TagId",
+                        column: x => x.TagId,
+                        principalTable: "Tags",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TaskTags_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TaskTimeEntries",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TaskId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskTimeEntries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TaskTimeEntries_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TaskTimeEntries_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -476,6 +623,31 @@ namespace Collaborative_Task_Management_System.Migrations
                 column: "TeamMembersId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TaskActivityLogs_TaskId",
+                table: "TaskActivityLogs",
+                column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskActivityLogs_UserId",
+                table: "TaskActivityLogs",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskChecklistItems_TaskId",
+                table: "TaskChecklistItems",
+                column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskDependencies_BlockingTaskId",
+                table: "TaskDependencies",
+                column: "BlockingTaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskDependencies_TaskId",
+                table: "TaskDependencies",
+                column: "TaskId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tasks_AssignedToId",
                 table: "Tasks",
                 column: "AssignedUserId");
@@ -494,6 +666,21 @@ namespace Collaborative_Task_Management_System.Migrations
                 name: "IX_Tasks_Status",
                 table: "Tasks",
                 column: "Status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskTags_TagId",
+                table: "TaskTags",
+                column: "TagId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskTimeEntries_TaskId",
+                table: "TaskTimeEntries",
+                column: "TaskId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskTimeEntries_UserId",
+                table: "TaskTimeEntries",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -530,7 +717,25 @@ namespace Collaborative_Task_Management_System.Migrations
                 name: "ProjectTeamMembers");
 
             migrationBuilder.DropTable(
+                name: "TaskActivityLogs");
+
+            migrationBuilder.DropTable(
+                name: "TaskChecklistItems");
+
+            migrationBuilder.DropTable(
+                name: "TaskDependencies");
+
+            migrationBuilder.DropTable(
+                name: "TaskTags");
+
+            migrationBuilder.DropTable(
+                name: "TaskTimeEntries");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Tags");
 
             migrationBuilder.DropTable(
                 name: "Tasks");

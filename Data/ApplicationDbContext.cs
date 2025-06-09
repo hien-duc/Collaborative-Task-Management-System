@@ -17,6 +17,12 @@ namespace Collaborative_Task_Management_System.Data
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<FileAttachment> FileAttachments { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<TaskDependency> TaskDependencies { get; set; }
+        public DbSet<TaskActivityLog> TaskActivityLogs { get; set; }
+        public DbSet<TaskTimeEntry> TaskTimeEntries { get; set; }
+        public DbSet<TaskChecklistItem> TaskChecklistItems { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<TaskTag> TaskTags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -129,6 +135,22 @@ namespace Collaborative_Task_Management_System.Data
             builder.Entity<AuditLog>()
                 .HasIndex(a => a.Timestamp)
                 .HasDatabaseName("IX_AuditLogs_Timestamp");
+            
+            builder.Entity<TaskTag>()
+                .HasKey(tt => new { tt.TaskId, tt.TagId });
+            
+            // Configure self-referencing relationship for task dependencies
+            builder.Entity<TaskDependency>()
+                .HasOne(td => td.Task)
+                .WithMany(t => t.BlockedByTasks)
+                .HasForeignKey(td => td.TaskId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            builder.Entity<TaskDependency>()
+                .HasOne(td => td.BlockingTask)
+                .WithMany(t => t.BlockingTasks)
+                .HasForeignKey(td => td.BlockingTaskId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

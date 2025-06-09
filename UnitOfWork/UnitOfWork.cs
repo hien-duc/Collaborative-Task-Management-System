@@ -20,13 +20,41 @@ namespace Collaborative_Task_Management_System.UnitOfWork
         private IFileAttachmentRepository _fileAttachments;
         private IAuditLogRepository _auditLogs;
 
+        // Add these private fields
+        private ITagRepository _tags;
+        private ITaskTagRepository _taskTags;
+        private ITaskChecklistItemRepository _taskChecklistItems;
+        private ITaskTimeEntryRepository _taskTimeEntries;
+        private ITaskActivityLogRepository _taskActivityLogs;
+        private ITaskDependencyRepository _taskDependencies;
+
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
-            _repositories = new Dictionary<Type, object>();
         }
 
-        // Repository properties with lazy initialization
+        // Add these properties
+        public ITagRepository Tags
+        {
+            get
+            {
+                if (_tags == null)
+                    _tags = new TagRepository(_context);
+                return _tags;
+            }
+        }
+
+        public ITaskTagRepository TaskTags
+        {
+            get
+            {
+                if (_taskTags == null)
+                    _taskTags = new TaskTagRepository(_context);
+                return _taskTags;
+            }
+        }
+
+        // Similarly implement the other repository properties
         public IProjectRepository Projects
         {
             get
@@ -84,6 +112,46 @@ namespace Collaborative_Task_Management_System.UnitOfWork
                 if (_auditLogs == null)
                     _auditLogs = new AuditLogRepository(_context);
                 return _auditLogs;
+            }
+        }
+        
+        public ITaskChecklistItemRepository TaskChecklistItems
+        {
+            get
+            {
+                if (_taskChecklistItems == null)
+                    _taskChecklistItems = new TaskChecklistItemRepository(_context);
+                return _taskChecklistItems;
+            }
+        }
+
+        public ITaskTimeEntryRepository TaskTimeEntries
+        {
+            get
+            {
+                if (_taskTimeEntries == null)
+                    _taskTimeEntries = new TaskTimeEntryRepository(_context);
+                return _taskTimeEntries;
+            }
+        }
+
+        public ITaskActivityLogRepository TaskActivityLogs
+        {
+            get
+            {
+                if (_taskActivityLogs == null)
+                    _taskActivityLogs = new TaskActivityLogRepository(_context);
+                return _taskActivityLogs;
+            }
+        }
+
+        public ITaskDependencyRepository TaskDependencies
+        {
+            get
+            {
+                if (_taskDependencies == null)
+                    _taskDependencies = new TaskDependencyRepository(_context);
+                return _taskDependencies;
             }
         }
 
