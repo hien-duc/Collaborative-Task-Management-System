@@ -1,0 +1,287 @@
+@model IEnumerable<TaskItem>
+@{
+    ViewData["Title"] = "My Tasks";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h1 class="h3 mb-0">My Tasks</h1>
+                    <a asp-controller="Tasks" asp-action="Create" class="btn btn-light">
+                        <i class="bi bi-plus-lg"></i> Create New Task
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="kanban-board row">
+                        <!-- To Do Column -->
+                        <div class="col kanban-column" id="todo" data-status="ToDo">
+                            <div class="kanban-column-header bg-secondary text-white p-2 rounded-top mb-2">
+                                <h5 class="mb-0">To Do <span class="badge bg-light text-dark ms-1">@Model.Count(t => t.Status == TaskStatus.ToDo)</span></h5>
+                            </div>
+                            <div class="kanban-column-content" data-status="ToDo">
+                                @foreach (var task in Model.Where(t => t.Status == TaskStatus.ToDo))
+                                {
+                                    <div class="card mb-2 task-card" data-task-id="@task.Id">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title mb-1">@task.Title</h6>
+                                            <p class="card-text small text-muted mb-1">
+                                                <i class="bi bi-folder"></i> @task.Project?.Title
+                                            </p>
+                                            <p class="card-text small text-muted mb-1">
+                                                <i class="bi bi-calendar"></i> Due: @task.DueDate.ToString("MMM dd")
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <a href="@Url.Action("Details", "Tasks", new { id = task.Id })" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <span class="badge bg-@(task.Priority == "High" ? "danger" : task.Priority == "Medium" ? "warning" : "info")">@task.Priority</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- In Progress Column -->
+                        <div class="col kanban-column" id="inprogress" data-status="InProgress">
+                            <div class="kanban-column-header bg-primary text-white p-2 rounded-top mb-2">
+                                <h5 class="mb-0">In Progress <span class="badge bg-light text-dark ms-1">@Model.Count(t => t.Status == TaskStatus.InProgress)</span></h5>
+                            </div>
+                            <div class="kanban-column-content" data-status="InProgress">
+                                @foreach (var task in Model.Where(t => t.Status == TaskStatus.InProgress))
+                                {
+                                    <div class="card mb-2 task-card" data-task-id="@task.Id">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title mb-1">@task.Title</h6>
+                                            <p class="card-text small text-muted mb-1">
+                                                <i class="bi bi-folder"></i> @task.Project?.Title
+                                            </p>
+                                            <p class="card-text small text-muted mb-1">
+                                                <i class="bi bi-calendar"></i> Due: @task.DueDate.ToString("MMM dd")
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <a href="@Url.Action("Details", "Tasks", new { id = task.Id })" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <span class="badge bg-@(task.Priority == "High" ? "danger" : task.Priority == "Medium" ? "warning" : "info")">@task.Priority</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Under Review Column -->
+                        <div class="col kanban-column" id="review" data-status="UnderReview">
+                            <div class="kanban-column-header bg-info text-white p-2 rounded-top mb-2">
+                                <h5 class="mb-0">Under Review <span class="badge bg-light text-dark ms-1">@Model.Count(t => t.Status == TaskStatus.UnderReview)</span></h5>
+                            </div>
+                            <div class="kanban-column-content" data-status="UnderReview">
+                                @foreach (var task in Model.Where(t => t.Status == TaskStatus.UnderReview))
+                                {
+                                    <div class="card mb-2 task-card" data-task-id="@task.Id">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title mb-1">@task.Title</h6>
+                                            <p class="card-text small text-muted mb-1">
+                                                <i class="bi bi-folder"></i> @task.Project?.Title
+                                            </p>
+                                            <p class="card-text small text-muted mb-1">
+                                                <i class="bi bi-calendar"></i> Due: @task.DueDate.ToString("MMM dd")
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <a href="@Url.Action("Details", "Tasks", new { id = task.Id })" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <span class="badge bg-@(task.Priority == "High" ? "danger" : task.Priority == "Medium" ? "warning" : "info")">@task.Priority</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Completed Column -->
+                        <div class="col kanban-column" id="completed" data-status="Completed">
+                            <div class="kanban-column-header bg-success text-white p-2 rounded-top mb-2">
+                                <h5 class="mb-0">Completed <span class="badge bg-light text-dark ms-1">@Model.Count(t => t.Status == TaskStatus.Completed)</span></h5>
+                            </div>
+                            <div class="kanban-column-content" data-status="Completed">
+                                @foreach (var task in Model.Where(t => t.Status == TaskStatus.Completed))
+                                {
+                                    <div class="card mb-2 task-card" data-task-id="@task.Id">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title mb-1">@task.Title</h6>
+                                            <p class="card-text small text-muted mb-1">
+                                                <i class="bi bi-folder"></i> @task.Project?.Title
+                                            </p>
+                                            <p class="card-text small text-muted mb-1">
+                                                <i class="bi bi-calendar"></i> Due: @task.DueDate.ToString("MMM dd")
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <a href="@Url.Action("Details", "Tasks", new { id = task.Id })" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <span class="badge bg-@(task.Priority == "High" ? "danger" : task.Priority == "Medium" ? "warning" : "info")">@task.Priority</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Blocked Column -->
+                        <div class="col kanban-column" id="blocked" data-status="Blocked">
+                            <div class="kanban-column-header bg-danger text-white p-2 rounded-top mb-2">
+                                <h5 class="mb-0">Blocked <span class="badge bg-light text-dark ms-1">@Model.Count(t => t.Status == TaskStatus.Blocked)</span></h5>
+                            </div>
+                            <div class="kanban-column-content" data-status="Blocked">
+                                @foreach (var task in Model.Where(t => t.Status == TaskStatus.Blocked))
+                                {
+                                    <div class="card mb-2 task-card" data-task-id="@task.Id">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title mb-1">@task.Title</h6>
+                                            <p class="card-text small text-muted mb-1">
+                                                <i class="bi bi-folder"></i> @task.Project?.Title
+                                            </p>
+                                            <p class="card-text small text-muted mb-1">
+                                                <i class="bi bi-calendar"></i> Due: @task.DueDate.ToString("MMM dd")
+                                            </p>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <a href="@Url.Action("Details", "Tasks", new { id = task.Id })" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <span class="badge bg-@(task.Priority == "High" ? "danger" : task.Priority == "Medium" ? "warning" : "info")">@task.Priority</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .kanban-board {
+            overflow-x: auto;
+            min-height: 600px;
+        }
+        .kanban-column {
+            min-width: 250px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 10px;
+            margin-right: 10px;
+        }
+        .kanban-column-content {
+            min-height: 500px;
+        }
+        .task-card {
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .task-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .task-card.ui-draggable-dragging {
+            transform: rotate(2deg) scale(1.02);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        .kanban-column.ui-droppable-hover {
+            background-color: #e9ecef;
+        }
+    </style>
+    <script>
+        $(document).ready(function() {
+            // Enable drag and drop for task cards
+            $('.task-card').draggable({
+                revert: "invalid",
+                helper: "clone",
+                cursor: "move",
+                zIndex: 100,
+                opacity: 0.7,
+                containment: ".kanban-board"
+            });
+            
+            // Make columns droppable
+            $('.kanban-column-content').droppable({
+                accept: ".task-card",
+                hoverClass: "ui-droppable-hover",
+                drop: function(event, ui) {
+                    const taskId = ui.draggable.data('task-id');
+                    const newStatus = $(this).parent().attr('id');
+                    
+                    // Map column ID to task status
+                    const statusMap = {
+                        'todo': 'ToDo',
+                        'inprogress': 'InProgress',
+                        'review': 'UnderReview',
+                        'completed': 'Completed',
+                        'blocked': 'Blocked'
+                    };
+                    
+                    // Get the token for AJAX request
+                    const token = $('input[name="__RequestVerificationToken"]').val();
+                    
+                    // Update task status via AJAX
+                    $.ajax({
+                        url: '/Tasks/UpdateStatus/' + taskId,
+                        type: 'POST',
+                        data: JSON.stringify({ status: statusMap[newStatus] }),
+                        contentType: 'application/json',
+                        headers: {
+                            'RequestVerificationToken': token
+                        },
+                        success: function(data) {
+                            if (data.success) {
+                                // Move the task card to the new column
+                                const card = ui.draggable.detach();
+                                $(event.target).append(card);
+                                card.css({
+                                    'top': '',
+                                    'left': ''
+                                });
+                                
+                                // Update the counts in the column headers
+                                updateColumnCounts();
+                                
+                                // Show notification
+                                notificationSystem.showNotification('Task status updated successfully', 'success');
+                            } else {
+                                notificationSystem.showNotification('Failed to update task status', 'danger');
+                                ui.draggable.css({
+                                    'top': '',
+                                    'left': ''
+                                });
+                            }
+                        },
+                        error: function() {
+                            notificationSystem.showNotification('An error occurred while updating the task', 'danger');
+                            ui.draggable.css({
+                                'top': '',
+                                'left': ''
+                            });
+                        }
+                    });
+                }
+            });
+            
+            // Function to update column counts
+            function updateColumnCounts() {
+                $('.kanban-column').each(function() {
+                    const columnId = $(this).attr('id');
+                    const count = $(this).find('.task-card').length;
+                    $(`#${columnId} .kanban-column-header .badge`).text(count);
+                });
+            }
+        });
+    </script>
+}

@@ -237,6 +237,23 @@ namespace Collaborative_Task_Management_System.Controllers
                 return Problem("Error deleting task. Please try again later.");
             }
         }
+        
+        // GET: Tasks/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var task = await _taskService.GetTaskByIdAsync(id.Value);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            return View(task);
+        }
 
         // POST: Tasks/UpdateStatus/5
         [HttpPost]
@@ -322,6 +339,19 @@ namespace Collaborative_Task_Management_System.Controllers
                     TotalTasks = tasks.Count(),
                     PageSize = 10
                 };
+                var projects = await _projectService.GetAllProjectsAsync();
+                ViewBag.Projects = projects.Select(p => new SelectListItem
+                {
+                    Value = p.Id.ToString(),
+                    Text = p.Title
+                });
+
+                var users = await _userManager.Users.ToListAsync();
+                ViewBag.Users = users.Select(u => new SelectListItem
+                {
+                    Value = u.Id,
+                    Text = u.FullName ?? u.UserName
+                });
                 return View(viewModel);
             }
             catch (Exception ex)
@@ -434,5 +464,7 @@ namespace Collaborative_Task_Management_System.Controllers
                 return Problem("Error searching tasks. Please try again later.");
             }
         }
+        
+        
     }
 }
