@@ -22,7 +22,7 @@ namespace Collaborative_Task_Management_System.Services
             try
             {
                 var projects = await _unitOfWork.Projects.GetAllWithIncludesAsync(p => p.CreatedBy);
-                return projects.OrderByDescending(p => p.CreatedAt).ToList();
+                return projects.OrderByDescending(p => p.CreatedAt).Where(p => p.IsDeleted == false).ToList();
             }
             catch (Exception ex)
             {
@@ -196,8 +196,7 @@ namespace Collaborative_Task_Management_System.Services
                     throw new KeyNotFoundException($"Project with ID {id} not found");
                 }
 
-                _unitOfWork.Projects.Delete(project);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.Projects.RemoveProjectAsync(project);
                 
                 // Log the deletion
                 var auditLog = new AuditLog

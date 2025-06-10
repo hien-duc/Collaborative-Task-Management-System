@@ -35,6 +35,9 @@ namespace Collaborative_Task_Management_System.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
         public DateTime? UpdatedAt { get; set; }
+        
+        [Required]
+        public bool IsDeleted { get; set; } = false;
 
         // Navigation properties
         [ForeignKey("CreatedById")]

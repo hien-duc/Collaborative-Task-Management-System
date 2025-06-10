@@ -15,6 +15,9 @@ namespace Collaborative_Task_Management_System.Models
 
         [Required]
         public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
+        
+        [Required]
+        public bool IsActive { get; set; } = true;
 
         // Navigation properties
         [ForeignKey("ProjectId")]

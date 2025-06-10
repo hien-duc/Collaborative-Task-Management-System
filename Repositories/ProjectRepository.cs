@@ -13,7 +13,7 @@ namespace Collaborative_Task_Management_System.Repositories
         public async Task<IEnumerable<Project>> GetProjectsByOwnerAsync(string ownerId)
         {
             return await _dbSet
-                .Where(p => p.CreatedById == ownerId)
+                .Where(p => p.CreatedById == ownerId && !p.IsDeleted)
                 .Include(p => p.CreatedBy)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
@@ -22,7 +22,7 @@ namespace Collaborative_Task_Management_System.Repositories
         public async Task<IEnumerable<Project>> GetProjectsByStatusAsync(ProjectStatus status)
         {
             return await _dbSet
-                .Where(p => p.Status == status)
+                .Where(p => p.Status == status && !p.IsDeleted)
                 .Include(p => p.CreatedBy)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
@@ -31,8 +31,9 @@ namespace Collaborative_Task_Management_System.Repositories
         public async Task<IEnumerable<Project>> GetProjectsWithTasksAsync()
         {
             return await _dbSet
+                .Where(p => !p.IsDeleted)
                 .Include(p => p.CreatedBy)
-                .Include(p => p.Tasks)
+                .Include(p => p.Tasks.Where(t => !t.IsDeleted))
                     .ThenInclude(t => t.AssignedUser)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
@@ -41,21 +42,22 @@ namespace Collaborative_Task_Management_System.Repositories
         public async Task<Project> GetProjectWithTasksAsync(int projectId)
         {
             return await _dbSet
+                .Where(p => p.Id == projectId && !p.IsDeleted)
                 .Include(p => p.CreatedBy)
-                .Include(p => p.Tasks)
+                .Include(p => p.Tasks.Where(t => !t.IsDeleted))
                     .ThenInclude(t => t.AssignedUser)
-                .Include(p => p.Tasks)
+                .Include(p => p.Tasks.Where(t => !t.IsDeleted))
                     .ThenInclude(t => t.Comments)
                         .ThenInclude(c => c.User)
-                .Include(p => p.Tasks)
+                .Include(p => p.Tasks.Where(t => !t.IsDeleted))
                     .ThenInclude(t => t.FileAttachments)
-                .FirstOrDefaultAsync(p => p.Id == projectId);
+                .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Project>> GetProjectsByDeadlineRangeAsync(DateTime startDate, DateTime endDate)
         {
             return await _dbSet
-                .Where(p => p.Deadline >= startDate && p.Deadline <= endDate)
+                .Where(p => p.Deadline >= startDate && p.Deadline <= endDate && !p.IsDeleted)
                 .Include(p => p.CreatedBy)
                 .OrderBy(p => p.Deadline)
                 .ToListAsync();
@@ -64,13 +66,12 @@ namespace Collaborative_Task_Management_System.Repositories
         public async Task<IEnumerable<Project>> SearchProjectsAsync(string searchTerm)
         {
             return await _dbSet
-                .Where(p => p.Title.Contains(searchTerm) || p.Description.Contains(searchTerm))
+                .Where(p => (p.Title.Contains(searchTerm) || p.Description.Contains(searchTerm)) && !p.IsDeleted)
                 .Include(p => p.CreatedBy)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
         }
 
-        // Project member management methods
         public async Task<ProjectMember> AddProjectMemberAsync(int projectId, string userId)
         {
             var context = _context as ApplicationDbContext;
@@ -96,7 +97,7 @@ namespace Collaborative_Task_Management_System.Repositories
             
             return projectMember;
         }
-        
+
         public async Task RemoveProjectMemberAsync(int projectId, string userId)
         {
             var context = _context as ApplicationDbContext;
@@ -110,37 +111,46 @@ namespace Collaborative_Task_Management_System.Repositories
                 await context.SaveChangesAsync();
             }
         }
-        
+
+        // Project member management methods
         public async Task<IEnumerable<ProjectMember>> GetProjectMembersAsync(int projectId)
         {
             var context = _context as ApplicationDbContext;
             
             return await context.ProjectMembers
-                .Where(pm => pm.ProjectId == projectId)
+                .Where(pm => pm.ProjectId == projectId && pm.IsActive  && !pm.Project.IsDeleted)
                 .Include(pm => pm.User)
                 .OrderBy(pm => pm.User.FullName)
                 .ToListAsync();
         }
-        
+
         public async Task<IEnumerable<Project>> GetProjectsByMemberAsync(string userId)
         {
             var context = _context as ApplicationDbContext;
             
             return await context.ProjectMembers
-                .Where(pm => pm.UserId == userId)
+                .Where(pm => pm.UserId == userId && pm.IsActive && !pm.Project.IsDeleted)
                 .Include(pm => pm.Project)
                     .ThenInclude(p => p.CreatedBy)
                 .Select(pm => pm.Project)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
         }
-        
+
         public async Task<bool> IsUserProjectMemberAsync(int projectId, string userId)
         {
             var context = _context as ApplicationDbContext;
             
             return await context.ProjectMembers
-                .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
+                .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == userId && pm.IsActive);
+        }
+
+        public async Task RemoveProjectAsync(Project project)
+        {
+            var context = _context as ApplicationDbContext;
+            project.IsDeleted = true;
+            context.Projects.Update(project);
+            await context.SaveChangesAsync();
         }
     }
 }

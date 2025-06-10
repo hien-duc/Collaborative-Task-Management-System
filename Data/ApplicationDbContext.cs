@@ -148,6 +148,9 @@ namespace Collaborative_Task_Management_System.Data
             builder.Entity<AuditLog>()
                 .HasIndex(a => a.Timestamp)
                 .HasDatabaseName("IX_AuditLogs_Timestamp");
+            
+            builder.Entity<Project>()
+                .ToTable(tb => tb.HasTrigger("trg_UpdateProjectDelete"));
         }
     }
 }

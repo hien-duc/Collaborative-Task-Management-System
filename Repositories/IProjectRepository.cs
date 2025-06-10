@@ -18,5 +18,6 @@ namespace Collaborative_Task_Management_System.Repositories
         Task<IEnumerable<ProjectMember>> GetProjectMembersAsync(int projectId);
         Task<IEnumerable<Project>> GetProjectsByMemberAsync(string userId);
         Task<bool> IsUserProjectMemberAsync(int projectId, string userId);
+        Task RemoveProjectAsync(Project project);
     }
 }
