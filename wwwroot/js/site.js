@@ -292,13 +292,77 @@ connection.on("ProjectCreated", (projectName) => {
     }
 });
 
-connection.on("CommentAdded", (taskId, comment) => {
-    const commentsList = document.querySelector(`#comments-${taskId}`);
-    if (commentsList) {
-        const commentElement = createCommentElement(comment);
-        commentsList.appendChild(commentElement);
-        notificationSystem.showNotification(`New comment added to task #${taskId}`, 'info');
+connection.on('CommentAdded', function (taskId, comment) {
+    console.log('Comment added:', taskId, comment);
+    
+    // Get current user name
+    const currentUserName = document.querySelector('.navbar .nav-link.text-dark')?.textContent.trim() || 'User';
+    
+    // Handle comment updates on task details page
+    const taskCommentsContainer = document.querySelector('.comments-container');
+    if (taskCommentsContainer) {
+        // Remove the 'no comments yet' message if it exists
+        const noCommentsMessage = taskCommentsContainer.querySelector('.text-muted');
+        if (noCommentsMessage) {
+            const noCommentsText = noCommentsMessage.textContent.trim();
+            if (noCommentsText === 'No comments yet') {
+                if (noCommentsMessage.parentElement.classList.contains('text-center')) {
+                    noCommentsMessage.parentElement.remove();
+                } else {
+                    noCommentsMessage.remove();
+                }
+            }
+        }
+        
+        // Create and prepend the new comment if we're on the right task page
+        const taskIdInput = document.querySelector('input[name="TaskId"]');
+        if (taskIdInput && parseInt(taskIdInput.value) === taskId) {
+            const commentCard = createCommentElement(comment.text, comment.authorName, comment.timestamp);
+            taskCommentsContainer.insertBefore(commentCard, taskCommentsContainer.firstChild);
+        }
     }
+    
+    // Handle comment updates on project details page
+    const projectTaskComments = document.querySelector(`#task-${taskId} .comments-container`);
+    if (projectTaskComments) {
+        // Remove the 'no comments yet' message if it exists
+        const noCommentsMessage = projectTaskComments.querySelector('.text-muted');
+        if (noCommentsMessage) {
+            const noCommentsText = noCommentsMessage.textContent.trim();
+            if (noCommentsText === 'No comments yet') {
+                if (noCommentsMessage.parentElement.classList.contains('text-center')) {
+                    noCommentsMessage.parentElement.remove();
+                } else {
+                    noCommentsMessage.remove();
+                }
+            }
+        }
+        
+        // Create and prepend the new comment
+        const commentCard = createCommentElement(comment.text, comment.authorName, comment.timestamp);
+        projectTaskComments.insertBefore(commentCard, projectTaskComments.firstChild);
+        
+        // Update the comment count in the button
+        const commentButton = document.querySelector(`button[data-bs-target="#task-${taskId}"]`);
+        if (commentButton) {
+            const countText = commentButton.textContent;
+            const count = parseInt(countText.match(/\d+/) || '0') + 1;
+            commentButton.innerHTML = `<i class="bi bi-chat-dots"></i> View Comments (${count})`;
+        }
+    }
+    
+    // Show notification if comment was not made by current user
+    if (comment.authorName !== currentUserName) {
+        notificationSystem.showNotification(`New comment on task #${taskId} from ${comment.authorName}`, 'info');
+    }
+    
+    // Announce for screen readers
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', 'polite');
+    announcer.className = 'visually-hidden';
+    announcer.textContent = `New comment added by ${comment.authorName}`;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 3000);
 });
 
 connection.on("FileUploaded", (taskId, fileName) => {
@@ -431,16 +495,15 @@ function updateTaskStatus(taskId, newStatus) {
 }
 
 // Comment System
-function createCommentElement(comment) {
+function createCommentElement(text, authorName, timestamp) {
     const div = document.createElement('div');
     div.className = 'card mb-2';
     div.setAttribute('role', 'article');
+    div.setAttribute('aria-label', `Comment by ${authorName}`);
     div.innerHTML = `
-        <div class="card-body">
-            <p class="card-text">${escapeHtml(comment.text)}</p>
-            <small class="text-muted">
-                ${comment.authorName} - ${new Date(comment.timestamp).toLocaleString()}
-            </small>
+        <div class="card-body py-2 px-3">
+            <p class="mb-1">${escapeHtml(text)}</p>
+            <small class="text-muted">${authorName} - ${new Date(timestamp).toLocaleString()}</small>
         </div>
     `;
     return div;
@@ -453,6 +516,8 @@ function postComment(taskId, commentText) {
     }
 
     const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+    console.log('Posting comment to task:', taskId, 'Text:', commentText);
+    
     fetch('/Tasks/AddComment', {
         method: 'POST',
         headers: {
@@ -461,8 +526,12 @@ function postComment(taskId, commentText) {
         },
         body: JSON.stringify({ taskId, text: commentText })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
             document.querySelector('#commentText').value = '';
             notificationSystem.showNotification('Comment posted successfully', 'success');
@@ -679,6 +748,118 @@ function initProjectFilters() {
     });
 }
 
+// Comment Form Handling
+function initCommentForms() {
+    const commentForms = document.querySelectorAll('.comment-form');
+    commentForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const taskId = this.querySelector('input[name="TaskId"]').value;
+            const commentText = this.querySelector('textarea[name="Content"]').value;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            
+            if (!commentText.trim()) {
+                notificationSystem.showNotification('Please enter a comment', 'warning');
+                return;
+            }
+            
+            // Disable submit button to prevent double submission
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Posting...';
+            
+            fetch('/Comments/Create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ TaskId: taskId, Content: commentText })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Clear the textarea
+                    this.querySelector('textarea[name="Content"]').value = '';
+                    
+                    // Find the comments container - handle both project details and task comments partial view
+                    let commentsContainer;
+                    if (this.closest('.collapse')) {
+                        // Project details page
+                        commentsContainer = this.closest('.collapse').querySelector('.comments-container');
+                    } else {
+                        // Task comments partial view
+                        commentsContainer = document.querySelector('.comments-container');
+                    }
+                    
+                    if (commentsContainer) {
+                        // Remove the 'no comments' message if it exists
+                        const noCommentsMessage = commentsContainer.querySelector('.text-muted');
+                        if (noCommentsMessage && (noCommentsMessage.textContent.trim() === 'No comments yet' || 
+                                                noCommentsMessage.parentElement.classList.contains('text-center'))) {
+                            if (noCommentsMessage.parentElement.classList.contains('text-center')) {
+                                noCommentsMessage.parentElement.remove();
+                            } else {
+                                noCommentsMessage.remove();
+                            }
+                        }
+                        
+                        // Get current user info
+                        const userName = document.querySelector('.navbar .nav-link.text-dark')?.textContent.trim() || 'User';
+                        const now = new Date();
+                        const formattedDate = `${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                        
+                        // Create and append the new comment
+                        const commentCard = document.createElement('div');
+                        commentCard.className = 'card mb-2';
+                        commentCard.setAttribute('role', 'article');
+                        commentCard.setAttribute('aria-label', `Comment by ${userName}`);
+                        commentCard.innerHTML = `
+                            <div class="card-body py-2 px-3">
+                                <p class="mb-1">${escapeHtml(commentText)}</p>
+                                <small class="text-muted">${userName} - ${formattedDate}</small>
+                            </div>
+                        `;
+                        commentsContainer.insertBefore(commentCard, commentsContainer.firstChild);
+                        
+                        // Update the comment count in the button if on project details page
+                        const commentButton = document.querySelector(`button[data-bs-target="#task-${taskId}"]`);
+                        if (commentButton) {
+                            const countText = commentButton.textContent;
+                            const count = parseInt(countText.match(/\d+/) || '0') + 1;
+                            commentButton.innerHTML = `<i class="bi bi-chat-dots"></i> View Comments (${count})`;
+                        }
+                        
+                        // Announce for screen readers
+                        const announcer = document.createElement('div');
+                        announcer.setAttribute('aria-live', 'polite');
+                        announcer.className = 'visually-hidden';
+                        announcer.textContent = 'Your comment has been posted successfully.';
+                        document.body.appendChild(announcer);
+                        setTimeout(() => announcer.remove(), 3000);
+                    }
+                    
+                    notificationSystem.showNotification('Comment posted successfully', 'success');
+                } else {
+                    notificationSystem.showNotification(data.message || 'Failed to post comment', 'danger');
+                }
+                
+                // Re-enable submit button
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="bi bi-chat-dots"></i> Post Comment';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                notificationSystem.showNotification('An error occurred while posting the comment', 'danger');
+                
+                // Re-enable submit button
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="bi bi-chat-dots"></i> Post Comment';
+            });
+        });
+    });
+}
+
 // Initialize features
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize theme
@@ -697,6 +878,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize project filters
     initProjectFilters();
+    
+    // Initialize comment forms
+    initCommentForms();
 
     // Start SignalR connection after a short delay to ensure auth is ready
     setTimeout(() => {

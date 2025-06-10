@@ -23,6 +23,7 @@ namespace Collaborative_Task_Management_System.Services
         Task AssignTaskAsync(int taskId, string userId, string assignedByUserId);
         Task SaveFileAttachmentAsync(int taskId, IFormFile file, string uploadedByUserId);
         Task<FileAttachment> GetFileAttachmentAsync(int attachmentId);
+        Task<Comment> CreateCommentAsync(Comment comment);
     }
 
     public class TaskServiceWithUoW : ITaskServiceWithUoW
@@ -547,6 +548,48 @@ namespace Collaborative_Task_Management_System.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving file attachment {AttachmentId}", attachmentId);
+                throw;
+            }
+        }
+
+        public async Task<Comment> CreateCommentAsync(Comment comment)
+        {
+            try
+            {
+                _logger.LogInformation("Starting CreateCommentAsync for task {TaskId} with text: {CommentText}", 
+                    comment.TaskId, comment.Text);
+                
+                // Check if task exists
+                var taskExists = await _unitOfWork.Tasks.AnyAsync(t => t.Id == comment.TaskId);
+                if (!taskExists)
+                {
+                    _logger.LogError("Task with ID {TaskId} not found when creating comment", comment.TaskId);
+                    throw new Exception($"Task with ID {comment.TaskId} not found");
+                }
+                
+                // Check if user exists
+                var userExists = await _unitOfWork.Repository<ApplicationUser>().AnyAsync(u => u.Id == comment.UserId);
+                if (!userExists)
+                {
+                    _logger.LogError("User with ID {UserId} not found when creating comment", comment.UserId);
+                    throw new Exception($"User with ID {comment.UserId} not found");
+                }
+                
+                _logger.LogInformation("Adding comment to repository for task {TaskId}", comment.TaskId);
+                await _unitOfWork.Comments.AddAsync(comment);
+                
+                _logger.LogInformation("Saving changes for comment on task {TaskId}", comment.TaskId);
+                await _unitOfWork.SaveChangesAsync();
+                
+                _logger.LogInformation("Comment created successfully with ID {CommentId} for task {TaskId}", 
+                    comment.Id, comment.TaskId);
+                
+                return comment;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating comment for task {TaskId}. Exception: {ExMessage}, Stack: {ExStackTrace}", 
+                    comment.TaskId, ex.Message, ex.StackTrace);
                 throw;
             }
         }

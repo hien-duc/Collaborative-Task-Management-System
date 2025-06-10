@@ -96,6 +96,51 @@ namespace Collaborative_Task_Management_System.Hubs
                 Timestamp = DateTime.UtcNow
             });
         }
+        
+        // Method to broadcast comment added to task
+        public async Task BroadcastCommentAdded(int taskId, int projectId, string commentText, string userName, DateTime timestamp)
+        {
+            try
+            {
+                var throttleKey = $"{ThrottlePrefix}Comment_{taskId}_{DateTime.UtcNow.Ticks}";
+                
+                // Check if we've sent a notification recently
+                if (!_cache.TryGetValue(throttleKey, out _))
+                {
+                    await Clients.All.SendAsync("CommentAdded", taskId, new
+                    {
+                        taskId,
+                        text = commentText,
+                        authorName = userName,
+                        timestamp
+                    });
+                    
+                    // Set throttle cache
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(ThrottleSeconds))
+                        .SetPriority(CacheItemPriority.Low);
+                    
+                    _cache.Set(throttleKey, true, cacheEntryOptions);
+                    
+                    _logger.LogInformation(
+                        "Comment notification broadcast for task {TaskId}",
+                        taskId);
+                }
+                else
+                {
+                    _logger.LogDebug(
+                        "Comment notification throttled for task {TaskId}",
+                        taskId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error broadcasting comment notification for task {TaskId}",
+                    taskId);
+                throw;
+            }
+        }
 
         // Method to broadcast project update
         public async Task BroadcastProjectUpdate(string projectId, string message)

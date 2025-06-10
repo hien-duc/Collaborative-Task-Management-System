@@ -12,6 +12,7 @@ using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus;
 using Microsoft.AspNetCore.SignalR;
 using Collaborative_Task_Management_System.Hubs;
 using Collaborative_Task_Management_System.Controllers;
+using Collaborative_Task_Management_System.Data;
 
 namespace Collaborative_Task_Management_System.Controllers
 {
@@ -24,6 +25,7 @@ namespace Collaborative_Task_Management_System.Controllers
         private readonly ILogger<TasksController> _logger;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IDashboardBroadcastService _dashboardBroadcastService;
+        private readonly ApplicationDbContext _context;
 
         public TasksController(
         ITaskServiceWithUoW taskService,
@@ -32,7 +34,8 @@ namespace Collaborative_Task_Management_System.Controllers
         UserManager<ApplicationUser> userManager,
         ILogger<TasksController> logger,
         IHubContext<NotificationHub> hubContext,
-        IDashboardBroadcastService dashboardBroadcastService)
+        IDashboardBroadcastService dashboardBroadcastService,
+        ApplicationDbContext context)
         : base(userManager)
     {
         _taskService = taskService;
@@ -41,6 +44,7 @@ namespace Collaborative_Task_Management_System.Controllers
         _logger = logger;
         _hubContext = hubContext;
         _dashboardBroadcastService = dashboardBroadcastService;
+        _context = context;
     }
 
         // GET: Tasks/Create/5 (projectId)
@@ -712,6 +716,141 @@ namespace Collaborative_Task_Management_System.Controllers
                 _logger.LogError(ex, "Error searching tasks");
                 return Problem("Error searching tasks. Please try again later.");
             }
+        }
+
+        // POST: Tasks/AddComment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment([FromBody] CommentAddModel model)
+        {
+            try
+            {
+                _logger.LogInformation("AddComment called with taskId: {TaskId}", model?.taskId);
+                
+                if (model == null || string.IsNullOrEmpty(model.text))
+                {
+                    _logger.LogWarning("Invalid model or empty comment text");
+                    return Json(new { success = false, message = "Comment text cannot be empty" });
+                }
+                
+                var userId = GetCurrentUserId();
+                _logger.LogInformation("Current user ID: {UserId}", userId);
+                
+                var task = await _taskService.GetTaskByIdAsync(model.taskId);
+                _logger.LogInformation("Retrieved task: {TaskExists}", task != null ? "Yes" : "No");
+
+                if (task == null)
+                {
+                    _logger.LogWarning("Task not found with ID: {TaskId}", model.taskId);
+                    return Json(new { success = false, message = "Task not found" });
+                }
+
+                // Check if user can access this task
+                var canAccess = await CanAccessTaskAsync(task.ProjectId);
+                _logger.LogInformation("User {UserId} can access task: {CanAccess}", userId, canAccess);
+                
+                if (!canAccess)
+                {
+                    _logger.LogWarning("User {UserId} doesn't have permission to comment on task {TaskId}", userId, model.taskId);
+                    return Json(new { success = false, message = "You don't have permission to comment on this task" });
+                }
+
+                var comment = new Comment
+                {
+                    TaskId = model.taskId,
+                    Text = model.text,
+                    UserId = userId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _logger.LogInformation("Created comment object for task {TaskId} with text: {CommentText}", model.taskId, model.text);
+
+                try
+                {
+                    // Add comment directly to the context like CommentsController does
+                    _logger.LogInformation("Adding comment directly to DbContext for task {TaskId}", model.taskId);
+                    _context.Comments.Add(comment);
+                    
+                    // Create audit log directly
+                    _logger.LogInformation("Creating audit log directly for comment on task {TaskId}", model.taskId);
+                    var auditLog = new AuditLog
+                    {
+                        UserId = userId,
+                        Action = "CommentCreated",
+                        Details = $"Added comment to task '{task.Title}' (Task ID: {task.Id}, Project ID: {task.ProjectId})",
+                        Timestamp = DateTime.UtcNow
+                    };
+                    _context.AuditLogs.Add(auditLog);
+                    
+                    // Save changes
+                    _logger.LogInformation("Saving changes to DbContext for comment on task {TaskId}", model.taskId);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Successfully saved comment with ID: {CommentId} for task {TaskId}", 
+                        comment.Id, model.taskId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error saving comment to database for task {TaskId}. Exception: {ExMessage}", 
+                        model.taskId, ex.Message);
+                    return Json(new { success = false, message = $"Error creating comment: {ex.Message}" });
+                }
+
+                try
+                {
+                    // Send notification to task assignee and project members
+                    _logger.LogInformation("Sending task comment notification for task {TaskId}", model.taskId);
+                    await _notificationService.SendTaskCommentNotificationAsync(comment);
+                    _logger.LogInformation("Successfully sent task comment notification for task {TaskId}", model.taskId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error sending task comment notification for task {TaskId}. Exception: {ExMessage}", 
+                        model.taskId, ex.Message);
+                    // Continue execution even if notification fails
+                }
+                
+                try
+                {
+                    // Get current user for the real-time notification
+                    _logger.LogInformation("Getting current user for SignalR notification");
+                    var currentUser = await _userManager.FindByIdAsync(userId);
+                    string userName = currentUser?.FullName ?? currentUser?.UserName ?? "Unknown User";
+                    _logger.LogInformation("Retrieved user name: {UserName} for SignalR notification", userName);
+                    
+                    // Broadcast the comment to all connected clients
+                    _logger.LogInformation("Broadcasting comment via SignalR for task {TaskId}", model.taskId);
+                    await _hubContext.Clients.All.SendAsync("CommentAdded", task.Id, new
+                    {
+                        taskId = task.Id,
+                        projectId = task.ProjectId,
+                        text = comment.Text,
+                        authorName = userName,
+                        timestamp = comment.CreatedAt
+                    });
+                    _logger.LogInformation("Successfully broadcasted comment via SignalR for task {TaskId}", model.taskId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error broadcasting comment via SignalR for task {TaskId}. Exception: {ExMessage}", 
+                        model.taskId, ex.Message);
+                    // Continue execution even if SignalR broadcast fails
+                }
+
+                _logger.LogInformation("AddComment completed successfully for task {TaskId}", model.taskId);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled error in AddComment for task {TaskId}. Exception: {ExMessage}", 
+                    model?.taskId, ex.Message);
+                return Json(new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
+        }
+
+        // Helper class for AddComment method
+        public class CommentAddModel
+        {
+            public int taskId { get; set; }
+            public string text { get; set; }
         }
     }
 }

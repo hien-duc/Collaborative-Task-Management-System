@@ -99,6 +99,7 @@
                             <th scope="col" aria-label="Task status">Status</th>
                             <th scope="col" aria-label="Task priority">Priority</th>
                             <th scope="col" aria-label="Task due date">Due Date</th>
+                            <th scope="col" aria-label="Task comments">Comments</th>
                             <th scope="col" aria-label="Task actions">Actions</th>
                         </tr>
                         </thead>
@@ -166,6 +167,11 @@
                                 </td>
                                 <td>@task.DueDate.ToString("MM/dd/yyyy")</td>
                                 <td>
+                                    <button class="btn btn-sm btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#task-@task.Id" aria-expanded="false" aria-controls="task-@task.Id" aria-label="View comments for task @task.Title">
+                                        <i class="bi bi-chat-dots"></i> View Comments (@(task.Comments != null ? task.Comments.Count : 0))
+                                    </button>
+                                </td>
+                                <td>
                                     @if (Model.IsManager || User.IsInRole("Admin") || task.AssignedToId == User.Identity.GetUserId())
                                     {
                                         <a asp-controller="Tasks" asp-action="Edit" asp-route-id="@task.Id" class="btn btn-sm btn-warning me-1" aria-label="Edit task">
@@ -210,13 +216,14 @@
                                                     }
                                                 </div>
                                                 <form asp-controller="Comments" asp-action="Create" method="post" class="comment-form">
+                                                    @Html.AntiForgeryToken()
                                                     <input type="hidden" name="TaskId" value="@task.Id"/>
                                                     <div class="form-group mb-2">
                                                         <label for="comment-@task.Id" class="visually-hidden">Add a comment</label>
-                                                        <textarea id="comment-@task.Id" name="Content" class="form-control" rows="3" placeholder="Add a comment..." required maxlength="1000" aria-describedby="comment-help-@task.Id"></textarea>
-                                                        <small id="comment-help-@task.Id" class="form-text text-muted">Maximum 1000 characters</small>
+                                                        <textarea id="comment-@task.Id" name="Content" class="form-control" rows="3" placeholder="Add a comment..." required maxlength="1000" aria-describedby="comment-help-@task.Id" aria-label="Add comment for task @task.Title"></textarea>
+                                                        <small id="comment-help-@task.Id" class="form-text text-muted d-flex justify-content-end">Maximum 1000 characters</small>
                                                     </div>
-                                                    <button type="submit" class="btn btn-primary">
+                                                    <button type="submit" class="btn btn-primary btn-sm">
                                                         <i class="bi bi-chat-dots"></i> Post Comment
                                                     </button>
                                                 </form>
