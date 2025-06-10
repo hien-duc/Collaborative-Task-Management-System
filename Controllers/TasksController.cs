@@ -23,7 +23,7 @@ namespace Collaborative_Task_Management_System.Controllers
         private readonly INotificationServiceWithUoW _notificationService;
         private readonly ILogger<TasksController> _logger;
         private readonly IHubContext<NotificationHub> _hubContext;
-        private readonly HomeController _homeController;
+        private readonly IDashboardBroadcastService _dashboardBroadcastService;
 
         public TasksController(
         ITaskServiceWithUoW taskService,
@@ -32,7 +32,7 @@ namespace Collaborative_Task_Management_System.Controllers
         UserManager<ApplicationUser> userManager,
         ILogger<TasksController> logger,
         IHubContext<NotificationHub> hubContext,
-        HomeController homeController)
+        IDashboardBroadcastService dashboardBroadcastService)
         : base(userManager)
     {
         _taskService = taskService;
@@ -40,7 +40,7 @@ namespace Collaborative_Task_Management_System.Controllers
         _notificationService = notificationService;
         _logger = logger;
         _hubContext = hubContext;
-        _homeController = homeController;
+        _dashboardBroadcastService = dashboardBroadcastService;
     }
 
         // GET: Tasks/Create/5 (projectId)
@@ -482,32 +482,11 @@ namespace Collaborative_Task_Management_System.Controllers
         {
             try
             {
-                // Get all project members
-                var project = await _projectService.GetProjectByIdAsync(projectId);
-                if (project == null)
-                {
-                    _logger.LogWarning("Cannot broadcast dashboard update: Project {ProjectId} not found", projectId);
-                    return;
-                }
-                
-                // Get all project members including the creator
-                var members = project.ProjectMembers.Select(pm => pm.UserId).ToList();
-                if (!members.Contains(project.CreatedById))
-                {
-                    members.Add(project.CreatedById);
-                }
-                
-                // Broadcast dashboard update to each member
-                foreach (var userId in members)
-                {
-                    await _homeController.BroadcastDashboardUpdate(userId, projectId);
-                }
-                
-                _logger.LogInformation("Dashboard update broadcast sent to {MemberCount} members of project {ProjectId}", members.Count, projectId);
+                await _dashboardBroadcastService.BroadcastDashboardUpdateToProjectMembers(projectId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error broadcasting dashboard update to project members for project {ProjectId}", projectId);
+                _logger.LogError(ex, "Error in BroadcastDashboardUpdateToProjectMembers for project {ProjectId}", projectId);
             }
         }
 

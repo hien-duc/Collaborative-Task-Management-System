@@ -60,6 +60,7 @@ builder.Services.AddScoped<IUnitOfWork, Collaborative_Task_Management_System.Uni
 builder.Services.AddScoped<IProjectServiceWithUoW, ProjectServiceWithUoW>();
 builder.Services.AddScoped<ITaskServiceWithUoW, TaskServiceWithUoW>();
 builder.Services.AddScoped<INotificationServiceWithUoW, NotificationServiceWithUoW>();
+builder.Services.AddScoped<IDashboardBroadcastService, DashboardBroadcastService>();
 builder.Services.AddMemoryCache();
 
 // Add SignalR
