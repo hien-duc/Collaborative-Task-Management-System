@@ -86,7 +86,7 @@ namespace Collaborative_Task_Management_System.Controllers
 
             try
             {
-                var project = await _projectService.GetProjectByIdAsync(id.Value);
+                var project = await _projectService.GetProjectWithTasksAsync(id.Value);
 
                 if (project == null)
                 {

@@ -315,7 +315,7 @@ namespace Collaborative_Task_Management_System.Services
             try
             {
                 // Get the task with related entities
-                var task = await _unitOfWork.Tasks.GetByIdWithIncludesAsync(comment.TaskId, t => t.AssignedTo, t => t.Project);
+                var task = await _unitOfWork.Tasks.GetByIdWithIncludesAsync(comment.TaskId, t => t.AssignedUser, t => t.Project);
                 if (task == null) return;
                 
                 // Get the comment author - use Repository<ApplicationUser> instead of Users
@@ -323,10 +323,10 @@ namespace Collaborative_Task_Management_System.Services
                 if (commentAuthor == null) return;
                 
                 // Notify the task assignee if they're not the commenter
-                if (task.AssignedTo != null && task.AssignedTo.Id != comment.UserId)
+                if (task.AssignedUser != null && task.AssignedUser.Id != comment.UserId)
                 {
                     await CreateTaskNotificationAsync(
-                        task.AssignedTo.Id,
+                        task.AssignedUser.Id,
                         "New Comment on Task",
                         $"{commentAuthor.FullName ?? commentAuthor.UserName} commented on task '{task.Title}'",
                         NotificationType.TaskCommented,
@@ -341,7 +341,7 @@ namespace Collaborative_Task_Management_System.Services
                 {
                     // Don't notify the commenter or the assignee (who was already notified)
                     if (member.UserId != comment.UserId && 
-                        (task.AssignedTo == null || member.UserId != task.AssignedTo.Id))
+                        (task.AssignedUser == null || member.UserId != task.AssignedUser.Id))
                     {
                         await CreateTaskNotificationAsync(
                             member.UserId,

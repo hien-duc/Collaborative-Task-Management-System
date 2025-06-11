@@ -40,7 +40,7 @@ namespace Collaborative_Task_Management_System.Controllers
         // POST: Comments/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CommentCreateViewModel model)
+        public async Task<IActionResult> Create([FromBody] CommentCreateViewModel model)
         {
             if (!ModelState.IsValid)
             {
