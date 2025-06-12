@@ -129,22 +129,22 @@
                                         <select class="form-select form-select-sm task-status-select" data-task-id="@task.Id" aria-label="Change task status">
                                             @if (task.Status == TaskStatus.ToDo)
                                             {
-                                                <option value="To Do" selected>To Do</option>
+                                                <option value="ToDo" selected>To Do</option>
                                             }
                                             else
                                             {
-                                                <option value="To Do">To Do</option>
+                                                <option value="ToDo">To Do</option>
                                             }
-                                            
+    
                                             @if (task.Status == TaskStatus.InProgress)
                                             {
-                                                <option value="In Progress" selected>In Progress</option>
+                                                <option value="InProgress" selected>In Progress</option>
                                             }
                                             else
                                             {
-                                                <option value="In Progress">In Progress</option>
+                                                <option value="InProgress">In Progress</option>
                                             }
-                                            
+    
                                             @if (task.Status == TaskStatus.Completed)
                                             {
                                                 <option value="Completed" selected>Completed</option>
@@ -331,7 +331,7 @@
                         'Content-Type': 'application/json',
                         'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                     },
-                    body: JSON.stringify({ status: newStatus })
+                    body: JSON.stringify(newStatus)
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -394,19 +394,15 @@
             const teamMembersContainer = document.getElementById('team-members-container');
             teamMembersContainer.innerHTML = '<div class="d-flex justify-content-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
             
-            const formData = new FormData();
-            formData.append('projectId', projectId);
-            formData.append('userId', userId);
             
             // Get the anti-forgery token
             const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
             
-            fetch(`/Projects/RemoveMember/${projectId}/${userId}`, {
+            fetch(`/Projects/RemoveMember/?projectId=${projectId}&userId=${userId}`, {
                 method: 'POST',
                 headers: {
                     'RequestVerificationToken': token
-                },
-                body: formData
+                }
             })
             .then(response => {
                 if (response.ok) {
@@ -474,7 +470,7 @@
         function refreshTeamMembers(projectId) {
             const teamMembersContainer = document.getElementById('team-members-container');
             
-            fetch(`/Projects/GetTeamMembers/${projectId}`)
+            fetch(`/Projects/GetTeamMembers/?projectId=${projectId}`)
             .then(response => response.text())
             .then(html => {
                 teamMembersContainer.innerHTML = html;

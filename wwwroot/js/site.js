@@ -670,49 +670,6 @@ function initTeamMemberManagement() {
             });
         });
     });
-    
-    // Remove member buttons
-    const removeMemberButtons = document.querySelectorAll('.remove-member-btn');
-    removeMemberButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (!confirm('Are you sure you want to remove this member?')) {
-                return;
-            }
-            
-            const projectId = this.getAttribute('data-project-id');
-            const userId = this.getAttribute('data-user-id');
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-            
-            fetch(`/Projects/RemoveMember/${projectId}/${userId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'RequestVerificationToken': token
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to remove team member');
-                }
-                return response.text();
-            })
-            .then(html => {
-                // Reload the team members section
-                const teamMembersSection = document.querySelector('.team-members-section');
-                if (teamMembersSection) {
-                    teamMembersSection.innerHTML = html;
-                    // Re-initialize event handlers for the new content
-                    initTeamMemberManagement();
-                }
-                notificationSystem.showNotification('Team member removed successfully', 'success');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                notificationSystem.showNotification('Failed to remove team member', 'danger');
-            });
-        });
-    });
 }
 
 // Project Filter Functionality

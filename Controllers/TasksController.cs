@@ -264,8 +264,8 @@ namespace Collaborative_Task_Management_System.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id,
-            [Bind("Id,ProjectId,Title,Description,DueDate,Priority,Status,AssignedToId")] TaskItem task,
-            IFormFile attachment)
+            [Bind("Id,ProjectId,Title,Description,DueDate,Priority,Status,AssignedUserId,CreatedById")] TaskItem task,
+            IFormFile? attachment)
         {
             if (id != task.Id)
             {
@@ -280,7 +280,27 @@ namespace Collaborative_Task_Management_System.Controllers
 
             try
             {
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
+                {
+                    // Log all validation errors
+                    var validationErrors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .Select(x => new 
+                        { 
+                            Property = x.Key, 
+                            Errors = x.Value.Errors.Select(e => e.ErrorMessage).ToArray() 
+                        })
+                        .ToList();
+
+                    _logger.LogWarning("ModelState validation failed with {ErrorCount} errors. Details: {ValidationErrors}", 
+                        validationErrors.Sum(e => e.Errors.Length),
+                        System.Text.Json.JsonSerializer.Serialize(validationErrors));
+
+                    // Optionally add the errors to ViewData to display in the view
+                    ViewData["ValidationErrors"] = validationErrors;
+                }
+
+                else if (ModelState.IsValid)
                 {
                     var updatedTask = await _taskService.UpdateTaskAsync(task);
 
@@ -444,10 +464,16 @@ namespace Collaborative_Task_Management_System.Controllers
 
         // POST: Tasks/UpdateStatus/5
         [HttpPost]
-        public async Task<IActionResult> UpdateStatus(int id, TaskStatus status)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] string status)
         {
             try
             {
+                if (!Enum.TryParse<TaskStatus>(status, out var statusEnum))
+                {
+                    return Json(new { success = false, message = "Invalid status value" });
+                }
+                
                 var task = await _taskService.GetTaskByIdAsync(id);
                 if (task == null)
                 {
@@ -466,7 +492,7 @@ namespace Collaborative_Task_Management_System.Controllers
                     return Forbid();
                 }
 
-                task = await _taskService.UpdateTaskStatusAsync(id, status, currentUserId);
+                task = await _taskService.UpdateTaskStatusAsync(id, statusEnum, currentUserId);
                 await _notificationService.SendTaskStatusUpdateNotificationAsync(task, currentUserId);
                 
                 // Broadcast dashboard update to all project members

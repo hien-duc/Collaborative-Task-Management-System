@@ -14,6 +14,7 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="Id" />
                         <input type="hidden" asp-for="ProjectId" />
+                        <input type="hidden" asp-for="CreatedById"/>
 
                         <div class="mb-3">
                             <div class="form-floating">
@@ -67,12 +68,12 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <select asp-for="AssigneeId" asp-items="ViewBag.Users" class="form-select">
+                                    <select asp-for="AssignedUserId" asp-items="ViewBag.Users" class="form-select">
                                         <option value="">-- Select Assignee --</option>
                                     </select>
-                                    <label asp-for="AssigneeId">Assignee</label>
+                                    <label asp-for="AssignedUserId">Assignee</label>
                                 </div>
-                                <span asp-validation-for="AssigneeId" class="text-danger"></span>
+                                <span asp-validation-for="AssignedUserId" class="text-danger"></span>
                             </div>
                         </div>
 

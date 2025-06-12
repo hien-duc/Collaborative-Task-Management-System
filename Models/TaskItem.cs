@@ -38,14 +38,14 @@ namespace Collaborative_Task_Management_System.Models
         public string AssignedUserId { get; set; }
         
         // Alias for compatibility
-        public string AssignedToId 
+        public string? AssignedToId 
         { 
             get => AssignedUserId; 
             set => AssignedUserId = value; 
         }
         
         // Alias for compatibility  
-        public string AssigneeId 
+        public string? AssigneeId 
         { 
             get => AssignedUserId; 
             set => AssignedUserId = value; 

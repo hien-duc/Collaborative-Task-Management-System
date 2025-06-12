@@ -82,6 +82,9 @@ namespace Collaborative_Task_Management_System.Repositories
                 
             if (existingMember != null)
             {
+                existingMember.IsActive = true;
+                context.ProjectMembers.Update(existingMember);
+                await context.SaveChangesAsync();
                 return existingMember; // Member already exists
             }
             
@@ -107,7 +110,8 @@ namespace Collaborative_Task_Management_System.Repositories
                 
             if (projectMember != null)
             {
-                context.ProjectMembers.Remove(projectMember);
+                projectMember.IsActive = false;
+                context.ProjectMembers.Update(projectMember);
                 await context.SaveChangesAsync();
             }
         }

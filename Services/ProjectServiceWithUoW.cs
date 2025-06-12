@@ -255,7 +255,8 @@ namespace Collaborative_Task_Management_System.Services
                 await _unitOfWork.BeginTransactionAsync();
 
                 // Check if project exists
-                var project = await _unitOfWork.Projects.GetByIdAsync(projectId);
+                var project = await _unitOfWork.Projects.GetByIdWithIncludesAsync(projectId,
+                    p => p.ProjectMembers);
                 if (project == null)
                 {
                     throw new ArgumentException($"Project with ID {projectId} not found");
@@ -311,7 +312,8 @@ namespace Collaborative_Task_Management_System.Services
                     EntityId = projectId.ToString(),
                     EntityType = "Project",
                     Timestamp = DateTime.UtcNow,
-                    IpAddress = ipAddress
+                    IpAddress = ipAddress,
+                    Details = $"User {userId} was removed from project {projectId}"
                 });
 
                 await _unitOfWork.CommitTransactionAsync();

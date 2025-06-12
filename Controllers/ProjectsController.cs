@@ -484,7 +484,7 @@ private async Task<bool> ProjectExists(int id)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> RemoveMember(int projectId, string userId)
+        public async Task<IActionResult> RemoveMember([FromQuery] int projectId, [FromQuery] string userId)
         {
             if (string.IsNullOrEmpty(userId))
             {
@@ -576,9 +576,9 @@ private async Task<bool> ProjectExists(int id)
             }
         }
         
-        // GET: Projects/GetTeamMembers/{projectId}
+        // GET: Projects/GetTeamMembers/?projectId={projectId}
         [HttpGet]
-        public async Task<IActionResult> GetTeamMembers(int projectId)
+        public async Task<IActionResult> GetTeamMembers([FromQuery] int projectId)
         {
             try
             {

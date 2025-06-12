@@ -183,3 +183,336 @@ System.InvalidOperationException: The expression 'p.Tasks.AsQueryable().Select(t
 2025-06-11 14:11:44.470 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
 2025-06-11 14:11:52.611 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
 2025-06-11 14:11:53.879 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:15:01.126 +07:00 [INF] Starting web application
+2025-06-11 14:15:01.810 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 14:15:02.271 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 14:15:05.520 +07:00 [INF] User logged out.
+2025-06-11 14:15:26.801 +07:00 [INF] User created a new account with password.
+2025-06-11 14:15:27.071 +07:00 [INF] User signed in after registration.
+2025-06-11 14:15:27.184 +07:00 [INF] Cached dashboard data for user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 14:15:35.486 +07:00 [INF] Retrieved dashboard data from cache for user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 14:15:39.420 +07:00 [INF] User logged out.
+2025-06-11 14:16:06.873 +07:00 [INF] User logged in.
+2025-06-11 14:16:06.887 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 14:16:12.833 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:16:16.497 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:16:22.013 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 14:16:22.032 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 14:16:22.033 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 14:16:22.033 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 1
+2025-06-11 14:21:03.362 +07:00 [INF] Starting web application
+2025-06-11 14:21:04.118 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 14:21:04.890 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 14:21:10.384 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:21:13.836 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:22:15.383 +07:00 [INF] Starting web application
+2025-06-11 14:22:15.884 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 14:22:16.647 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 14:22:19.133 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:22:22.145 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:30:43.086 +07:00 [INF] Starting web application
+2025-06-11 14:30:43.404 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 14:30:43.962 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 14:31:11.407 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:31:29.001 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:36:32.334 +07:00 [INF] Starting web application
+2025-06-11 14:36:32.867 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 14:36:33.524 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 14:36:35.064 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:36:40.782 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:40:30.691 +07:00 [INF] Starting web application
+2025-06-11 14:40:31.390 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 14:40:32.157 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 14:40:35.154 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:40:37.367 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:41:43.424 +07:00 [INF] Starting web application
+2025-06-11 14:41:44.115 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 14:41:44.913 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 14:41:49.106 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:41:51.476 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 14:59:21.201 +07:00 [INF] Starting web application
+2025-06-11 14:59:21.935 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 14:59:22.623 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 14:59:28.578 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 15:05:36.327 +07:00 [INF] Starting web application
+2025-06-11 15:05:36.933 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 15:05:37.462 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:05:40.188 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 15:05:42.592 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 15:05:42.933 +07:00 [ERR] An exception occurred in the database while saving changes for context type 'Collaborative_Task_Management_System.Data.ApplicationDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): Cannot insert the value NULL into column 'Details', table 'TaskManagerV5.dbo.AuditLogs'; column does not allow nulls. INSERT fails.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.ReadAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ed4ff5f0-6c01-4ef1-8764-8cc44b529f18
+Error Number:515,State:2,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): Cannot insert the value NULL into column 'Details', table 'TaskManagerV5.dbo.AuditLogs'; column does not allow nulls. INSERT fails.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.ReadAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ed4ff5f0-6c01-4ef1-8764-8cc44b529f18
+Error Number:515,State:2,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2025-06-11 15:05:42.956 +07:00 [ERR] Error removing user 2dd5eac6-9aba-439f-953a-f16ec9a5148f from project 1
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): Cannot insert the value NULL into column 'Details', table 'TaskManagerV5.dbo.AuditLogs'; column does not allow nulls. INSERT fails.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.ReadAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ed4ff5f0-6c01-4ef1-8764-8cc44b529f18
+Error Number:515,State:2,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.UnitOfWork.UnitOfWork.CommitTransactionAsync() in /Users/thomasjohnson/Documents/GitHub/Collaborative-Task-Management-System/UnitOfWork/UnitOfWork.cs:line 122
+   at Collaborative_Task_Management_System.UnitOfWork.UnitOfWork.CommitTransactionAsync() in /Users/thomasjohnson/Documents/GitHub/Collaborative-Task-Management-System/UnitOfWork/UnitOfWork.cs:line 131
+   at Collaborative_Task_Management_System.UnitOfWork.UnitOfWork.CommitTransactionAsync() in /Users/thomasjohnson/Documents/GitHub/Collaborative-Task-Management-System/UnitOfWork/UnitOfWork.cs:line 140
+   at Collaborative_Task_Management_System.Services.ProjectServiceWithUoW.RemoveProjectMemberAsync(Int32 projectId, String userId, String ipAddress) in /Users/thomasjohnson/Documents/GitHub/Collaborative-Task-Management-System/Services/ProjectServiceWithUoW.cs:line 317
+2025-06-11 15:05:42.962 +07:00 [ERR] Error removing user 2dd5eac6-9aba-439f-953a-f16ec9a5148f from project 1
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): Cannot insert the value NULL into column 'Details', table 'TaskManagerV5.dbo.AuditLogs'; column does not allow nulls. INSERT fails.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryReadInternal(Boolean setTimeout, Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.ReadAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ed4ff5f0-6c01-4ef1-8764-8cc44b529f18
+Error Number:515,State:2,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeResultSetAsync(Int32 startCommandIndex, RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.UnitOfWork.UnitOfWork.CommitTransactionAsync() in /Users/thomasjohnson/Documents/GitHub/Collaborative-Task-Management-System/UnitOfWork/UnitOfWork.cs:line 122
+   at Collaborative_Task_Management_System.UnitOfWork.UnitOfWork.CommitTransactionAsync() in /Users/thomasjohnson/Documents/GitHub/Collaborative-Task-Management-System/UnitOfWork/UnitOfWork.cs:line 131
+   at Collaborative_Task_Management_System.UnitOfWork.UnitOfWork.CommitTransactionAsync() in /Users/thomasjohnson/Documents/GitHub/Collaborative-Task-Management-System/UnitOfWork/UnitOfWork.cs:line 140
+   at Collaborative_Task_Management_System.Services.ProjectServiceWithUoW.RemoveProjectMemberAsync(Int32 projectId, String userId, String ipAddress) in /Users/thomasjohnson/Documents/GitHub/Collaborative-Task-Management-System/Services/ProjectServiceWithUoW.cs:line 317
+   at Collaborative_Task_Management_System.Services.ProjectServiceWithUoW.RemoveProjectMemberAsync(Int32 projectId, String userId, String ipAddress) in /Users/thomasjohnson/Documents/GitHub/Collaborative-Task-Management-System/Services/ProjectServiceWithUoW.cs:line 323
+   at Collaborative_Task_Management_System.Controllers.ProjectsController.RemoveMember(Int32 projectId, String userId) in /Users/thomasjohnson/Documents/GitHub/Collaborative-Task-Management-System/Controllers/ProjectsController.cs:line 521
+2025-06-11 15:07:47.953 +07:00 [INF] Starting web application
+2025-06-11 15:07:48.740 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 15:07:49.410 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:07:51.602 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 15:07:54.698 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 15:07:55.071 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:07:55.087 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:07:55.118 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:07:55.119 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 1
+2025-06-11 15:10:01.019 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:10:01.039 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:10:01.039 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:10:01.040 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 1
+2025-06-11 15:28:37.940 +07:00 [INF] Starting web application
+2025-06-11 15:28:38.725 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 15:28:39.533 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:28:48.297 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 15:28:53.939 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 15:28:54.391 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:28:54.440 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:28:54.440 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:28:54.440 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 1
+2025-06-11 15:29:01.536 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:29:01.554 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:29:01.554 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:29:01.554 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 1
+2025-06-11 15:36:50.518 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:36:50.591 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:36:50.592 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:36:50.593 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 1
+2025-06-11 15:36:57.326 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:36:57.355 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:36:57.356 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:36:57.356 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 1
+2025-06-11 15:41:21.930 +07:00 [INF] Starting web application
+2025-06-11 15:41:22.326 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 15:41:23.149 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:41:25.863 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 15:41:29.888 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 15:41:30.411 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:41:30.454 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:41:30.454 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:41:30.454 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 1
+2025-06-11 15:41:33.127 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:41:33.142 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:41:33.143 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:41:33.143 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 1
+2025-06-11 15:42:55.223 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:42:55.243 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:42:55.243 +07:00 [INF] Dashboard update broadcast sent to user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:42:55.243 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 1
+2025-06-11 15:43:25.240 +07:00 [INF] User logged out.
+2025-06-11 15:43:34.287 +07:00 [INF] User created a new account with password.
+2025-06-11 15:43:34.549 +07:00 [INF] User signed in after registration.
+2025-06-11 15:43:34.708 +07:00 [INF] Cached dashboard data for user 26bd1dff-db11-4976-a504-dccb09c0a24d
+2025-06-11 15:43:38.122 +07:00 [INF] User logged out.
+2025-06-11 15:43:58.421 +07:00 [INF] User logged in.
+2025-06-11 15:43:58.429 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:44:21.556 +07:00 [INF] Task created: 2 by user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:44:21.582 +07:00 [INF] Audit log created: TaskCreated by user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:44:21.615 +07:00 [INF] Task notification created for user: 2dd5eac6-9aba-439f-953a-f16ec9a5148f, Type: "TaskAssigned"
+2025-06-11 15:44:57.856 +07:00 [INF] User logged out.
+2025-06-11 15:45:00.972 +07:00 [INF] User logged in.
+2025-06-11 15:45:01.103 +07:00 [INF] Cached dashboard data for user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:45:07.116 +07:00 [INF] Retrieved dashboard data from cache for user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:45:19.215 +07:00 [INF] Retrieved dashboard data from cache for user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:45:22.232 +07:00 [INF] Retrieved dashboard data from cache for user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:45:27.847 +07:00 [INF] Retrieved dashboard data from cache for user 2dd5eac6-9aba-439f-953a-f16ec9a5148f
+2025-06-11 15:46:10.683 +07:00 [INF] User logged out.
+2025-06-11 15:46:26.562 +07:00 [INF] User logged in.
+2025-06-11 15:46:26.573 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:46:58.061 +07:00 [INF] Project created: 2 by user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:47:13.491 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:47:15.013 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:47:18.306 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 15:47:28.362 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:07:20.105 +07:00 [INF] Starting web application
+2025-06-11 16:07:20.534 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 16:07:21.205 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:07:26.261 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 16:07:33.785 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 16:07:34.182 +07:00 [INF] Dashboard update broadcast sent to user 26bd1dff-db11-4976-a504-dccb09c0a24d
+2025-06-11 16:07:34.229 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:07:34.229 +07:00 [INF] Dashboard update broadcast sent to user 26bd1dff-db11-4976-a504-dccb09c0a24d
+2025-06-11 16:07:34.229 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 2
+2025-06-11 16:07:36.473 +07:00 [INF] Dashboard update broadcast sent to user 26bd1dff-db11-4976-a504-dccb09c0a24d
+2025-06-11 16:07:36.489 +07:00 [INF] Dashboard update broadcast sent to user 26bd1dff-db11-4976-a504-dccb09c0a24d
+2025-06-11 16:07:36.489 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:07:36.489 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 2
+2025-06-11 16:07:49.401 +07:00 [INF] Dashboard update broadcast sent to user 26bd1dff-db11-4976-a504-dccb09c0a24d
+2025-06-11 16:07:49.424 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:07:49.424 +07:00 [INF] Dashboard update broadcast sent to user 26bd1dff-db11-4976-a504-dccb09c0a24d
+2025-06-11 16:07:49.424 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 2
+2025-06-11 16:07:51.803 +07:00 [INF] Dashboard update broadcast sent to user 26bd1dff-db11-4976-a504-dccb09c0a24d
+2025-06-11 16:07:51.823 +07:00 [INF] Dashboard update broadcast sent to user 26bd1dff-db11-4976-a504-dccb09c0a24d
+2025-06-11 16:07:51.823 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:07:51.823 +07:00 [INF] Dashboard update broadcast sent to 2 members of project 2
+2025-06-11 16:12:15.019 +07:00 [INF] Task status updated: 2 to "ToDo" by 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:12:15.049 +07:00 [INF] Task notification created for user: 2dd5eac6-9aba-439f-953a-f16ec9a5148f, Type: "TaskStatusChanged"
+2025-06-11 16:12:15.077 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:12:15.078 +07:00 [INF] Dashboard update broadcast sent to 1 members of project 1
+2025-06-11 16:12:20.531 +07:00 [INF] Task status updated: 2 to "ToDo" by 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:12:20.549 +07:00 [INF] Task notification created for user: 2dd5eac6-9aba-439f-953a-f16ec9a5148f, Type: "TaskStatusChanged"
+2025-06-11 16:12:20.564 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:12:20.565 +07:00 [INF] Dashboard update broadcast sent to 1 members of project 1
+2025-06-11 16:12:26.558 +07:00 [INF] Task status updated: 2 to "ToDo" by 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:12:26.577 +07:00 [INF] Task notification created for user: 2dd5eac6-9aba-439f-953a-f16ec9a5148f, Type: "TaskStatusChanged"
+2025-06-11 16:12:26.596 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:12:26.596 +07:00 [INF] Dashboard update broadcast sent to 1 members of project 1
+2025-06-11 16:14:32.867 +07:00 [INF] Starting web application
+2025-06-11 16:14:33.168 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 16:14:34.294 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:14:44.602 +07:00 [INF] Starting web application
+2025-06-11 16:14:45.074 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 16:14:45.614 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:14:55.634 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:15:00.381 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 16:17:26.203 +07:00 [INF] Starting web application
+2025-06-11 16:17:26.339 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 16:17:27.712 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:17:30.310 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 16:18:52.912 +07:00 [INF] Starting web application
+2025-06-11 16:18:53.374 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 16:18:53.930 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:18:57.979 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 16:27:24.585 +07:00 [INF] Starting web application
+2025-06-11 16:27:28.212 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 16:27:29.635 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:27:35.088 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 16:28:36.378 +07:00 [INF] Starting web application
+2025-06-11 16:28:36.722 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 16:28:37.401 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:28:43.056 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 16:30:41.800 +07:00 [INF] Starting web application
+2025-06-11 16:30:42.412 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 16:30:42.971 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:30:46.982 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 16:35:29.953 +07:00 [INF] Starting web application
+2025-06-11 16:35:30.238 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 16:35:31.249 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:35:34.545 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 16:38:29.037 +07:00 [INF] Starting web application
+2025-06-11 16:38:29.246 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-11 16:38:30.223 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:38:33.504 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 16:38:45.644 +07:00 [INF] Task status updated: 2 to "Completed" by 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:38:46.557 +07:00 [INF] Task notification created for user: 2dd5eac6-9aba-439f-953a-f16ec9a5148f, Type: "TaskStatusChanged"
+2025-06-11 16:38:46.571 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-11 16:38:46.638 +07:00 [INF] Dashboard update broadcast sent to user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-11 16:38:46.638 +07:00 [INF] Dashboard update broadcast sent to 1 members of project 1
