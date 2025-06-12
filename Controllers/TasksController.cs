@@ -265,7 +265,7 @@ namespace Collaborative_Task_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id,
             [Bind("Id,ProjectId,Title,Description,DueDate,Priority,Status,AssignedUserId,CreatedById")] TaskItem task,
-            IFormFile? attachment)
+            IFormFile? newAttachment)
         {
             if (id != task.Id)
             {
@@ -304,10 +304,10 @@ namespace Collaborative_Task_Management_System.Controllers
                 {
                     var updatedTask = await _taskService.UpdateTaskAsync(task);
 
-                    if (attachment != null)
+                    if (newAttachment != null)
                     {
                         await _taskService.SaveFileAttachmentAsync(
-                            updatedTask.Id, attachment, GetCurrentUserId());
+                            updatedTask.Id, newAttachment, GetCurrentUserId());
                     }
 
                     await _notificationService.SendTaskAssignmentNotificationAsync(updatedTask);
