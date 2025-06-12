@@ -525,19 +525,30 @@ namespace Collaborative_Task_Management_System.Controllers
         {
             try
             {
+                _logger.LogInformation("DownloadFile called for file ID: {FileId}", id);
                 var file = await _taskService.GetFileAttachmentAsync(id);
                 if (file == null)
                 {
+                    _logger.LogWarning("File attachment not found with ID: {FileId}", id);
                     return NotFound();
                 }
 
-                var filePath = file.FilePath;
-                if (!System.IO.File.Exists(filePath))
+                // Convert the relative URL path to a physical file path
+                // FilePath is stored as "/uploads/filename" in the database
+                var webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var physicalFilePath = Path.Combine(webRootPath, file.FilePath.TrimStart('/'));
+                
+                _logger.LogInformation("Physical file path: {FilePath}", physicalFilePath);
+                
+                if (!System.IO.File.Exists(physicalFilePath))
                 {
-                    return NotFound();
+                    _logger.LogWarning("Physical file not found at path: {FilePath}", physicalFilePath);
+                    return NotFound("The file was found in the database but not on the server.");
                 }
 
-                return PhysicalFile(filePath, file.ContentType, file.FileName);
+                _logger.LogInformation("Returning file: {FileName}, Content-Type: {ContentType}", 
+                    file.FileName, file.ContentType);
+                return PhysicalFile(physicalFilePath, file.ContentType, file.FileName);
             }
             catch (Exception ex)
             {
