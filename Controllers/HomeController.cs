@@ -50,18 +50,19 @@ namespace Collaborative_Task_Management_System.Controllers
         }
 
         [Authorize]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Dashboard(int? projectId = null)
         {
             try
             {
                 var userId = GetCurrentUserId();
-                var cacheKey = $"{DashboardCacheKey}{userId}_{projectId}";
+                /*var cacheKey = $"{DashboardCacheKey}{userId}_{projectId}";
 
                 if (!projectId.HasValue && _cache.TryGetValue(cacheKey, out DashboardViewModel cachedViewModel))
                 {
                     _logger.LogInformation("Retrieved dashboard data from cache for user {UserId}", userId);
                     return View(cachedViewModel);
-                }
+                }*/
 
                 var user = await _userManager.GetUserAsync(User);
                 var isManagerOrAdmin = user != null && 
@@ -134,13 +135,13 @@ namespace Collaborative_Task_Management_System.Controllers
                 
                 ViewData["Projects"] = projectSelectList;
                 ViewData["SelectedProjectId"] = projectId;
-
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                //Remove cache
+                /*var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(_cacheDuration)
                     .SetPriority(CacheItemPriority.Normal);
-
+                
                 _cache.Set(cacheKey, viewModel, cacheEntryOptions);
-                _logger.LogInformation("Cached dashboard data for user {UserId}", userId);
+                _logger.LogInformation("Cached dashboard data for user {UserId}", userId);*/
 
                 return View(viewModel);
             }
@@ -176,6 +177,7 @@ namespace Collaborative_Task_Management_System.Controllers
         // API endpoint to get updated dashboard data
         [Authorize]
         [HttpGet]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> GetDashboardData(int? projectId = null)
         {
             try
@@ -214,7 +216,7 @@ namespace Collaborative_Task_Management_System.Controllers
                     TotalProjects = filteredProjects.Count,
                     TotalTasks = combinedTasks.Count,
                     CompletedTasks = combinedTasks.Count(t => t.Status == TaskStatus.Completed),
-                    CompletionRate = combinedTasks.Count > 0 
+                    overallCompletionRate = combinedTasks.Count > 0 
                         ? (double)combinedTasks.Count(t => t.Status == TaskStatus.Completed) / combinedTasks.Count * 100 
                         : 0,
                     TaskStatusSummary = new

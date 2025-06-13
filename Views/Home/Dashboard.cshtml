@@ -185,6 +185,12 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Document ready event to ensure dashboard data is refreshed on page load
+        $(document).ready(function() {
+            // Call updateDashboardData to refresh data when page loads
+            updateDashboardData();
+        });
+        
         // Task Status Chart
         var taskStatusCtx = document.getElementById('taskStatusChart').getContext('2d');
         var taskStatusChart = new Chart(taskStatusCtx, {
@@ -295,6 +301,9 @@
                                     notificationSystem.showNotification('Task status updated successfully', 'success');
                                     // Update the select value in case it was reset during loading
                                     $select.val(newStatus);
+                                    
+                                    // Update the dashboard data to reflect the changes
+                                    updateDashboardData();
                                 } else {
                                     notificationSystem.showNotification(data.message || 'Failed to update task status', 'danger');
                                 }
@@ -323,6 +332,12 @@
             $.ajax({
                 url: '/Home/GetDashboardData',
                 type: 'GET',
+                cache: false,
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                },
                 success: function(data) {
                     // Update summary cards
                     $('.total-projects').text(data.totalProjects);
