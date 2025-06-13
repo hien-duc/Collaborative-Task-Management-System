@@ -557,6 +557,35 @@ namespace Collaborative_Task_Management_System.Controllers
             }
         }
 
+        // GET: Tasks/Details/5
+        public async Task<IActionResult> Details(int? id, bool partial = false)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var task = await _taskService.GetTaskByIdAsync(id.Value);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            // Check if user can access this task
+            if (!await CanAccessTaskAsync(task.ProjectId))
+            {
+                return Forbid();
+            }
+
+            // If partial is true, return the partial view for the modal
+            if (partial)
+            {
+                return PartialView("_TaskDetails", task);
+            }
+
+            return View(task);
+        }
+
         // GET: Tasks/MyTasks
         public async Task<IActionResult> MyTasks(int? projectId)
         {

@@ -3,10 +3,25 @@
     ViewData["Title"] = "My Tasks";
     var projects = ViewData["Projects"] as List<SelectListItem>;
     var selectedProjectId = ViewData["SelectedProjectId"];
+    
+    // Define status columns for the Kanban board
+    var statusColumns = Enum.GetValues(typeof(TaskStatus)).Cast<TaskStatus>().ToList();
+    
+    // Define status colors for visual distinction
+    var statusColors = new Dictionary<TaskStatus, string> {
+        { TaskStatus.ToDo, "secondary" },
+        { TaskStatus.InProgress, "primary" },
+        { TaskStatus.UnderReview, "info" },
+        { TaskStatus.Completed, "success" },
+        { TaskStatus.Blocked, "danger" }
+    };
 }
 
-<div class="container py-4">
+<div class="container-fluid py-4">
     <h1 class="mb-4">My Tasks</h1>
+    
+    <!-- Notification Area -->
+    <div class="notification-area position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
     
     <!-- Project Filter Form -->
     <form asp-action="MyTasks" method="get" class="mb-3 project-filter-form">
@@ -32,7 +47,7 @@
         </div>
     </form>
     
-    <!-- Tasks Table -->
+    <!-- Kanban Board -->
     @if (!Model.Any())
     {
         <div class="alert alert-info" role="alert">
@@ -41,138 +56,295 @@
     }
     else
     {
-        <div class="table-responsive mt-3">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th scope="col" aria-label="Task title">Title</th>
-                        <th scope="col" aria-label="Project name">Project</th>
-                        <th scope="col" aria-label="Task status">Status</th>
-                        <th scope="col" aria-label="Task priority">Priority</th>
-                        <th scope="col" aria-label="Due date">Due Date</th>
-                        <th scope="col" aria-label="Actions">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var task in Model)
-                    {
-                        <tr>
-                            <td>
-                                <a href="/Tasks/Details/@task.Id" class="text-decoration-none">@task.Title</a>
-                            </td>
-                            <td>
-                                <a href="/Projects/Details/@task.ProjectId" class="text-decoration-none">@task.Project.Title</a>
-                            </td>
-                            <td>
-                                <select class="form-select form-select-sm task-status-select" 
-                                        data-task-id="@task.Id" 
-                                        aria-label="Change task status">
-                                    @foreach (TaskStatus status in Enum.GetValues(typeof(TaskStatus)))
-                                    {
-                                        if (task.Status == status)
-                                        {
-                                            <option value="@status" selected>@status</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="@status">@status</option>
-                                        }
-                                    }
-                                </select>
-                            </td>
-                            <td>
-                                <span class="badge bg-@(task.Priority == "High" ? "danger" : 
+        <div class="kanban-board row g-3 mt-3">
+            @foreach (var status in statusColumns)
+            {
+                <div class="col">
+                    <div class="kanban-column" data-status="@status">
+                        <div class="kanban-column-header bg-@statusColors[status] text-white p-2 rounded-top">
+                            <h5 class="mb-0">@status</h5>
+                        </div>
+                        <div class="kanban-column-body p-2 bg-light rounded-bottom" 
+                             data-status="@status"
+                             ondragover="allowDrop(event)" 
+                             ondrop="drop(event, '@status')">
+                            @foreach (var task in Model.Where(t => t.Status == status))
+                            {
+                                <div class="task-card card mb-3" 
+                                     id="task-@task.Id" 
+                                     draggable="true" 
+                                     ondragstart="drag(event)" 
+                                     data-task-id="@task.Id"
+                                     data-bs-toggle="modal"
+                                     data-bs-target="#taskModal"
+                                     data-task-details-url="@Url.Action("Details", "Tasks", new { id = task.Id, partial = true })"
+                                     data-task-edit-url="@Url.Action("Edit", "Tasks", new { id = task.Id })">
+                                    <div class="card-body p-3">
+                                        <h6 class="task-title mb-2">@task.Title</h6>
+                                        <div class="task-meta mb-2">
+                                            <span class="badge bg-@(task.Priority == "High" ? "danger" : 
                                                 task.Priority == "Medium" ? "warning" : "info")">
-                                    @task.Priority
-                                </span>
-                            </td>
-                            <td>
-                                <span class="@(task.DueDate < DateTime.Today ? "text-danger" : "")">
-                                    @task.DueDate.ToString("MMM dd, yyyy")
-                                </span>
-                            </td>
-                            <td>
-                                @if (task.AssignedUserId == User.Identity.GetUserId() || User.IsInRole("Manager") || User.IsInRole("Admin"))
-                                {
-                                    <a href="/Tasks/Edit/@task.Id" class="btn btn-warning btn-sm" aria-label="Edit task">
-                                        <i class="bi bi-pencil"></i> Edit
-                                    </a>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                                                @task.Priority
+                                            </span>
+                                            <small class="text-muted">@task.Project.Title</small>
+                                        </div>
+                                        <div class="task-due-date @(task.DueDate < DateTime.Today ? "text-danger" : "")">
+                                            <i class="bi bi-calendar me-1"></i>
+                                            <small>@task.DueDate.ToString("MMM dd, yyyy")</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     }
 </div>
 
+<!-- Task Modal -->
+<div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="taskModalLabel">Task Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center p-5">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" class="btn btn-warning edit-task-btn" id="editTaskBtn">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+    <style>
+        /* Additional Kanban styles */
+        .kanban-board {
+            overflow-x: auto;
+            min-height: calc(100vh - 250px);
+        }
+        
+        .kanban-column {
+            height: 100%;
+            min-height: calc(100vh - 250px);
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .kanban-column-body {
+            min-height: calc(100vh - 300px);
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+        }
+        
+        .task-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .task-card.dragging {
+            opacity: 0.5;
+        }
+        
+        .task-card.updating {
+            opacity: 0.7;
+            transform: scale(0.98);
+        }
+        
+        .task-card.highlight-update {
+            animation: highlight-pulse 1.5s ease;
+        }
+        
+        @@keyframes highlight-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(var(--primary-color-rgb), 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(var(--primary-color-rgb), 0); }
+            100% { box-shadow: 0 0 0 0 rgba(var(--primary-color-rgb), 0); }
+        }
+        
+        .kanban-column-body.drag-over {
+            background-color: rgba(var(--primary-color-rgb), 0.1) !important;
+        }
+    </style>
+    
     <script>
-        $(document).ready(function() {
-            // Handle status change via AJAX
-            $('.task-status-select').change(function() {
-                const taskId = $(this).data('task-id');
-                const newStatus = $(this).val();
-                const $select = $(this);
+        // Drag and drop functionality
+        function drag(event) {
+            event.dataTransfer.setData("text/plain", event.target.id);
+            event.target.classList.add('dragging');
+        }
+        
+        function allowDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('drag-over');
+        }
+        
+        function drop(event, newStatus) {
+            event.preventDefault();
+            
+            // Store a reference to the target column
+            const targetColumn = event.currentTarget;
+            targetColumn.classList.remove('drag-over');
+            
+            const taskId = event.dataTransfer.getData("text/plain").replace('task-', '');
+            const taskElement = document.getElementById(`task-${taskId}`);
+            
+            if (taskElement) {
+                taskElement.classList.remove('dragging');
                 
-                // Show loading indicator
-                $select.prop('disabled', true);
+                // Add a visual indicator that the task is being updated
+                taskElement.classList.add('updating');
                 
-                $.ajax({
-                    url: '/Tasks/UpdateStatus',
-                    type: 'POST',
-                    data: { id: taskId, status: newStatus },
-                    success: function(response) {
-                        // Show success indicator briefly
-                        $select.addClass('border-success');
-                        setTimeout(function() {
-                            $select.removeClass('border-success');
-                        }, 2000);
-                    },
-                    error: function(xhr, status, error) {
-                        // Show error and revert to previous value
-                        console.error('Error updating status:', error);
-                        $select.addClass('border-danger');
-                        setTimeout(function() {
-                            $select.removeClass('border-danger');
-                        }, 2000);
-                        // You might want to revert the select to its previous value here
-                    },
-                    complete: function() {
-                        $select.prop('disabled', false);
+                // Call the UpdateStatus method via AJAX
+                updateTaskStatus(taskId, newStatus, function() {
+                    // On success, move the task to the new column
+                    targetColumn.appendChild(taskElement);
+                    
+                    // Apply a brief highlight effect to show the task has been moved
+                    taskElement.classList.add('highlight-update');
+                    setTimeout(() => {
+                        taskElement.classList.remove('highlight-update');
+                    }, 1500);
+                });
+            }
+        }
+        
+        function updateTaskStatus(taskId, newStatus, onSuccess) {
+            // Show loading indicator
+            const taskElement = document.getElementById(`task-${taskId}`);
+            if (taskElement) {
+                taskElement.style.opacity = '0.5';
+            }
+            
+            // Send AJAX request to update status
+            $.ajax({
+                url: `/Tasks/UpdateStatus/${taskId}`,
+                type: 'POST',
+                data: JSON.stringify(newStatus),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update the task card with the new status
+                        if (taskElement) {
+                            // Move the task to the new column
+                            if (typeof onSuccess === 'function') {
+                                onSuccess();
+                            }
+                            
+                            // Update the task card's status in the data attribute
+                            taskElement.setAttribute('data-status', newStatus);
+                            
+                            // Refresh the task card's appearance if needed
+                            // This ensures any visual indicators tied to status are updated
+                            const priorityBadge = taskElement.querySelector('.badge');
+                            if (priorityBadge) {
+                                // Refresh the priority badge if needed
+                                // The priority itself hasn't changed, but this ensures consistent styling
+                                const priority = priorityBadge.textContent.trim();
+                                priorityBadge.className = `badge bg-${priority === 'High' ? 'danger' : 
+                                    priority === 'Medium' ? 'warning' : 'info'}`;
+                            }
+                        }
+                        
+                        // Show success notification
+                        showNotification('success', 'Task status updated successfully');
+                    } else {
+                        showNotification('danger', response.message || 'Error updating task status');
                     }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error updating status:', error);
+                    showNotification('danger', 'Error updating task status');
+                },
+                complete: function() {
+                    if (taskElement) {
+                        taskElement.style.opacity = '1';
+                        taskElement.classList.remove('updating');
+                    }
+                }
+            });
+        }
+        
+        function showNotification(type, message) {
+            const notification = $(`
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `);
+            
+            $('.notification-area').append(notification);
+            
+            // Auto-dismiss after 3 seconds
+            setTimeout(function() {
+                notification.alert('close');
+            }, 3000);
+        }
+        
+        // Modal functionality
+        $(document).ready(function() {
+            // Initialize SignalR connection if not already connected
+            if (typeof connection !== 'undefined' && connection.state !== 'Connected') {
+                try {
+                    // Call the startSignalRConnection function from site.js
+                    if (typeof startSignalRConnection === 'function') {
+                        startSignalRConnection();
+                    } else {
+                        console.warn('startSignalRConnection function not found');
+                    }
+                } catch (err) {
+                    console.error('Error starting SignalR connection:', err);
+                }
+            }
+            
+            // Remove drag-over class when leaving a column
+            $('.kanban-column-body').on('dragleave', function(event) {
+                event.preventDefault();
+                event.currentTarget.classList.remove('drag-over');
+            });
+            
+            // Handle task card click to show modal
+            $('#taskModal').on('show.bs.modal', function(event) {
+                const button = $(event.relatedTarget);
+                const taskId = button.data('task-id');
+                const detailsUrl = button.data('task-details-url');
+                const editUrl = button.data('task-edit-url');
+                const modal = $(this);
+                
+                // Update edit button URL
+                modal.find('#editTaskBtn').attr('href', editUrl);
+                
+                // Load task details into modal
+                modal.find('.modal-body').load(detailsUrl, function() {
+                    // This callback runs after content is loaded
                 });
             });
             
-            // Optional: AJAX for project filter form
-            // Uncomment this section if you want to implement AJAX filtering
-            /*
-            $('select[name="projectId"]').change(function() {
-                const projectId = $(this).val();
-                
-                $.ajax({
-                    url: '/Tasks/MyTasks',
-                    type: 'GET',
-                    data: { projectId: projectId },
-                    success: function(response) {
-                        // Replace the table content with the new filtered data
-                        $('.table-responsive').html($(response).find('.table-responsive').html());
-                        
-                        // Reattach event handlers to the new elements
-                        $('.task-status-select').change(function() {
-                            // Copy the status change handler here
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error filtering tasks:', error);
-                    }
-                });
-                
-                // Prevent the default form submission
-                return false;
+            // Clear modal content when closed
+            $('#taskModal').on('hidden.bs.modal', function() {
+                const modal = $(this);
+                modal.find('.modal-body').html(`
+                    <div class="text-center p-5">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                `);
             });
-            */
         });
     </script>
 }
