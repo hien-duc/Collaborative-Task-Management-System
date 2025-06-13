@@ -147,6 +147,364 @@
   
 /* Here */
 
+/* Hero Section Styles */
+.hero-section {
+    padding: 3rem 0;
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.05) 0%, rgba(var(--secondary-color-rgb), 0.05) 100%);
+    position: relative;
+    overflow: hidden;
+    min-height: 100vh;
+    width: 100%;
+}
+
+a.btn {
+    text-decoration: none !important;
+  }
+  
+  a.btn:hover,
+  a.btn:focus,
+  a.btn:active {
+    text-decoration: none !important;
+  }
+  
+
+/* Background Elements */
+.hero-bg-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.hero-bg-circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.hero-bg-circle-1 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(var(--primary-color-rgb), 0.2) 0%, rgba(var(--primary-color-rgb), 0) 70%);
+    top: -100px;
+    left: -100px;
+    animation: float 15s infinite ease-in-out;
+}
+
+.hero-bg-circle-2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(var(--secondary-color-rgb), 0.15) 0%, rgba(var(--secondary-color-rgb), 0) 70%);
+    bottom: -200px;
+    right: -100px;
+    animation: float 20s infinite ease-in-out reverse;
+}
+
+.hero-bg-circle-3 {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(var(--info-color-rgb), 0.15) 0%, rgba(var(--info-color-rgb), 0) 70%);
+    top: 40%;
+    left: 15%;
+    animation: float 12s infinite ease-in-out 2s;
+}
+
+.hero-bg-shape {
+    position: absolute;
+    opacity: 0.4;
+}
+
+.hero-bg-shape-1 {
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.2) 0%, rgba(var(--primary-color-rgb), 0) 100%);
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    top: 20%;
+    right: 10%;
+    animation: morph 15s infinite ease-in-out;
+}
+
+.hero-bg-shape-2 {
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, rgba(var(--secondary-color-rgb), 0.15) 0%, rgba(var(--secondary-color-rgb), 0) 100%);
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    bottom: 15%;
+    left: 5%;
+    animation: morph 20s infinite ease-in-out reverse;
+}
+
+/* Hero Content Styles */
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.text-gradient {
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+}
+
+.hero-badge .badge {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.hero-stats {
+    margin-top: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+}
+
+/* Hero Visual Styles */
+.hero-visual {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-visual-wrapper {
+    padding: 1rem;
+}
+
+.hero-dashboard {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+    transition: transform 0.5s ease;
+}
+
+.hero-dashboard:hover {
+    transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+}
+
+.dashboard-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.dashboard-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.dashboard-title {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.dashboard-content {
+    background-color: var(--body-bg);
+    border-radius: 8px;
+}
+
+.task-card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.task-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+}
+
+.task-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* Floating Elements */
+.floating-element {
+    position: absolute;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    z-index: -1;
+}
+
+.floating-element-1 {
+    width: 80px;
+    height: 80px;
+    top: -20px;
+    right: 20%;
+    background: linear-gradient(135deg, var(--primary-color-light) 0%, var(--primary-color) 100%);
+    border-radius: 12px;
+    opacity: 0.8;
+    animation: float 8s infinite ease-in-out;
+}
+
+.floating-element-2 {
+    width: 60px;
+    height: 60px;
+    bottom: 10%;
+    right: -20px;
+    background: linear-gradient(135deg, var(--secondary-color-light) 0%, var(--secondary-color) 100%);
+    border-radius: 50%;
+    opacity: 0.7;
+    animation: float 12s infinite ease-in-out 2s;
+}
+
+.floating-element-3 {
+    width: 40px;
+    height: 40px;
+    bottom: -10px;
+    left: 30%;
+    background: linear-gradient(135deg, var(--info-color-light) 0%, var(--info-color) 100%);
+    border-radius: 8px;
+    transform: rotate(45deg);
+    opacity: 0.6;
+    animation: float 10s infinite ease-in-out 1s;
+}
+
+/* Feature Cards */
+.feature-card {
+    background-color: var(--card-bg);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(var(--primary-color-rgb), 0.1);
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow);
+}
+
+.feature-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    color: var(--primary-color);
+}
+
+.feature-icon {
+    font-size: 1.5rem;
+}
+
+.feature-title {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.feature-text {
+    color: var(--text-muted);
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes morph {
+    0%, 100% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+    25% {
+        border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    }
+    50% {
+        border-radius: 50% 60% 50% 40% / 40% 50% 60% 50%;
+    }
+    75% {
+        border-radius: 40% 60% 30% 70% / 60% 40% 70% 30%;
+    }
+}
+
+/* Dark Theme Adaptations */
+[data-theme="dark"] .hero-section {
+    background: linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.1) 0%, rgba(var(--secondary-color-rgb), 0.1) 100%);
+}
+
+[data-theme="dark"] .hero-dashboard {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .dashboard-content {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .task-card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .feature-card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .feature-icon-wrapper {
+    background-color: rgba(var(--primary-color-rgb), 0.2);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .hero-dashboard {
+        transform: none;
+        margin-top: 2rem;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-stats {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding-top: 2rem;
+        min-height: auto;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .floating-element {
+        display: none;
+    }
+}
+
+/* Full-width container adjustments */
+.container-fluid {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    max-width: 100%;
+}
+
+@media (min-width: 1400px) {
+    .container-fluid {
+        padding-left: 4rem;
+        padding-right: 4rem;
+    }
+}
+
 /* Dark Theme for Task Details Section */
 [data-theme="dark"] .card.card-body.border-0.bg-light {
     background-color: var(--card-bg) !important;
@@ -211,6 +569,8 @@ html {
     font-size: 14px;
     position: relative;
     min-height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 @media (min-width: 768px) {
@@ -220,7 +580,8 @@ html {
 }
 
 body {
-    margin-bottom: 60px;
+    margin: 0;
+    padding: 0;
     background-color: var(--body-bg);
     color: var(--text-color);
     transition: background-color var(--transition-speed) ease,
@@ -228,6 +589,7 @@ body {
         border-color var(--transition-speed) ease;
     font-family: 'Roboto', sans-serif;
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 /* Typography */

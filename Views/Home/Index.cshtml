@@ -4,38 +4,158 @@
 
 @if (!User.Identity.IsAuthenticated)
 {
-    <div class="hero-section text-center py-5">
-        <div class="container">
-            <h1 class="display-4 fw-bold mb-4">Welcome to Task Manager</h1>
-            <p class="lead mb-5">Collaborate on tasks with your team efficiently and effectively. Track progress, manage deadlines, and achieve your goals together.</p>
-            <div class="d-flex justify-content-center gap-3">
-                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg">Login</a>
-                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-primary btn-lg">Register</a>
+    <div class="hero-section position-relative overflow-hidden">
+        <!-- Animated background elements -->
+        <div class="hero-bg-elements">
+            <div class="hero-bg-circle hero-bg-circle-1"></div>
+            <div class="hero-bg-circle hero-bg-circle-2"></div>
+            <div class="hero-bg-circle hero-bg-circle-3"></div>
+            <div class="hero-bg-shape hero-bg-shape-1"></div>
+            <div class="hero-bg-shape hero-bg-shape-2"></div>
+        </div>
+        
+        <div class="container-fluid py-5 position-relative">
+            <div class="row align-items-center py-5">
+                <div class="col-lg-6 hero-content text-center text-lg-start mb-5 mb-lg-0">
+                    <div class="hero-badge mb-3 d-inline-block">
+                        <span class="badge bg-primary-subtle text-primary-emphasis px-3 py-2 rounded-pill">
+                            <i class="bi bi-stars me-1"></i>Streamline Your Workflow
+                        </span>
+                    </div>
+                    <h1 class="hero-title display-3 fw-bold mb-4 text-gradient">Collaborate, Manage, Succeed</h1>
+                    <p class="hero-subtitle lead mb-4 text-secondary">Empower your team with our intuitive task management platform. Track progress, meet deadlines, and achieve your goals together.</p>
+                    
+                    <div class="hero-cta d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary btn-lg shadow-sm">
+                            <span>Get Started</span>
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        </a>
+                        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>
+                            <span>Sign In</span>
+                        </a>
+                    </div>
+                    
+                    <div class="hero-stats d-flex flex-wrap gap-4 mt-5 justify-content-center justify-content-lg-start">
+                        <div class="stat-item">
+                            <div class="stat-value fw-bold">10k+</div>
+                            <div class="stat-label text-muted">Active Users</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value fw-bold">50k+</div>
+                            <div class="stat-label text-muted">Tasks Completed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value fw-bold">99%</div>
+                            <div class="stat-label text-muted">Satisfaction</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6 hero-visual">
+                    <div class="hero-visual-wrapper position-relative">
+                        <!-- Main visual element with shadow and border -->
+                        <div class="hero-dashboard p-3 bg-body rounded-4 shadow-lg border border-light">
+                            <div class="dashboard-header d-flex align-items-center mb-3">
+                                <div class="dashboard-dots d-flex gap-2">
+                                    <span class="dashboard-dot bg-danger rounded-circle"></span>
+                                    <span class="dashboard-dot bg-warning rounded-circle"></span>
+                                    <span class="dashboard-dot bg-success rounded-circle"></span>
+                                </div>
+                                <div class="dashboard-title mx-auto fw-medium">Project Dashboard</div>
+                            </div>
+                            <div class="dashboard-content p-3 bg-light rounded-3">
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <div class="task-card p-3 bg-white rounded-3 shadow-sm">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="badge bg-success-subtle text-success-emphasis px-2 py-1 rounded-pill">Completed</span>
+                                                <i class="bi bi-check-circle-fill text-success"></i>
+                                            </div>
+                                            <h6 class="task-title mb-1">Website Redesign</h6>
+                                            <div class="progress mt-2" style="height: 6px;">
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="task-card p-3 bg-white rounded-3 shadow-sm">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="badge bg-warning-subtle text-warning-emphasis px-2 py-1 rounded-pill">In Progress</span>
+                                                <i class="bi bi-clock-fill text-warning"></i>
+                                            </div>
+                                            <h6 class="task-title mb-1">API Integration</h6>
+                                            <div class="progress mt-2" style="height: 6px;">
+                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="task-card p-3 bg-white rounded-3 shadow-sm">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="badge bg-primary-subtle text-primary-emphasis px-2 py-1 rounded-pill">To Do</span>
+                                                <i class="bi bi-list-check text-primary"></i>
+                                            </div>
+                                            <h6 class="task-title mb-1">User Testing</h6>
+                                            <div class="progress mt-2" style="height: 6px;">
+                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="task-card p-3 bg-white rounded-3 shadow-sm">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="badge bg-info-subtle text-info-emphasis px-2 py-1 rounded-pill">Review</span>
+                                                <i class="bi bi-eye-fill text-info"></i>
+                                            </div>
+                                            <h6 class="task-title mb-1">Documentation</h6>
+                                            <div class="progress mt-2" style="height: 6px;">
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Floating elements for visual interest -->
+                        <div class="floating-element floating-element-1 shadow-sm"></div>
+                        <div class="floating-element floating-element-2 shadow-sm"></div>
+                        <div class="floating-element floating-element-3 shadow-sm"></div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="mt-5">
-            <div class="row g-4 justify-content-center">
-                <div class="col-md-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <h3 class="h5 card-title mb-3">Task Management</h3>
-                            <p class="card-text">Create, assign, and track tasks with ease. Set priorities and deadlines to keep your projects on schedule.</p>
+        
+        <!-- Features section -->
+        <div class="container-fluid pb-5 position-relative">
+            <div class="features-section">
+                <div class="row g-4 justify-content-center">
+                    <div class="col-md-4">
+                        <div class="feature-card h-100 p-4 rounded-4 shadow-sm border border-light">
+                            <div class="feature-icon-wrapper mb-3 d-flex align-items-center justify-content-center rounded-circle">
+                                <i class="bi bi-kanban feature-icon"></i>
+                            </div>
+                            <h3 class="h5 feature-title mb-3">Task Management</h3>
+                            <p class="feature-text mb-0">Create, assign, and track tasks with ease. Set priorities and deadlines to keep your projects on schedule.</p>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <h3 class="h5 card-title mb-3">Real-time Collaboration</h3>
-                            <p class="card-text">Work together in real-time with your team. Get instant notifications and updates on task progress.</p>
+                    <div class="col-md-4">
+                        <div class="feature-card h-100 p-4 rounded-4 shadow-sm border border-light">
+                            <div class="feature-icon-wrapper mb-3 d-flex align-items-center justify-content-center rounded-circle">
+                                <i class="bi bi-people feature-icon"></i>
+                            </div>
+                            <h3 class="h5 feature-title mb-3">Real-time Collaboration</h3>
+                            <p class="feature-text mb-0">Work together in real-time with your team. Get instant notifications and updates on task progress.</p>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <h3 class="h5 card-title mb-3">Analytics & Insights</h3>
-                            <p class="card-text">Track team performance and project progress with detailed analytics and custom reports.</p>
+                    <div class="col-md-4">
+                        <div class="feature-card h-100 p-4 rounded-4 shadow-sm border border-light">
+                            <div class="feature-icon-wrapper mb-3 d-flex align-items-center justify-content-center rounded-circle">
+                                <i class="bi bi-graph-up feature-icon"></i>
+                            </div>
+                            <h3 class="h5 feature-title mb-3">Analytics & Insights</h3>
+                            <p class="feature-text mb-0">Track team performance and project progress with detailed analytics and custom reports.</p>
                         </div>
                     </div>
                 </div>
@@ -45,7 +165,7 @@
 }
 else
 {
-    <div class="container py-4">
+    <div class="container-fluid py-4">
         <div class="row align-items-center mb-4">
             <div class="col">
                 <h2 class="mb-0">Welcome Back, @User.Identity.Name!</h2>
