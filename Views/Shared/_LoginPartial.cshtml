@@ -3,33 +3,32 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<ul class="navbar-nav">
+<div class="d-flex align-items-center">
 @if (SignInManager.IsSignedIn(User))
 {
-    <li class="nav-item">
-        <a class="nav-link" href="#" title="Manage">
-            <i class="bi bi-person-circle" aria-hidden="true"></i> @User.Identity?.Name
+    <div class="user-profile-wrapper me-3 d-flex align-items-center">
+        <a class="user-profile-link d-flex align-items-center" href="#" title="Manage">
+            <div class="user-avatar me-2">
+                <i class="bi bi-person-circle" aria-hidden="true"></i>
+            </div>
+            <span class="user-name">@User.Identity?.Name</span>
         </a>
-    </li>
-    <li class="nav-item">
-        <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
-            <button type="submit" class="btn btn-link nav-link">
-                <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Logout
-            </button>
-        </form>
-    </li>
+    </div>
+    <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+        <button type="submit" class="btn btn-outline-primary rounded-pill px-4 py-2 d-flex align-items-center shadow-sm">
+            <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i> Logout
+        </button>
+    </form>
 }
 else
 {
-    <li class="nav-item">
-        <a class="nav-link" asp-controller="Account" asp-action="Register">
-            <i class="bi bi-person-plus" aria-hidden="true"></i> Register
+    <div class="auth-buttons d-flex align-items-center">
+        <a class="btn btn-outline-primary rounded-pill px-4 py-2 d-flex align-items-center me-3" asp-controller="Account" asp-action="Register">
+            <i class="bi bi-person-plus me-2" aria-hidden="true"></i> Register
         </a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" asp-controller="Account" asp-action="Login">
-            <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Login
+        <a class="btn btn-primary rounded-pill px-4 py-2 d-flex align-items-center shadow-sm" asp-controller="Account" asp-action="Login">
+            <i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i> Login
         </a>
-    </li>
+    </div>
 }
-</ul>
+</div>

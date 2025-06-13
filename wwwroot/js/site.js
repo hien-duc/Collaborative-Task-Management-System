@@ -176,15 +176,31 @@ const themeManager = {
         const themeToggle = document.getElementById('themeToggle');
         if (themeToggle) {
             const currentTheme = localStorage.getItem('theme') || 'light';
-            document.body.classList.toggle('high-contrast', currentTheme === 'high-contrast');
-            themeToggle.setAttribute('aria-pressed', currentTheme === 'high-contrast');
+            
+            // Set initial theme
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.body.classList.add('dark-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.body.classList.remove('dark-theme');
+            }
+            
+            themeToggle.setAttribute('aria-pressed', currentTheme === 'dark');
             
             themeToggle.addEventListener('click', () => {
-                const isHighContrast = document.body.classList.toggle('high-contrast');
-                localStorage.setItem('theme', isHighContrast ? 'high-contrast' : 'light');
-                themeToggle.setAttribute('aria-pressed', isHighContrast);
+                const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+                const newTheme = isDarkTheme ? 'light' : 'dark';
+                
+                // Toggle theme
+                document.documentElement.setAttribute('data-theme', newTheme);
+                document.body.classList.toggle('dark-theme', newTheme === 'dark');
+                
+                localStorage.setItem('theme', newTheme);
+                themeToggle.setAttribute('aria-pressed', newTheme === 'dark');
+                
                 notificationSystem.showNotification(
-                    `Switched to ${isHighContrast ? 'high contrast' : 'light'} theme`,
+                    `Switched to ${newTheme} theme`,
                     'info'
                 );
             });
@@ -818,4 +834,17 @@ connection.onreconnecting(error => {
 connection.onreconnected(connectionId => {
     console.log('SignalR reconnected. Connection ID:', connectionId);
     notificationSystem.showNotification('Reconnected to real-time updates', 'success');
+});
+
+// Set active class on current nav link
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPath = window.location.pathname.toLowerCase();
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+    
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href')?.toLowerCase();
+        if (href && (currentPath === href || currentPath.startsWith(href) && href !== '/')) {
+            link.classList.add('active');
+        }
+    });
 });

@@ -1,0 +1,107 @@
+/* Project-specific styles */
+
+/* Project Card Styling */
+.project-card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 1.5rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .project-card {
+    background-color: var(--card-bg-dark);
+    border-color: var(--border-color-dark);
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.project-card .card-body {
+    padding: 1.5rem;
+}
+
+.project-card .project-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.project-card .project-description {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.project-card .project-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.project-card .project-deadline {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.project-card .badge {
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+    border-radius: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.project-card .badge:hover {
+    transform: scale(1.05);
+}
+
+.project-card .card-footer {
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+    border-top: 1px solid rgba(var(--primary-color-rgb), 0.1);
+    padding: 1rem 1.5rem;
+}
+
+[data-theme="dark"] .project-card .card-footer {
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    border-top: 1px solid rgba(var(--primary-color-rgb), 0.2);
+}
+
+/* Projects Table Styling */
+.projects-table {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.projects-table th {
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+    border-bottom: 2px solid rgba(var(--primary-color-rgb), 0.1);
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+[data-theme="dark"] .projects-table th {
+    background-color: rgba(var(--primary-color-rgb), 0.15);
+    border-bottom: 2px solid rgba(var(--primary-color-rgb), 0.2);
+    color: var(--text-light);
+}
+
+.projects-table td {
+    vertical-align: middle;
+}
+
+/* Project Filter Form */
+.project-filter-form {
+    background-color: var(--card-bg);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .project-filter-form {
+    background-color: var(--card-bg-dark);
+    border-color: var(--border-color-dark);
+}

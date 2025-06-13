@@ -187,3 +187,93 @@ System.InvalidOperationException: The view 'Index' was not found. The following 
 2025-06-12 16:24:23.217 +07:00 [INF] DownloadFile called for file ID: 3
 2025-06-12 16:24:23.222 +07:00 [INF] Physical file path: E:\Collaborative-Task-Management-System\wwwroot\uploads/31efa2f4-79a8-4853-bcf5-64b631a33ff7_functions-1.pdf
 2025-06-12 16:24:23.224 +07:00 [INF] Returning file: functions-1.pdf, Content-Type: application/pdf
+2025-06-12 20:55:00.275 +07:00 [INF] Starting web application
+2025-06-12 20:55:00.725 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-12 20:55:01.303 +07:00 [WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+2025-06-12 20:55:10.113 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-12 20:55:16.705 +07:00 [INF] User logged out.
+2025-06-12 21:09:20.227 +07:00 [INF] Starting web application
+2025-06-12 21:09:20.506 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-12 21:09:31.343 +07:00 [INF] User logged in.
+2025-06-12 21:09:31.637 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-12 21:09:34.597 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-12 21:20:42.133 +07:00 [INF] Starting web application
+2025-06-12 21:20:43.241 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-12 21:21:00.121 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-12 22:17:46.989 +07:00 [INF] Starting web application
+2025-06-12 22:17:47.235 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-12 22:18:00.230 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-12 22:18:13.354 +07:00 [INF] User logged out.
+2025-06-12 22:25:25.841 +07:00 [INF] Starting web application
+2025-06-12 22:25:28.252 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-12 22:30:54.787 +07:00 [INF] Starting web application
+2025-06-12 22:30:57.223 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-12 22:49:04.385 +07:00 [INF] Starting web application
+2025-06-12 22:49:04.536 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-12 22:49:49.764 +07:00 [INF] User logged in.
+2025-06-12 22:49:50.066 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-12 22:49:52.764 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-12 22:50:07.438 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-12 22:51:13.640 +07:00 [ERR] Error counting errors from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250612.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetErrorCountFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 379
+2025-06-12 22:51:13.683 +07:00 [ERR] Error getting last error time from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250612.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllLinesAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetLastErrorTimeFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 404
+2025-06-12 22:51:16.108 +07:00 [ERR] Error counting errors from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250612.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetErrorCountFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 379
+2025-06-12 22:51:16.121 +07:00 [ERR] Error getting last error time from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250612.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllLinesAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetLastErrorTimeFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 404
+2025-06-12 22:51:58.561 +07:00 [ERR] Error counting errors from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250612.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetErrorCountFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 379
+2025-06-12 22:51:58.574 +07:00 [ERR] Error getting last error time from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250612.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllLinesAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetLastErrorTimeFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 404
+2025-06-12 22:52:01.567 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-12 22:52:13.083 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-12 23:01:35.622 +07:00 [INF] Starting web application
+2025-06-12 23:01:37.255 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-12 23:01:43.563 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d

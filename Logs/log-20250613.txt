@@ -1,0 +1,248 @@
+2025-06-13 08:34:12.611 +07:00 [INF] Starting web application
+2025-06-13 08:34:32.566 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:34:42.670 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:34:57.714 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:35:00.402 +07:00 [ERR] Error counting errors from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250613.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetErrorCountFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 379
+2025-06-13 08:35:00.442 +07:00 [ERR] Error getting last error time from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250613.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllLinesAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetLastErrorTimeFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 404
+2025-06-13 08:35:09.526 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:41:34.018 +07:00 [INF] Starting web application
+2025-06-13 08:41:39.119 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:41:44.029 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:41:52.886 +07:00 [ERR] Error counting errors from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250613.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetErrorCountFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 379
+2025-06-13 08:41:52.935 +07:00 [ERR] Error getting last error time from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250613.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllLinesAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetLastErrorTimeFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 404
+2025-06-13 08:42:28.968 +07:00 [INF] Starting web application
+2025-06-13 08:42:29.250 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:42:37.458 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:42:41.562 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:43:08.255 +07:00 [INF] Starting web application
+2025-06-13 08:43:08.512 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:43:08.764 +07:00 [ERR] The view 'Index' was not found. Searched locations: ["/Views/Tasks/Index.cshtml","/Views/Shared/Index.cshtml"]
+2025-06-13 08:43:08.792 +07:00 [ERR] An unhandled exception occurred. Request: GET /Tasks
+System.InvalidOperationException: The view 'Index' was not found. The following locations were searched:
+/Views/Tasks/Index.cshtml
+/Views/Shared/Index.cshtml
+   at Microsoft.AspNetCore.Mvc.ViewEngines.ViewEngineResult.EnsureSuccessful(IEnumerable`1 originalLocations)
+   at Microsoft.AspNetCore.Mvc.ViewFeatures.ViewResultExecutor.ExecuteAsync(ActionContext context, ViewResult result)
+   at Microsoft.AspNetCore.Mvc.ViewResult.ExecuteResultAsync(ActionContext context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResultFilterAsync>g__Awaited|30_0[TFilter,TFilterAsync](ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResultExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.ResultNext[TFilter,TFilterAsync](State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.InvokeResultFilters()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeNextResourceFilter>g__Awaited|25_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Rethrow(ResourceExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Collaborative_Task_Management_System.Middleware.ErrorHandlingMiddleware.InvokeAsync(HttpContext context) in E:\Collaborative-Task-Management-System\Middleware\ErrorHandlingMiddleware.cs:line 22
+2025-06-13 08:43:15.354 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:43:19.097 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:43:50.614 +07:00 [INF] Starting web application
+2025-06-13 08:43:52.217 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:44:03.211 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:44:14.738 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:48:13.098 +07:00 [INF] Starting web application
+2025-06-13 08:48:14.236 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:48:17.748 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:48:19.753 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:49:31.532 +07:00 [INF] Starting web application
+2025-06-13 08:49:32.240 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:54:21.737 +07:00 [INF] Starting web application
+2025-06-13 08:54:26.241 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:55:07.378 +07:00 [INF] Starting web application
+2025-06-13 08:55:11.209 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:55:11.749 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:55:14.159 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:56:13.992 +07:00 [INF] Starting web application
+2025-06-13 08:56:14.242 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:56:26.197 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:56:53.528 +07:00 [INF] Starting web application
+2025-06-13 08:56:56.696 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:56:57.156 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:57:00.325 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:57:01.627 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:57:39.614 +07:00 [INF] Starting web application
+2025-06-13 08:57:39.912 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:57:49.343 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:57:57.905 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:57:59.915 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:58:56.776 +07:00 [INF] Starting web application
+2025-06-13 08:58:58.602 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 08:58:59.096 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:59:03.604 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:59:05.573 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:59:07.029 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:59:11.602 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:59:14.886 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 08:59:39.106 +07:00 [ERR] Error counting errors from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250613.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllTextAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetErrorCountFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 379
+2025-06-13 08:59:39.140 +07:00 [ERR] Error getting last error time from log files
+System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task-Management-System\Logs\log-20250613.txt' because it is being used by another process.
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.AsyncStreamReader(String path, Encoding encoding)
+   at System.IO.File.InternalReadAllLinesAsync(String path, Encoding encoding, CancellationToken cancellationToken)
+   at Collaborative_Task_Management_System.Controllers.AdminController.GetLastErrorTimeFromLogs() in E:\Collaborative-Task-Management-System\Controllers\AdminController.cs:line 404
+2025-06-13 09:02:18.514 +07:00 [INF] Starting web application
+2025-06-13 09:02:25.242 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:02:32.567 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:09:25.800 +07:00 [INF] Starting web application
+2025-06-13 09:09:26.238 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:09:41.765 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:11:09.399 +07:00 [INF] Starting web application
+2025-06-13 09:11:09.602 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:11:10.192 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:11:26.418 +07:00 [INF] User logged out.
+2025-06-13 09:15:46.931 +07:00 [INF] Starting web application
+2025-06-13 09:15:47.272 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:15:59.730 +07:00 [INF] User logged in.
+2025-06-13 09:16:00.008 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:17:02.664 +07:00 [INF] Starting web application
+2025-06-13 09:17:02.999 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:17:05.651 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:22:08.842 +07:00 [INF] Starting web application
+2025-06-13 09:22:11.088 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:22:13.888 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:33:39.003 +07:00 [INF] Starting web application
+2025-06-13 09:33:42.384 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:33:42.734 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:42:04.404 +07:00 [INF] Starting web application
+2025-06-13 09:42:06.577 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:42:08.366 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:42:13.928 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:42:19.172 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:42:29.402 +07:00 [INF] User logged out.
+2025-06-13 09:51:47.967 +07:00 [INF] Starting web application
+2025-06-13 09:51:55.073 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:51:57.260 +07:00 [INF] User logged in.
+2025-06-13 09:51:57.556 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:52:03.576 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 09:54:51.931 +07:00 [INF] Starting web application
+2025-06-13 09:54:52.229 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:55:35.750 +07:00 [INF] Starting web application
+2025-06-13 09:55:36.008 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:56:33.169 +07:00 [INF] Starting web application
+2025-06-13 09:56:33.308 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 09:56:50.670 +07:00 [INF] Starting web application
+2025-06-13 09:56:51.668 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:02:18.461 +07:00 [INF] Starting web application
+2025-06-13 10:02:20.565 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:05:29.387 +07:00 [INF] Starting web application
+2025-06-13 10:05:30.258 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:06:16.150 +07:00 [INF] Starting web application
+2025-06-13 10:06:16.310 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:07:28.250 +07:00 [INF] Starting web application
+2025-06-13 10:07:30.234 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:10:07.266 +07:00 [INF] Starting web application
+2025-06-13 10:10:08.514 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:11:11.405 +07:00 [INF] Starting web application
+2025-06-13 10:11:11.567 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:11:26.598 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:11:44.652 +07:00 [INF] Starting web application
+2025-06-13 10:11:44.845 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:11:49.548 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:13:33.081 +07:00 [INF] Starting web application
+2025-06-13 10:13:34.205 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:13:35.955 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:16:53.527 +07:00 [INF] Starting web application
+2025-06-13 10:16:55.233 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:20:51.767 +07:00 [INF] Starting web application
+2025-06-13 10:20:53.219 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:20:57.390 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:24:31.587 +07:00 [INF] Starting web application
+2025-06-13 10:24:35.219 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:24:49.010 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:27:30.941 +07:00 [INF] Starting web application
+2025-06-13 10:27:31.243 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:27:38.654 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:27:39.721 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:27:40.115 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:27:40.292 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:27:40.454 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:27:40.609 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:27:40.782 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:27:40.934 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:27:41.104 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:27:41.263 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:27:41.425 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:28:19.347 +07:00 [INF] Starting web application
+2025-06-13 10:28:19.538 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:29:15.129 +07:00 [INF] Starting web application
+2025-06-13 10:29:15.281 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:29:26.213 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:30:15.819 +07:00 [INF] Starting web application
+2025-06-13 10:30:16.031 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:30:20.373 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:30:34.744 +07:00 [INF] Starting web application
+2025-06-13 10:30:35.698 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:30:44.897 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:31:16.406 +07:00 [INF] Starting web application
+2025-06-13 10:31:16.581 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:31:19.463 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:31:30.844 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:31:40.269 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:32:02.030 +07:00 [INF] Starting web application
+2025-06-13 10:32:02.263 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:32:26.791 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:33:49.808 +07:00 [INF] Starting web application
+2025-06-13 10:33:53.227 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 10:34:03.769 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:34:30.115 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 10:37:32.365 +07:00 [INF] Starting web application
+2025-06-13 10:37:32.496 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 11:02:52.055 +07:00 [INF] Starting web application
+2025-06-13 11:02:52.236 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 11:03:57.283 +07:00 [INF] Starting web application
+2025-06-13 11:03:59.211 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 11:12:07.631 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 11:12:11.882 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
