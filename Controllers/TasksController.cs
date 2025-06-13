@@ -889,5 +889,88 @@ namespace Collaborative_Task_Management_System.Controllers
             public int taskId { get; set; }
             public string text { get; set; }
         }
-    }
-}
+
+        // Helper method to check if user is manager or admin
+        private async Task<bool> IsManagerOrAdmin()
+        {
+            return await IsUserInRoleAsync("Manager") || await IsUserInRoleAsync("Admin");
+        }
+
+        // GET: Tasks/Search
+        public async Task<IActionResult> Search(string q)
+        {
+            try
+            {
+                _logger.LogInformation("Search called with query: {Query}", q);
+                
+                if (string.IsNullOrEmpty(q) || q.Length < 2)
+                {
+                    return Content("");
+                }
+                
+                var userId = GetCurrentUserId();
+                var isManagerOrAdmin = await IsManagerOrAdmin();
+                
+                // Get user's projects (where they are a member or owner)
+                var userProjects = await _projectService.GetProjectsForUserAsync(userId);
+                var userProjectIds = userProjects.Select(p => p.Id).ToList();
+                
+                // Get all tasks
+                var allTasks = await _taskService.GetAllTasksAsync();
+                
+                // Filter tasks based on search query and user access
+                var filteredTasks = allTasks
+                    .Where(t => 
+                        (t.Title.Contains(q, StringComparison.OrdinalIgnoreCase) || 
+                         t.Description.Contains(q, StringComparison.OrdinalIgnoreCase)) &&
+                        (isManagerOrAdmin || t.AssignedToId == userId || userProjectIds.Contains(t.ProjectId)))
+                    .Take(10)
+                    .ToList();
+                
+                _logger.LogInformation("Found {Count} tasks matching query: {Query}", filteredTasks.Count, q);
+                
+                // Return search results as HTML
+                var html = "";
+                if (filteredTasks.Any())
+                {
+                    html = "<ul class='list-group'>";
+                    foreach (var task in filteredTasks)
+                    {
+                        var projectTitle = userProjects.FirstOrDefault(p => p.Id == task.ProjectId)?.Title ?? "Unknown Project";
+                        var statusClass = task.Status switch
+                        {
+                            TaskStatus.ToDo => "text-secondary",
+                            TaskStatus.InProgress => "text-primary",
+                            TaskStatus.Completed => "text-success",
+                            TaskStatus.UnderReview => "text-warning",
+                            TaskStatus.Blocked => "text-danger",
+                            _ => "text-secondary"
+                        };
+                        
+                        html += $"<li class='list-group-item p-2'>" +
+                               $"<a href='/Projects/Details/{task.ProjectId}?taskId={task.Id}' class='d-block text-decoration-none'>" +
+                               $"<div class='d-flex justify-content-between'>" +
+                               $"<span class='fw-bold'>{task.Title}</span>" +
+                               $"<span class='badge {statusClass}'>{task.Status}</span>" +
+                               $"</div>" +
+                               $"<small class='text-muted'>Project: {projectTitle}</small>" +
+                               $"</a>" +
+                               $"</li>";
+                    }
+                    html += "</ul>";
+                }
+                else
+                {
+                    html = "<div class='p-3'>No tasks found matching your search.</div>";
+                }
+                
+                return Content(html, "text/html");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching tasks with query: {Query}", q);
+                return Content("<div class='p-3 text-danger'>An error occurred while searching.</div>", "text/html");
+            }
+        }
+    }  // End of TasksController class
+}  // End of namespace
