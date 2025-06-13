@@ -36,7 +36,7 @@
                     </div>
 
                     <div class="table-responsive">
-                        <table class="table table-hover" aria-label="Audit logs table">
+                        <table id="auditLogsTable" class="table table-hover" aria-label="Audit logs table">
                             <thead>
                             <tr>
                                 <th scope="col" role="columnheader" aria-sort="none">
@@ -82,42 +82,16 @@
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-link p-0" 
-                                                data-bs-toggle="modal" data-bs-target="#logDetails-@log.Id"
+                                                data-bs-toggle="modal" data-bs-target="#logDetailsModal"
+                                                data-log-id="@log.Id"
+                                                data-log-timestamp="@log.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")"
+                                                data-log-user="@log.User?.UserName"
+                                                data-log-action="@log.Action"
+                                                data-log-ip="@log.IpAddress"
+                                                data-log-details="@log.Details"
                                                 aria-label="View details for log @log.Id">
                                             View Details
                                         </button>
-
-                                        <!-- Log Details Modal -->
-                                        <div class="modal fade" id="logDetails-@log.Id" tabindex="-1" 
-                                             aria-labelledby="logDetailsLabel-@log.Id" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="logDetailsLabel-@log.Id">Log Details</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" 
-                                                                aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <dl class="row">
-                                                            <dt class="col-sm-4">Timestamp</dt>
-                                                            <dd class="col-sm-8">@log.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")</dd>
-
-                                                            <dt class="col-sm-4">User</dt>
-                                                            <dd class="col-sm-8">@log.User?.UserName</dd>
-
-                                                            <dt class="col-sm-4">Action</dt>
-                                                            <dd class="col-sm-8">@log.Action</dd>
-
-                                                            <dt class="col-sm-4">Details</dt>
-                                                            <dd class="col-sm-8">@log.Details</dd>
-
-                                                            <dt class="col-sm-4">IP Address</dt>
-                                                            <dd class="col-sm-8">@log.IpAddress</dd>
-                                                        </dl>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -152,49 +126,51 @@
                 </div>
             </div>
         </div>
+    </div>
+
+<!-- Log Details Modal -->
+<div class="modal fade" id="logDetailsModal" tabindex="-1" aria-labelledby="logDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="logDetailsModalLabel">Log Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Timestamp</dt>
+                    <dd class="col-sm-8" id="modalTimestamp"></dd>
+
+                    <dt class="col-sm-4">User</dt>
+                    <dd class="col-sm-8" id="modalUser"></dd>
+
+                    <dt class="col-sm-4">Action</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge" id="modalAction"></span>
+                    </dd>
+
+                    <dt class="col-sm-4">IP Address</dt>
+                    <dd class="col-sm-8" id="modalIp"></dd>
+
+                    <dt class="col-sm-4">Details</dt>
+                    <dd class="col-sm-8">
+                        <div class="bg-light p-2 rounded">
+                            <pre class="mb-0"><code id="modalDetails"></code></pre>
+                        </div>
+                    </dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <script>
         // Handle filter form submission via AJAX
         $(document).ready(function () {
-            // Fix for modal backdrop issues
-            $('.modal').on('show.bs.modal', function (e) {
-                // Ensure only one backdrop exists
-                if ($('.modal-backdrop').length > 0) {
-                    $('.modal-backdrop').not(':first').remove();
-                }
-                
-                // Ensure body has modal-open class
-                $('body').addClass('modal-open');
-            });
-            
-            $('.modal').on('hidden.bs.modal', function () {
-                // Remove any lingering backdrops
-                $('.modal-backdrop').remove();
-                $('body').removeClass('modal-open');
-                $('body').css('padding-right', '');
-                
-                // Additional fix for hover issue
-                setTimeout(function() {
-                    if ($('.modal.show').length === 0) {
-                        $('.modal-backdrop').remove();
-                        $('body').removeClass('modal-open');
-                    }
-                }, 300);
-            });
-            
-            // Fix for the hover issue you described
-            $(document).on('mouseover', function(e) {
-                // If we're not hovering over a modal and there's a backdrop but no visible modal
-                if (!$(e.target).closest('.modal').length && 
-                    $('.modal-backdrop').length && 
-                    !$('.modal.show').length) {
-                    $('.modal-backdrop').remove();
-                    $('body').removeClass('modal-open');
-                }
-            });
-            
             $('#filterForm').on('submit', function (e) {
                 e.preventDefault();
                 var form = $(this);
@@ -202,6 +178,42 @@
                     $('#auditLogsTable').html(data);
                 });
             });
+        });
+
+        // Handle log details modal
+        document.getElementById('logDetailsModal')?.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            
+            // Extract info from data-* attributes
+            const timestamp = button.getAttribute('data-log-timestamp');
+            const user = button.getAttribute('data-log-user');
+            const action = button.getAttribute('data-log-action');
+            const ip = button.getAttribute('data-log-ip');
+            const details = button.getAttribute('data-log-details');
+            
+            // Update the modal's content
+            document.getElementById('modalTimestamp').textContent = timestamp;
+            document.getElementById('modalUser').textContent = user || 'N/A';
+            document.getElementById('modalIp').textContent = ip || 'N/A';
+            document.getElementById('modalDetails').textContent = details || 'No details available';
+            
+            // Set the action badge with appropriate color
+            const actionBadge = document.getElementById('modalAction');
+            actionBadge.textContent = action;
+            
+            // Set badge color based on action type
+            const actionColors = {
+                'Create': 'success',
+                'Update': 'warning',
+                'Delete': 'danger',
+                'Login': 'info',
+                'Logout': 'secondary'
+            };
+            
+            // Reset all possible badge classes
+            actionBadge.className = 'badge';
+            // Add the appropriate color class or default to primary
+            actionBadge.classList.add(`bg-${actionColors[action] || 'primary'}`);
         });
 
         function resetFilters() {
@@ -215,54 +227,50 @@
         function filterLogs() {
             const searchQuery = logSearch.value.toLowerCase();
             const filterValue = logFilter.value.toLowerCase();
-            const rows = document.querySelectorAll('tbody tr');
+            const table = document.getElementById('auditLogsTable');
+            const rows = table.getElementsByTagName('tr');
 
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                const action = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
-                const matchesSearch = searchQuery === '' || text.includes(searchQuery);
-                const matchesFilter = filterValue === '' || action.includes(filterValue);
-                row.style.display = matchesSearch && matchesFilter ? '' : 'none';
-            });
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let shouldShow = false;
+
+                // Check if any cell matches the search query
+                for (let j = 0; j < cells.length; j++) {
+                    const cell = cells[j];
+                    if (cell.textContent.toLowerCase().includes(searchQuery)) {
+                        shouldShow = true;
+                        break;
+                    }
+                }
+
+                // Apply filter
+                if (filterValue && cells[2].textContent.trim().toLowerCase() !== filterValue) {
+                    shouldShow = false;
+                }
+
+                row.style.display = shouldShow ? '' : 'none';
+            }
         }
 
-        logSearch.addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(filterLogs, 300);
-        });
-
-        logFilter.addEventListener('change', filterLogs);
-
-        // Table sorting
-        let sortDirection = 1;
-        let lastSortedColumn = -1;
 
         function sortTable(columnIndex) {
-            const table = document.querySelector('table');
-            const rows = Array.from(table.querySelectorAll('tbody tr'));
-            const headers = table.querySelectorAll('th');
+            const table = document.getElementById('auditLogsTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
 
-            // Update sort direction
-            if (lastSortedColumn === columnIndex) {
-                sortDirection *= -1;
-            } else {
-                sortDirection = 1;
-                lastSortedColumn = columnIndex;
-            }
-
-            // Update aria-sort attributes
-            headers.forEach(header => header.setAttribute('aria-sort', 'none'));
-            headers[columnIndex].setAttribute('aria-sort', sortDirection === 1 ? 'ascending' : 'descending');
-
-            // Sort rows
             rows.sort((a, b) => {
-                const aValue = a.children[columnIndex].textContent.trim();
-                const bValue = b.children[columnIndex].textContent.trim();
-                return aValue.localeCompare(bValue) * sortDirection;
+                const aValue = a.cells[columnIndex].textContent.trim();
+                const bValue = b.cells[columnIndex].textContent.trim();
+                return aValue.localeCompare(bValue);
             });
 
-            // Update table
-            const tbody = table.querySelector('tbody');
+            // Clear existing rows
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+
+            // Add sorted rows
             rows.forEach(row => tbody.appendChild(row));
         }
     </script>
