@@ -124,6 +124,14 @@ namespace Collaborative_Task_Management_System.Controllers
 
         [HttpGet]
         [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            _logger.LogWarning("Access denied attempt recorded");
+            return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> LoginWith2fa(bool rememberMe, string returnUrl = null)
         {
             // Ensure the user has gone through the username & password screen first
