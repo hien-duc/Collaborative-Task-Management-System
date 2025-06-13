@@ -144,6 +144,15 @@
                                             {
                                                 <option value="InProgress">In Progress</option>
                                             }
+                                            
+                                            @if (task.Status == TaskStatus.UnderReview)
+                                            {
+                                                <option value="UnderReview" selected>Under Review</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="UnderReview">Under Review</option>
+                                            }
     
                                             @if (task.Status == TaskStatus.Completed)
                                             {
@@ -152,6 +161,15 @@
                                             else
                                             {
                                                 <option value="Completed">Completed</option>
+                                            }
+                                            
+                                            @if (task.Status == TaskStatus.Blocked)
+                                            {
+                                                <option value="Blocked" selected>Blocked</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="Blocked">Blocked</option>
                                             }
                                         </select>
                                     }

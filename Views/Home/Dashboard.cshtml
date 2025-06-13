@@ -3,6 +3,25 @@
 @{
     ViewData["Title"] = "Dashboard";
 }
+<style>
+        .dashboard-update-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            min-width: 300px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+</style>
 
 <div class="container-fluid mt-4 dashboard-container">
     <!-- Summary Cards -->
@@ -107,8 +126,8 @@
                                                 <a href="/Projects/Details/@task.ProjectId" class="text-decoration-none">@task.Project?.Title</a>
                                             </td>
                                             <td>
-                                                <select class="form-select form-select-sm task-status-select" 
-                                                        data-task-id="@task.Id" 
+                                                <select class="form-select form-select-sm task-status-select"
+                                                        data-task-id="@task.Id"
                                                         aria-label="Change task status">
                                                     @foreach (TaskStatus status in Enum.GetValues(typeof(TaskStatus)))
                                                     {
@@ -164,25 +183,6 @@
 </div>
 
 @section Scripts {
-    <style>
-        .dashboard-update-alert {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1050;
-            min-width: 300px;
-        }
-        
-        .spinner {
-            display: inline-block;
-            animation: spin 1s linear infinite;
-        }
-        
-        @@keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Task Status Chart
@@ -257,46 +257,63 @@
         });
 
         // Task Status Update via AJAX
-        $(document).ready(function() {
-            $('.task-status-select').change(function() {
-                var taskId = $(this).data('task-id');
-                var newStatus = $(this).val();
+        $(function() {
+            // Use setTimeout to ensure DOM is fully loaded and processed
+            setTimeout(function() {
+                const taskStatusSelects = $('.task-status-select');
+                console.log('Found task status selects:', taskStatusSelects.length);
                 
-                $.ajax({
-                    url: '/Tasks/UpdateStatus',
-                    type: 'POST',
-                    data: { id: taskId, status: newStatus },
-                    success: function(result) {
-                        if (result.success) {
-                            toastr.success('Task status updated successfully');
-                            // No need to reload the page - dashboard will be updated via SignalR
-                        } else {
-                            toastr.error('Failed to update task status');
-                        }
-                    },
-                    error: function() {
-                        toastr.error('An error occurred while updating task status');
-                    }
-                });
-            });
+                if (taskStatusSelects.length > 0) {
+                    taskStatusSelects.each(function() {
+                        console.log('Binding to select:', this.dataset.taskId);
+                    });
+                    
+                    taskStatusSelects.on('change', function() {
+                        const taskId = $(this).data('task-id');
+                        const newStatus = $(this).val();
+                        const $select = $(this);
+                        
+                        console.log('Status change detected for task:', taskId, 'New status:', newStatus);
+                        
+                        // Show loading indicator
+                        $select.prop('disabled', true);
+                        
+                        // Get the anti-forgery token
+                        const token = $('input[name="__RequestVerificationToken"]').val();
+                        
+                        $.ajax({
+                            url: `/Tasks/UpdateStatus/${taskId}`,
+                            type: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': token
+                            },
+                            data: JSON.stringify(newStatus),
+                            success: function(data) {
+                                console.log('Status update response:', data);
+                                if (data.success) {
+                                    notificationSystem.showNotification('Task status updated successfully', 'success');
+                                    // Update the select value in case it was reset during loading
+                                    $select.val(newStatus);
+                                } else {
+                                    notificationSystem.showNotification(data.message || 'Failed to update task status', 'danger');
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Error:', error);
+                                notificationSystem.showNotification('An error occurred while updating task status', 'danger');
+                            },
+                            complete: function() {
+                                $select.prop('disabled', false);
+                            }
+                        });
+                    });
+                } else {
+                    console.warn('No task status selects found on the page');
+                }
+            }, 500); // Small delay to ensure everything is loaded
         });
 
-        // SignalR connection for real-time notifications
-        var connection = new signalR.HubConnectionBuilder().withUrl("/notificationHub").build();
-        
-        connection.on("ReceiveNotification", function (message) {
-            toastr.info(message);
-        });
-        
-        // Handle dashboard data updates
-        connection.on("DashboardDataUpdated", function () {
-            updateDashboardData();
-        });
-        
-        connection.start().catch(function (err) {
-            console.error(err.toString());
-        });
-        
         // Function to update dashboard data
         function updateDashboardData() {
             // Show loading indicator
