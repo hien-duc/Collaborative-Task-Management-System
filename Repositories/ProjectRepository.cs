@@ -12,9 +12,11 @@ namespace Collaborative_Task_Management_System.Repositories
 
         public async Task<IEnumerable<Project>> GetProjectsByOwnerAsync(string ownerId)
         {
-            return await _dbSet
+            var context = _context as ApplicationDbContext;
+            return await _context.Projects
                 .Where(p => p.CreatedById == ownerId && !p.IsDeleted)
                 .Include(p => p.CreatedBy)
+                .Include(p => p.ProjectMembers)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
         }
@@ -131,11 +133,14 @@ namespace Collaborative_Task_Management_System.Repositories
         public async Task<IEnumerable<Project>> GetProjectsByMemberAsync(string userId)
         {
             var context = _context as ApplicationDbContext;
-            
+    
             return await context.ProjectMembers
                 .Where(pm => pm.UserId == userId && pm.IsActive && !pm.Project.IsDeleted)
                 .Include(pm => pm.Project)
-                    .ThenInclude(p => p.CreatedBy)
+                .ThenInclude(p => p.CreatedBy)
+                .Include(pm => pm.Project)
+                .ThenInclude(p => p.ProjectMembers)
+                .ThenInclude(pm => pm.User)  // Include the User for each ProjectMember
                 .Select(pm => pm.Project)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();

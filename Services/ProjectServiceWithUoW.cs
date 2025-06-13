@@ -21,7 +21,8 @@ namespace Collaborative_Task_Management_System.Services
         {
             try
             {
-                var projects = await _unitOfWork.Projects.GetAllWithIncludesAsync(p => p.CreatedBy);
+                var projects = await _unitOfWork.Projects.GetAllWithIncludesAsync(p => p.CreatedBy,
+                    p => p.ProjectMembers);
                 return projects.OrderByDescending(p => p.CreatedAt).Where(p => p.IsDeleted == false).ToList();
             }
             catch (Exception ex)

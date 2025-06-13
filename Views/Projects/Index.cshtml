@@ -57,7 +57,7 @@
                                     <td>@(string.IsNullOrEmpty(project.CreatedBy.FullName) ? project.CreatedBy.UserName : project.CreatedBy.FullName)</td>
                                     <td>
                                         <span class="badge bg-info">
-                                            @(project.TeamMembers != null ? project.TeamMembers.Count : 0) members
+                                            @(project.ProjectMembers != null ? project.ProjectMembers.Count : 0) members
                                         </span>
                                     </td>
                                     <td>
