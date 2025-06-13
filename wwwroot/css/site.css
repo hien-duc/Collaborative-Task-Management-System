@@ -145,6 +145,66 @@
     color: #e6e9ef !important;
   }
   
+/* Here */
+
+/* Dark Theme for Task Details Section */
+[data-theme="dark"] .card.card-body.border-0.bg-light {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color);
+}
+
+/* Dark Theme for Comments Section */
+[data-theme="dark"] .comments-container .card {
+    background-color: var(--card-bg-dark);
+    border-color: var(--border-color-dark);
+}
+
+[data-theme="dark"] .comments-container .card .card-body {
+    background-color: var(--card-bg-dark);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .comments-container .card p {
+    color: var(--text-color);
+}
+
+/* Dark Theme for File Attachments Section */
+[data-theme="dark"] .list-group-item {
+    background-color: var(--card-bg-dark);
+    border-color: var(--border-color-dark);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .list-group-item a {
+    color: var(--link-color);
+}
+
+[data-theme="dark"] .list-group-item a:hover {
+    color: var(--primary-color-light);
+}
+
+/* Dark Theme for Form Controls in Task Details */
+[data-theme="dark"] .comment-form .form-control,
+[data-theme="dark"] .input-group .form-control {
+    background-color: var(--input-bg);
+    border-color: var(--border-color-dark);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .comment-form .form-control:focus,
+[data-theme="dark"] .input-group .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25);
+}
+
+/* Fix for task description and headings */
+[data-theme="dark"] .card.card-body.border-0.bg-light h6 {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .card.card-body.border-0.bg-light p {
+    color: var(--text-color);
+}
 
 /* Base Styles */
 html {
