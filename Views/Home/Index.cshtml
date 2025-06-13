@@ -1,6 +1,7 @@
 @{
     ViewData["Title"] = "Welcome";
 }
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @if (!User.Identity.IsAuthenticated)
 {
@@ -26,11 +27,11 @@
                     <p class="hero-subtitle lead mb-4 text-secondary">Empower your team with our intuitive task management platform. Track progress, meet deadlines, and achieve your goals together.</p>
                     
                     <div class="hero-cta d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
-                        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary btn-lg shadow-sm">
+                        <a href="/Account/Register" class="btn btn-primary btn-lg shadow-sm">
                             <span>Get Started</span>
                             <i class="bi bi-arrow-right ms-2"></i>
                         </a>
-                        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-primary btn-lg">
+                        <a href="/Account/Login" class="btn btn-outline-primary btn-lg">
                             <i class="bi bi-box-arrow-in-right me-2"></i>
                             <span>Sign In</span>
                         </a>
@@ -38,15 +39,15 @@
                     
                     <div class="hero-stats d-flex flex-wrap gap-4 mt-5 justify-content-center justify-content-lg-start">
                         <div class="stat-item">
-                            <div class="stat-value fw-bold">10k+</div>
+                            <div class="stat-value fw-bold">...</div>
                             <div class="stat-label text-muted">Active Users</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value fw-bold">50k+</div>
+                            <div class="stat-value fw-bold">...</div>
                             <div class="stat-label text-muted">Tasks Completed</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value fw-bold">99%</div>
+                            <div class="stat-value fw-bold">...</div>
                             <div class="stat-label text-muted">Satisfaction</div>
                         </div>
                     </div>

@@ -792,6 +792,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to start SignalR connection with retry logic
 async function startSignalRConnection() {
+    // Check if user is authenticated by looking for auth-related elements
+    const isAuthenticated = document.querySelector('.logout-form') !== null;
+    
+    if (!isAuthenticated) {
+        console.log('User not authenticated. SignalR connection not started.');
+        return; // Don't attempt to connect if not authenticated
+    }
+    
     try {
         await connection.start();
         console.log('SignalR Connected.');
