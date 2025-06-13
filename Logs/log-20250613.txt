@@ -246,3 +246,30 @@ System.IO.IOException: The process cannot access the file 'E:\Collaborative-Task
 2025-06-13 11:03:59.211 +07:00 [WRN] Failed to determine the https port for redirect.
 2025-06-13 11:12:07.631 +07:00 [INF] Cached dashboard data for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
 2025-06-13 11:12:11.882 +07:00 [INF] Retrieved dashboard data from cache for user 88e3eed4-ce94-46cf-bb5f-82f617296f9d
+2025-06-13 11:14:52.474 +07:00 [INF] Starting web application
+2025-06-13 11:14:56.214 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 11:15:31.069 +07:00 [INF] Starting web application
+2025-06-13 11:15:31.675 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 11:16:08.720 +07:00 [INF] User logged out.
+2025-06-13 11:16:41.471 +07:00 [INF] User created a new account with password.
+2025-06-13 11:16:41.601 +07:00 [INF] User signed in after registration.
+2025-06-13 11:16:41.652 +07:00 [INF] Cached dashboard data for user 4f481c55-03e4-4176-a9d1-29124f7b8041
+2025-06-13 11:17:09.937 +07:00 [INF] Starting web application
+2025-06-13 11:17:10.246 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 12:20:19.588 +07:00 [INF] Cached dashboard data for user 4f481c55-03e4-4176-a9d1-29124f7b8041
+2025-06-13 12:22:16.485 +07:00 [INF] Starting web application
+2025-06-13 12:22:16.760 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 12:22:35.204 +07:00 [INF] Starting web application
+2025-06-13 12:22:35.854 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 12:22:46.890 +07:00 [INF] Cached dashboard data for user 4f481c55-03e4-4176-a9d1-29124f7b8041
+2025-06-13 12:22:49.916 +07:00 [INF] Retrieved dashboard data from cache for user 4f481c55-03e4-4176-a9d1-29124f7b8041
+2025-06-13 12:23:13.229 +07:00 [INF] Starting web application
+2025-06-13 12:23:13.514 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 12:23:18.328 +07:00 [INF] Cached dashboard data for user 4f481c55-03e4-4176-a9d1-29124f7b8041
+2025-06-13 12:25:58.043 +07:00 [INF] Starting web application
+2025-06-13 12:25:58.240 +07:00 [WRN] Failed to determine the https port for redirect.
+2025-06-13 12:26:02.878 +07:00 [INF] Cached dashboard data for user 4f481c55-03e4-4176-a9d1-29124f7b8041
+2025-06-13 12:26:18.403 +07:00 [INF] Retrieved dashboard data from cache for user 4f481c55-03e4-4176-a9d1-29124f7b8041
+2025-06-13 12:26:19.430 +07:00 [INF] Retrieved dashboard data from cache for user 4f481c55-03e4-4176-a9d1-29124f7b8041
+2025-06-13 12:26:20.040 +07:00 [INF] Retrieved dashboard data from cache for user 4f481c55-03e4-4176-a9d1-29124f7b8041
+2025-06-13 12:26:33.888 +07:00 [INF] User logged out.
