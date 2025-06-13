@@ -51,6 +51,56 @@
     color: var(--text-light);
 }
 
+/* Fix for modal backdrop issues */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+}
+
+.modal-backdrop.show {
+    opacity: 0.5;
+}
+
+[data-theme="dark"] .modal-backdrop.show {
+    opacity: 0.7;
+}
+
+.modal {
+    z-index: 1050;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: 0;
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 1.75rem auto;
+    pointer-events: auto;
+    z-index: 1055;
+}
+
+/* Ensure body doesn't scroll when modal is open */
+body.modal-open {
+    overflow: hidden;
+    padding-right: 0 !important;
+}
+
+/* Fix for multiple backdrops */
+body:not(.modal-open) .modal-backdrop {
+    display: none;
+}
+
 .modal-header {
     border-bottom: 1px solid var(--border-color);
     background-color: rgba(var(--primary-color-rgb), 0.05);
@@ -421,4 +471,34 @@ main.pb-3 {
 
 [data-theme="dark"] .bg-info {
     background-color: var(--info-color-dark, #0277bd) !important;
+}
+
+/* Fix for modal-backdrop issues */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040; /* Ensure this is lower than the modal z-index */
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+}
+
+.modal {
+    z-index: 1050; /* Higher than backdrop */
+}
+
+.modal-dialog {
+    z-index: 1055; /* Even higher to ensure it's above the backdrop */
+    margin: 1.75rem auto;
+}
+
+/* Ensure modals are properly displayed in dark mode */
+[data-theme="dark"] .modal-backdrop.show {
+    opacity: 0.7; /* Slightly darker backdrop for dark mode */
+}
+
+/* Fix for multiple backdrops */
+body:not(.modal-open) .modal-backdrop {
+    display: none;
 }

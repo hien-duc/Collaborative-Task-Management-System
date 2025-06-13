@@ -113,11 +113,6 @@
 
                                                             <dt class="col-sm-4">IP Address</dt>
                                                             <dd class="col-sm-8">@log.IpAddress</dd>
-
-                                                            <dt class="col-sm-4">Details</dt>
-                                                            <dd class="col-sm-8">
-                                                                <pre class="mb-0"><code>@log.Details</code></pre>
-                                                            </dd>
                                                         </dl>
                                                     </div>
                                                 </div>
@@ -163,6 +158,43 @@
     <script>
         // Handle filter form submission via AJAX
         $(document).ready(function () {
+            // Fix for modal backdrop issues
+            $('.modal').on('show.bs.modal', function (e) {
+                // Ensure only one backdrop exists
+                if ($('.modal-backdrop').length > 0) {
+                    $('.modal-backdrop').not(':first').remove();
+                }
+                
+                // Ensure body has modal-open class
+                $('body').addClass('modal-open');
+            });
+            
+            $('.modal').on('hidden.bs.modal', function () {
+                // Remove any lingering backdrops
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open');
+                $('body').css('padding-right', '');
+                
+                // Additional fix for hover issue
+                setTimeout(function() {
+                    if ($('.modal.show').length === 0) {
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open');
+                    }
+                }, 300);
+            });
+            
+            // Fix for the hover issue you described
+            $(document).on('mouseover', function(e) {
+                // If we're not hovering over a modal and there's a backdrop but no visible modal
+                if (!$(e.target).closest('.modal').length && 
+                    $('.modal-backdrop').length && 
+                    !$('.modal.show').length) {
+                    $('.modal-backdrop').remove();
+                    $('body').removeClass('modal-open');
+                }
+            });
+            
             $('#filterForm').on('submit', function (e) {
                 e.preventDefault();
                 var form = $(this);
