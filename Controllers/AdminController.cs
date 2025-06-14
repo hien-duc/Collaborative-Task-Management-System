@@ -184,7 +184,7 @@ namespace Collaborative_Task_Management_System.Controllers
         // POST: Admin/EditUser/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditUser(string id, UserViewModel model)
+        public async Task<IActionResult> EditUser(string id, UserViewModel model, string? newPassword)
         {
             if (id != model.Id)
             {
@@ -203,6 +203,10 @@ namespace Collaborative_Task_Management_System.Controllers
 
                     user.Email = model.Email;
                     user.FullName = model.FullName;
+                    if (newPassword != null)
+                    {
+                        user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, newPassword);
+                    }
 
                     var result = await _userManager.UpdateAsync(user);
                     if (result.Succeeded)

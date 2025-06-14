@@ -10,6 +10,7 @@ namespace Collaborative_Task_Management_System.Models.ViewModels
         public string Email { get; set; }
         public string FullName { get; set; }
         public IList<string> Roles { get; set; }
+        public string Password { get; set; }
 
         public static UserViewModel FromApplicationUser(ApplicationUser user, IList<string> roles)
         {
@@ -19,7 +20,8 @@ namespace Collaborative_Task_Management_System.Models.ViewModels
                 UserName = user.UserName,
                 Email = user.Email,
                 FullName = user.FullName,
-                Roles = roles
+                Roles = roles,
+                Password = user.PasswordHash
             };
         }
     }
