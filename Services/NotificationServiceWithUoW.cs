@@ -19,7 +19,7 @@ namespace Collaborative_Task_Management_System.Services
         Task<bool> NotificationExistsAsync(int id);
         Task<int> GetUnreadCountAsync(string userId);
         Task CreateTaskNotificationAsync(string userId, string title, string message, NotificationType type, int? taskId = null, int? projectId = null);
-        Task CreateAuditLogAsync(string userId, string action, string details);
+        Task CreateAuditLogAsync(string userId, string action, string details, string? ipAddress);
         Task SendTaskCommentNotificationAsync(Comment comment);
         Task SendTaskAssignmentNotificationAsync(TaskItem task);
         Task SendTaskStatusUpdateNotificationAsync(TaskItem task, string updatedByUserId);
@@ -286,7 +286,7 @@ namespace Collaborative_Task_Management_System.Services
             }
         }
 
-        public async Task CreateAuditLogAsync(string userId, string action, string details)
+        public async Task CreateAuditLogAsync(string userId, string action, string details, string? ipAddress)
         {
             try
             {
@@ -295,7 +295,8 @@ namespace Collaborative_Task_Management_System.Services
                     UserId = userId,
                     Action = action,
                     Details = details ?? "{}",
-                    Timestamp = DateTime.UtcNow
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = ipAddress
                 };
 
                 await _unitOfWork.AuditLogs.AddAsync(auditLog);

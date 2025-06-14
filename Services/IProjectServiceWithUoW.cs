@@ -10,7 +10,7 @@ public interface IProjectServiceWithUoW
     Task<List<Project>> GetProjectsByOwnerAsync(string ownerId);
     Task<List<Project>> GetProjectsByStatusAsync(ProjectStatus status);
     Task<Project> CreateProjectAsync(Project project, string? ipAddress);
-    Task<Project> UpdateProjectAsync(Project project);
+    Task<Project> UpdateProjectAsync(Project project, string? ipAddress);
     Task DeleteProjectAsync(int id);
     Task<bool> ProjectExistsAsync(int id);
     Task<List<Project>> SearchProjectsAsync(string searchTerm);

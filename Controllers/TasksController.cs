@@ -120,12 +120,13 @@ namespace Collaborative_Task_Management_System.Controllers
                         await _taskService.SaveFileAttachmentAsync(
                             createdTask.Id, attachment, GetCurrentUserId());
                     }
+                    string? ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
                     // Create audit log
                     await _notificationService.CreateAuditLogAsync(
                         GetCurrentUserId(),
                         "TaskCreated",
-                        $"Created task '{createdTask.Title}' in project {task.ProjectId}"
+                        $"Created task '{createdTask.Title}' in project {task.ProjectId}", ipAddress
                     );
 
                     await _notificationService.SendTaskAssignmentNotificationAsync(createdTask);
@@ -311,10 +312,11 @@ namespace Collaborative_Task_Management_System.Controllers
                     }
 
                     await _notificationService.SendTaskAssignmentNotificationAsync(updatedTask);
+                    string? ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
                     await _notificationService.CreateAuditLogAsync(
                         GetCurrentUserId(),
                         "TaskUpdated",
-                        $"Updated task {updatedTask.Id}");
+                        $"Updated task {updatedTask.Id}", ipAddress);
 
                     return RedirectToAction("Details", "Projects", new { id = task.ProjectId });
                 }
@@ -426,11 +428,12 @@ namespace Collaborative_Task_Management_System.Controllers
 
                 var projectId = task.ProjectId;
                 await _taskService.DeleteTaskAsync(id);
-
+                
+                string? ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
                 await _notificationService.CreateAuditLogAsync(
                     GetCurrentUserId(),
                     "TaskDeleted",
-                    $"Deleted task {id}");
+                    $"Deleted task {id}", ipAddress);
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
                     return Json(new { success = true });
@@ -762,12 +765,13 @@ namespace Collaborative_Task_Management_System.Controllers
 
                 model.Tasks = paginatedTasks;
                 model.TotalTasks = totalTasks;
-
+                string? ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
                 // Create audit log for search
                 await _notificationService.CreateAuditLogAsync(
                     userId,
                     "TaskSearch",
-                    $"Searched tasks with query: {model.Query}. Filters: Status={model.Status}, AssigneeId={model.AssigneeId}, ProjectId={model.ProjectId}"
+                    $"Searched tasks with query: {model.Query}. Filters: Status={model.Status}, AssigneeId={model.AssigneeId}, ProjectId={model.ProjectId}",
+                    ipAddress
                 );
 
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")

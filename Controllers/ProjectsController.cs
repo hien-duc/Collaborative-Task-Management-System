@@ -290,7 +290,7 @@ public async Task<IActionResult> Edit(int? id)
 [HttpPost]
 [ValidateAntiForgeryToken]
 [Authorize(Policy = "ManagerOrAdmin")]
-public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Deadline,Status,Priority")] Project project)
+public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Deadline,Status,Priority,Owner,OwnerId,CreatedBy,CreatedById")] Project project)
 {
     if (id != project.Id)
     {
@@ -311,15 +311,36 @@ public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,Deadli
             return Forbid();
         }
 
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
+        {
+            // Log all validation errors
+            var validationErrors = ModelState
+                .Where(x => x.Value.Errors.Count > 0)
+                .Select(x => new 
+                { 
+                    Property = x.Key, 
+                    Errors = x.Value.Errors.Select(e => e.ErrorMessage).ToArray() 
+                })
+                .ToList();
+
+            _logger.LogWarning("ModelState validation failed with {ErrorCount} errors. Details: {ValidationErrors}", 
+                validationErrors.Sum(e => e.Errors.Length),
+                System.Text.Json.JsonSerializer.Serialize(validationErrors));
+
+            // Optionally add the errors to ViewData to display in the view
+            ViewData["ValidationErrors"] = validationErrors;
+        }
+        else
         {
             // Preserve original creation data
             project.CreatedAt = existingProject.CreatedAt;
             project.CreatedById = existingProject.CreatedById;
             project.OwnerId = existingProject.OwnerId;
             project.UpdatedAt = DateTime.UtcNow;
+            
+            string? ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
-            await _projectService.UpdateProjectAsync(project);
+            await _projectService.UpdateProjectAsync(project, ipAddress);
 
             TempData["SuccessMessage"] = "Project updated successfully!";
             return RedirectToAction(nameof(Details), new { id = project.Id });

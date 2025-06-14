@@ -41,10 +41,10 @@ namespace Collaborative_Task_Management_System.Models
 
         // Navigation properties
         [ForeignKey("CreatedById")]
-        public virtual ApplicationUser CreatedBy { get; set; }
+        public virtual ApplicationUser? CreatedBy { get; set; }
 
         [ForeignKey("OwnerId")]
-        public virtual ApplicationUser Owner { get; set; }
+        public virtual ApplicationUser? Owner { get; set; }
     
         public virtual ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     

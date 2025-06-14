@@ -38,6 +38,7 @@ namespace Collaborative_Task_Management_System.Services
             {
                 return await _unitOfWork.Projects.GetByIdWithIncludesAsync(id,
                     p => p.CreatedBy,
+                    p => p.Owner,
                     p => p.TeamMembers,
                     p => p.Tasks);
             }
@@ -140,7 +141,7 @@ namespace Collaborative_Task_Management_System.Services
             }
         }
 
-        public async Task<Project> UpdateProjectAsync(Project project)
+        public async Task<Project> UpdateProjectAsync(Project project, string? ipAddress)
         {
             try
             {
