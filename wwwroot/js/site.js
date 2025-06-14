@@ -802,6 +802,12 @@ async function startSignalRConnection() {
         return; // Don't attempt to connect if not authenticated
     }
     
+    // Check if connection is already in a state other than 'Disconnected'
+    if (connection.state !== signalR.HubConnectionState.Disconnected) {
+        console.log(`SignalR connection already in ${connection.state} state. Not starting again.`);
+        return;
+    }
+    
     try {
         await connection.start();
         console.log('SignalR Connected.');
