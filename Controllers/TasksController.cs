@@ -1001,5 +1001,61 @@ namespace Collaborative_Task_Management_System.Controllers
                 return Content("<div class='p-3 text-danger'>An error occurred while searching.</div>", "text/html");
             }
         }
+        // POST: Tasks/UploadFile
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadFile(int TaskId, IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return RedirectToAction("Details", "Projects", new { id = await GetProjectIdFromTaskAsync(TaskId) });
+                }
+
+                // Check if user can access this task
+                var task = await _taskService.GetTaskByIdAsync(TaskId);
+                if (task == null)
+                {
+                    return NotFound();
+                }
+
+                if (!await CanAccessTaskAsync(task.ProjectId))
+                {
+                    return Forbid();
+                }
+
+                // Save the file
+                var currentUserId = GetCurrentUserId();
+                await _taskService.SaveFileAttachmentAsync(TaskId, file, currentUserId);
+                
+                // Log the action
+                _logger.LogInformation("File uploaded for task {TaskId} by user {UserId}", TaskId, currentUserId);
+                
+                // Redirect back to the project details page
+                return RedirectToAction("Details", "Projects", new { id = task.ProjectId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading file for task {TaskId}", TaskId);
+                // Get the project ID to redirect back
+                var projectId = await GetProjectIdFromTaskAsync(TaskId);
+                return RedirectToAction("Details", "Projects", new { id = projectId });
+            }
+        }
+        
+        // Helper method to get project ID from task ID
+        private async Task<int> GetProjectIdFromTaskAsync(int taskId)
+        {
+            try
+            {
+                var task = await _taskService.GetTaskByIdAsync(taskId);
+                return task?.ProjectId ?? 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
     }  // End of TasksController class
 }  // End of namespace
