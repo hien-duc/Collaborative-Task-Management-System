@@ -32,7 +32,7 @@ The system has been migrated to use **Supabase** for enhanced data handling and 
 - **Frontend**: Razor Pages, Bootstrap 5.1, jQuery
 - **Architecture**: Repository Pattern & Unit of Work
 
-## [Demo](https://www.codecademy.com/resources/docs) (Please try not to overflow my database please)🙏
+## [Demo link](https://collaborative-task-management-system.onrender.com) (Please try not to overflow my database please)🙏
 ## Default Credentials (This is admin)
 - **Email**: `admin@taskmanager.com`
 - **Password**: `Admin@123456`
