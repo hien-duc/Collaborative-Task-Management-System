@@ -83,9 +83,10 @@ namespace Collaborative_Task_Management_System.Controllers
                 // Get all tasks from projects where the user is a member
                 var allUserTasks = new List<TaskItem>();
                 
-                foreach (var project in filteredProjects)
+                var projectIds = filteredProjects.Select(p => p.Id).ToArray();
+                if (projectIds.Any())
                 {
-                    var projectTasks = await _taskService.GetTasksByProjectIdAsync(project.Id);
+                    var projectTasks = await _taskService.GetTasksByProjectIdsAsync(projectIds);
                     allUserTasks.AddRange(projectTasks);
                 }
                 
@@ -198,9 +199,10 @@ namespace Collaborative_Task_Management_System.Controllers
                 // Get all tasks from projects where the user is a member
                 var allUserTasks = new List<TaskItem>();
                 
-                foreach (var project in filteredProjects)
+                var projectIds = filteredProjects.Select(p => p.Id).ToArray();
+                if (projectIds.Any())
                 {
-                    var projectTasks = await _taskService.GetTasksByProjectIdAsync(project.Id);
+                    var projectTasks = await _taskService.GetTasksByProjectIdsAsync(projectIds);
                     allUserTasks.AddRange(projectTasks);
                 }
                 

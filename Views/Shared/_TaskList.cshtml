@@ -37,7 +37,7 @@ else
                 <div class="mt-1">
                     <small class="text-muted">
                         <i class="bi bi-person"></i> @(task.AssignedTo?.UserName ?? "Unassigned") |
-                        <i class="bi bi-calendar"></i> Due: @task.DueDate.ToString("MMM dd, yyyy")
+                        <i class="bi bi-calendar"></i> Due: <local-time date="@task.DueDate" format="date"></local-time>
                     </small>
                 </div>
             </a>

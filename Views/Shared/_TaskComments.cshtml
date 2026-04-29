@@ -32,7 +32,7 @@
                         <div class="card-body py-2 px-3">
                             <p class="mb-1">@comment.Text</p>
                             <small class="text-muted">
-                                @(comment.User?.FullName ?? comment.User?.UserName) - @comment.CreatedAt.ToString("MM/dd/yyyy HH:mm")
+                                @(comment.User?.FullName ?? comment.User?.UserName) - <local-time date="@comment.CreatedAt" format="datetime"></local-time>
                             </small>
                         </div>
                     </div>

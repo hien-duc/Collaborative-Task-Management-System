@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Collaborative_Task_Management_System.Models;
 using Collaborative_Task_Management_System.Models.ViewModels;
-using Collaborative_Task_Management_System.Data;
 using System.IO;
 using System.Text.RegularExpressions;
+using Collaborative_Task_Management_System.UnitOfWork;
+using Collaborative_Task_Management_System.Specifications;
 using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus;
 
 namespace Collaborative_Task_Management_System.Controllers
@@ -14,20 +15,20 @@ namespace Collaborative_Task_Management_System.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : BaseController
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AdminController> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly string _logsDirectory;
 
         public AdminController(
-            ApplicationDbContext context,
+            IUnitOfWork unitOfWork,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             ILogger<AdminController> logger,
             IWebHostEnvironment webHostEnvironment)
             : base(userManager)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _logger = logger;
             _roleManager = roleManager;
             _logsDirectory = Path.Combine(webHostEnvironment.ContentRootPath, "Logs");
@@ -39,18 +40,13 @@ namespace Collaborative_Task_Management_System.Controllers
             try
             {
                 const int pageSize = 50;
-                var query = _context.AuditLogs
-                    .Include(a => a.User)
-                    .OrderByDescending(a => a.Timestamp)
-                    .AsNoTracking();
+                var spec = new AuditLogSearchSpecification(null, null, null, null, (page - 1) * pageSize, pageSize);
+                var countSpec = new AuditLogSearchCountSpecification(null, null, null, null);
 
-                var totalLogs = await query.CountAsync();
+                var totalLogs = await _unitOfWork.AuditLogs.CountAsync(countSpec);
                 var totalPages = (int)Math.Ceiling(totalLogs / (double)pageSize);
 
-                var logs = await query
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
+                var logs = await _unitOfWork.AuditLogs.ListAsync(spec);
 
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = totalPages;
@@ -77,39 +73,16 @@ namespace Collaborative_Task_Management_System.Controllers
             try
             {
                 const int pageSize = 50;
-                var query = _context.AuditLogs
-                    .Include(a => a.User)
-                    .AsNoTracking();
+                // Adjust toDate to include the full day
+                var adjustedToDate = toDate?.AddDays(1).AddTicks(-1);
+                
+                var spec = new AuditLogSearchSpecification(userId, action, fromDate, adjustedToDate, (page - 1) * pageSize, pageSize);
+                var countSpec = new AuditLogSearchCountSpecification(userId, action, fromDate, adjustedToDate);
 
-                if (!string.IsNullOrEmpty(userId))
-                {
-                    query = query.Where(a => a.UserId == userId);
-                }
-
-                if (!string.IsNullOrEmpty(action))
-                {
-                    query = query.Where(a => a.Action.Contains(action));
-                }
-
-                if (fromDate.HasValue)
-                {
-                    query = query.Where(a => a.Timestamp >= fromDate.Value);
-                }
-
-                if (toDate.HasValue)
-                {
-                    query = query.Where(a => a.Timestamp <= toDate.Value);
-                }
-
-                query = query.OrderByDescending(a => a.Timestamp);
-
-                var totalLogs = await query.CountAsync();
+                var totalLogs = await _unitOfWork.AuditLogs.CountAsync(countSpec);
                 var totalPages = (int)Math.Ceiling(totalLogs / (double)pageSize);
 
-                var logs = await query
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
+                var logs = await _unitOfWork.AuditLogs.ListAsync(spec);
 
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = totalPages;
@@ -291,22 +264,18 @@ namespace Collaborative_Task_Management_System.Controllers
                 
                 if (adminRole != null)
                 {
-                    viewModel.AdminCount = await _context.UserRoles
-                        .Where(ur => ur.RoleId == adminRole.Id)
-                        .CountAsync();
+                    viewModel.AdminCount = (await _userManager.GetUsersInRoleAsync("Admin")).Count;
                 }
                 
                 if (managerRole != null)
                 {
-                    viewModel.ManagerCount = await _context.UserRoles
-                        .Where(ur => ur.RoleId == managerRole.Id)
-                        .CountAsync();
+                    viewModel.ManagerCount = (await _userManager.GetUsersInRoleAsync("Manager")).Count;
                 }
                 
                 viewModel.TeamMemberCount = viewModel.TotalUsers - viewModel.AdminCount - viewModel.ManagerCount;
                 
                 // Get project statistics
-                var projects = await _context.Projects.ToListAsync();
+                var projects = (await _unitOfWork.Projects.GetAllAsync()).ToList();
                 viewModel.TotalProjects = projects.Count;
                 viewModel.ActiveProjects = projects.Count(p => p.Status == ProjectStatus.Active);
                 viewModel.CompletedProjects = projects.Count(p => p.Status == ProjectStatus.Completed);
@@ -315,7 +284,7 @@ namespace Collaborative_Task_Management_System.Controllers
                 viewModel.CancelledProjects = projects.Count(p => p.Status == ProjectStatus.Cancelled);
                 
                 // Get task statistics
-                var tasks = await _context.Tasks.ToListAsync();
+                var tasks = (await _unitOfWork.Tasks.GetAllAsync()).ToList();
                 viewModel.TotalTasks = tasks.Count;
                 viewModel.TodoTasks = tasks.Count(t => t.Status == TaskStatus.ToDo);
                 viewModel.InProgressTasks = tasks.Count(t => t.Status == TaskStatus.InProgress);
@@ -325,11 +294,8 @@ namespace Collaborative_Task_Management_System.Controllers
                 viewModel.OverdueTasks = tasks.Count(t => t.DueDate < DateTime.Today && t.Status != TaskStatus.Completed);
                 
                 // Get recent activity
-                viewModel.RecentActivity = await _context.AuditLogs
-                    .Include(a => a.User)
-                    .OrderByDescending(a => a.Timestamp)
-                    .Take(10)
-                    .ToListAsync();
+                var recentSpec = new AuditLogRecentSpecification(10);
+                viewModel.RecentActivity = (await _unitOfWork.AuditLogs.ListAsync(recentSpec)).ToList();
                 
                 // Get top users by task completion
                 var userTaskSummaries = new List<AdminDashboardViewModel.UserTaskSummary>();
@@ -380,8 +346,12 @@ namespace Collaborative_Task_Management_System.Controllers
                 
                 foreach (var logFile in logFiles)
                 {
-                    var content = await System.IO.File.ReadAllTextAsync(logFile);
-                    errorCount += Regex.Matches(content, @"\[ERR\]").Count;
+                    using (var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var reader = new StreamReader(fileStream))
+                    {
+                        var content = await reader.ReadToEndAsync();
+                        errorCount += Regex.Matches(content, @"\[ERR\]").Count;
+                    }
                 }
                 
                 return errorCount;
@@ -405,17 +375,21 @@ namespace Collaborative_Task_Management_System.Controllers
                 
                 foreach (var logFile in logFiles)
                 {
-                    var lines = await System.IO.File.ReadAllLinesAsync(logFile);
-                    foreach (var line in lines)
+                    using (var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var reader = new StreamReader(fileStream))
                     {
-                        if (line.Contains("[ERR]"))
+                        string line;
+                        while ((line = await reader.ReadLineAsync()) != null)
                         {
-                            var match = Regex.Match(line, @"\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]");
-                            if (match.Success && DateTime.TryParse(match.Groups[1].Value, out DateTime errorTime))
+                            if (line.Contains("[ERR]"))
                             {
-                                if (!lastErrorTime.HasValue || errorTime > lastErrorTime.Value)
+                                var match = Regex.Match(line, @"\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]");
+                                if (match.Success && DateTime.TryParse(match.Groups[1].Value, out DateTime errorTime))
                                 {
-                                    lastErrorTime = errorTime;
+                                    if (!lastErrorTime.HasValue || errorTime > lastErrorTime.Value)
+                                    {
+                                        lastErrorTime = errorTime;
+                                    }
                                 }
                             }
                         }

@@ -33,7 +33,7 @@
                     <div class="row mb-4">
                         <div class="col-sm-6 col-lg-3">
                             <h6 class="text-muted mb-2">Deadline</h6>
-                            <p class="mb-0">@Model.Project.Deadline.ToString("MM/dd/yyyy")</p>
+                            <p class="mb-0"><local-time date="@Model.Project.Deadline" format="date"></local-time></p>
                         </div>
                         <div class="col-sm-6 col-lg-3">
                             <h6 class="text-muted mb-2">Priority</h6>
@@ -183,7 +183,7 @@
                                     <span class="badge bg-@(task.Priority == "High" ? "danger" :
                                                           task.Priority == "Medium" ? "warning" : "info")">@task.Priority</span>
                                 </td>
-                                <td>@task.DueDate.ToString("MM/dd/yyyy")</td>
+                                <td><local-time date="@task.DueDate" format="date"></local-time></td>
                                 <td>
                                     <button class="btn btn-sm btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#task-@task.Id" aria-expanded="false" aria-controls="task-@task.Id" aria-label="View comments for task @task.Title">
                                         <i class="bi bi-chat-dots"></i> View Comments (@(task.Comments != null ? task.Comments.Count : 0))
@@ -223,7 +223,7 @@
                                                             <div class="card mb-2" role="article" aria-label="Comment by @(string.IsNullOrEmpty(comment.User.FullName) ? comment.User.UserName : comment.User.FullName)">
                                                                 <div class="card-body py-2 px-3">
                                                                     <p class="mb-1">@comment.Text</p>
-                                                                    <small class="text-muted">@(string.IsNullOrEmpty(comment.User.FullName) ? comment.User.UserName : comment.User.FullName) - @comment.CreatedAt.ToString("MM/dd/yyyy HH:mm")</small>
+                                                                    <small class="text-muted">@(string.IsNullOrEmpty(comment.User.FullName) ? comment.User.UserName : comment.User.FullName) - <local-time date="@comment.CreatedAt" format="datetime"></local-time></small>
                                                                 </div>
                                                             </div>
                                                         }
@@ -259,7 +259,7 @@
                                                                 <a href="@Url.Action("DownloadFile", "Tasks", new { id = attachment.Id })" class="text-decoration-none" aria-label="Download @attachment.FileName">
                                                                     <i class="bi bi-file-earmark"></i> @attachment.FileName
                                                                 </a>
-                                                                <small class="text-muted">@attachment.UploadedAt.ToString("MM/dd/yyyy")</small>
+                                                                <small class="text-muted"><local-time date="@attachment.UploadedAt" format="date"></local-time></small>
                                                             </li>
                                                         }
                                                     </ul>

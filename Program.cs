@@ -5,12 +5,15 @@ using Collaborative_Task_Management_System.Models;
 using Collaborative_Task_Management_System.Repositories;
 using Collaborative_Task_Management_System.Services;
 using Collaborative_Task_Management_System.UnitOfWork;
+using dotenv.net;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Supabase;
 
 var builder = WebApplication.CreateBuilder(args);
 
+DotEnv.Load();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -22,13 +25,30 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
+
+    // Lockout settings
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
 // Configure application cookie options
 builder.Services.ConfigureApplicationCookie(options => {
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
     options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromHours(2);
+    options.SlidingExpiration = true;
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+});
+
+// Validate security stamp frequently so stale sessions are caught quickly
+builder.Services.Configure<SecurityStampValidatorOptions>(options => {
+    options.ValidationInterval = TimeSpan.FromMinutes(5);
 });
 
 // Add Authorization Policies
@@ -46,8 +66,23 @@ builder.Services.AddAuthorization(options =>
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+    options.UseNpgsql(connectionString, npgsqlOptions => 
+    {
+        // Optimize Query (reduce Cartesian Explosion)
+        npgsqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+    }));
+
+// Add supabase
+var url = Environment.GetEnvironmentVariable("SUPABASE_URL");
+var key = Environment.GetEnvironmentVariable("SUPABASE_KEY");
+var options = new SupabaseOptions
+{
+    AutoRefreshToken = true,
+    AutoConnectRealtime = true,
+    // SessionHandler = new SupabaseSessionHandler() <-- This must be implemented by the developer
+};
+builder.Services.AddScoped(_ => new Supabase.Client(url ?? throw new InvalidOperationException(), key, options));
+builder.Services.AddHttpClient();
 
 // Add Repositories
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();

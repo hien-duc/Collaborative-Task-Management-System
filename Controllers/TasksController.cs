@@ -12,7 +12,6 @@ using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus;
 using Microsoft.AspNetCore.SignalR;
 using Collaborative_Task_Management_System.Hubs;
 using Collaborative_Task_Management_System.Controllers;
-using Collaborative_Task_Management_System.Data;
 
 namespace Collaborative_Task_Management_System.Controllers
 {
@@ -25,8 +24,8 @@ namespace Collaborative_Task_Management_System.Controllers
         private readonly ILogger<TasksController> _logger;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IDashboardBroadcastService _dashboardBroadcastService;
-        private readonly ApplicationDbContext _context;
-
+        private readonly IHttpClientFactory _httpClientFactory;
+        
         public TasksController(
         ITaskServiceWithUoW taskService,
         IProjectServiceWithUoW projectService,
@@ -35,7 +34,7 @@ namespace Collaborative_Task_Management_System.Controllers
         ILogger<TasksController> logger,
         IHubContext<NotificationHub> hubContext,
         IDashboardBroadcastService dashboardBroadcastService,
-        ApplicationDbContext context)
+        IHttpClientFactory httpClientFactory)
         : base(userManager)
     {
         _taskService = taskService;
@@ -44,7 +43,7 @@ namespace Collaborative_Task_Management_System.Controllers
         _logger = logger;
         _hubContext = hubContext;
         _dashboardBroadcastService = dashboardBroadcastService;
-        _context = context;
+        _httpClientFactory = httpClientFactory;
     }
 
         // GET: Tasks/Create/5 (projectId)
@@ -538,20 +537,32 @@ namespace Collaborative_Task_Management_System.Controllers
 
                 // Convert the relative URL path to a physical file path
                 // FilePath is stored as "/uploads/filename" in the database
-                var webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                /*var webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
                 var physicalFilePath = Path.Combine(webRootPath, file.FilePath.TrimStart('/'));
                 
-                _logger.LogInformation("Physical file path: {FilePath}", physicalFilePath);
+                _logger.LogInformation("Physical file path: {FilePath}", physicalFilePath);*/
+
+                var cloudFilePath = file.FilePath;
                 
-                if (!System.IO.File.Exists(physicalFilePath))
+                /*if (!System.IO.File.Exists(physicalFilePath))
                 {
                     _logger.LogWarning("Physical file not found at path: {FilePath}", physicalFilePath);
                     return NotFound("The file was found in the database but not on the server.");
-                }
+                }*/
 
                 _logger.LogInformation("Returning file: {FileName}, Content-Type: {ContentType}", 
                     file.FileName, file.ContentType);
-                return PhysicalFile(physicalFilePath, file.ContentType, file.FileName);
+                
+                var client = _httpClientFactory.CreateClient();
+                var response = await client.GetAsync(cloudFilePath, HttpCompletionOption.ResponseHeadersRead);
+            
+                if (!response.IsSuccessStatusCode)
+                    return NotFound();
+
+                var stream = await response.Content.ReadAsStreamAsync();
+
+                // 4. Trả về FileStreamResult (Thay vì PhysicalFile)
+                return File(stream, file.ContentType, file.FileName);
             }
             catch (Exception ex)
             {
@@ -603,24 +614,17 @@ namespace Collaborative_Task_Management_System.Controllers
                 // Get all tasks from projects where the user is a member
                 var allUserTasks = new List<TaskItem>();
                 
-                foreach (var project in userProjects)
+                var projectIds = projectId.HasValue ? new[] { projectId.Value } : userProjects.Select(p => p.Id).ToArray();
+                
+                if (projectIds.Any())
                 {
-                    // Skip if we're filtering by project and this isn't the selected project
-                    if (projectId.HasValue && project.Id != projectId.Value)
-                        continue;
-                        
-                    var projectTasks = await _taskService.GetTasksByProjectIdAsync(project.Id);
+                    var projectTasks = await _taskService.GetTasksByProjectIdsAsync(projectIds);
                     allUserTasks.AddRange(projectTasks);
                 }
                 
-                // If filtering by project, only include tasks from that project
-                if (projectId.HasValue)
+                // If not filtering by project, combine assigned tasks with project tasks and remove duplicates
+                if (!projectId.HasValue)
                 {
-                    allUserTasks = allUserTasks.Where(t => t.ProjectId == projectId.Value).ToList();
-                }
-                else
-                {
-                    // Otherwise, combine assigned tasks with project tasks and remove duplicates
                     allUserTasks = allUserTasks.Concat(assignedTasks)
                         .GroupBy(t => t.Id)
                         .Select(g => g.First())
@@ -687,83 +691,14 @@ namespace Collaborative_Task_Management_System.Controllers
             {
                 var userId = GetCurrentUserId();
                 var isManagerOrAdmin = await IsManagerOrAdmin();
-                var tasks = await _taskService.GetAllTasksAsync();
-                var query = tasks.AsQueryable();
-
-                // Apply search filters
-                if (!string.IsNullOrEmpty(model.Query))
-                {
-                    query = query.Where(t =>
-                        t.Title.Contains(model.Query) ||
-                        t.Description.Contains(model.Query) ||
-                        t.AssignedTo.UserName.Contains(model.Query));
-                }
-
-                if (!string.IsNullOrEmpty(model.AssigneeId))
-                {
-                    query = query.Where(t => t.AssignedToId == model.AssigneeId);
-                }
-
-                if (model.Status.HasValue)
-                {
-                    query = query.Where(t => t.Status == model.Status.Value);
-                }
-
-                if (model.FromDate.HasValue)
-                {
-                    query = query.Where(t => t.DueDate >= model.FromDate.Value);
-                }
-
-                if (model.ToDate.HasValue)
-                {
-                    query = query.Where(t => t.DueDate <= model.ToDate.Value);
-                }
-
-                if (model.ProjectId.HasValue)
-                {
-                    query = query.Where(t => t.ProjectId == model.ProjectId.Value);
-                }
-
+                
                 // Get user's projects (where they are a member or owner)
                 var userProjects = await _projectService.GetProjectsForUserAsync(userId);
                 var userProjectIds = userProjects.Select(p => p.Id).ToList();
 
-                // Apply access restrictions
-                if (!isManagerOrAdmin)
-                {
-                    query = query.Where(t =>
-                        t.AssignedToId == userId || // User is assigned to the task
-                        userProjectIds.Contains(t.ProjectId)); // Task is in a project where user is a member or owner
-                }
+                var (tasks, totalTasks) = await _taskService.SearchTasksAsync(model, userId, isManagerOrAdmin, userProjectIds);
 
-                // Apply sorting
-                query = model.SortBy?.ToLower() switch
-                {
-                    "title" => model.SortDescending ?
-                        query.OrderByDescending(t => t.Title) :
-                        query.OrderBy(t => t.Title),
-                    "duedate" => model.SortDescending ?
-                        query.OrderByDescending(t => t.DueDate) :
-                        query.OrderBy(t => t.DueDate),
-                    "status" => model.SortDescending ?
-                        query.OrderByDescending(t => t.Status) :
-                        query.OrderBy(t => t.Status),
-                    "assignee" => model.SortDescending ?
-                        query.OrderByDescending(t => t.AssignedTo.UserName) :
-                        query.OrderBy(t => t.AssignedTo.UserName),
-                    _ => query.OrderByDescending(t => t.CreatedAt)
-                };
-
-                // Get total count for pagination
-                var totalTasks = await query.CountAsync();
-
-                // Apply pagination
-                var paginatedTasks = await query
-                    .Skip((model.Page - 1) * model.PageSize)
-                    .Take(model.PageSize)
-                    .ToListAsync();
-
-                model.Tasks = paginatedTasks;
+                model.Tasks = tasks.ToList();
                 model.TotalTasks = totalTasks;
                 string? ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
                 // Create audit log for search
@@ -776,7 +711,7 @@ namespace Collaborative_Task_Management_System.Controllers
 
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    return PartialView("_TaskList", tasks);
+                    return PartialView("_TaskList", model.Tasks);
                 }
 
                 return View("Index", model);
@@ -836,24 +771,8 @@ namespace Collaborative_Task_Management_System.Controllers
 
                 try
                 {
-                    // Add comment directly to the context like CommentsController does
-                    _logger.LogInformation("Adding comment directly to DbContext for task {TaskId}", model.taskId);
-                    _context.Comments.Add(comment);
-                    
-                    // Create audit log directly
-                    _logger.LogInformation("Creating audit log directly for comment on task {TaskId}", model.taskId);
-                    var auditLog = new AuditLog
-                    {
-                        UserId = userId,
-                        Action = "CommentCreated",
-                        Details = $"Added comment to task '{task.Title}' (Task ID: {task.Id}, Project ID: {task.ProjectId})",
-                        Timestamp = DateTime.UtcNow
-                    };
-                    _context.AuditLogs.Add(auditLog);
-                    
-                    // Save changes
-                    _logger.LogInformation("Saving changes to DbContext for comment on task {TaskId}", model.taskId);
-                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Creating comment using TaskService for task {TaskId}", model.taskId);
+                    await _taskService.CreateCommentAsync(comment);
                     _logger.LogInformation("Successfully saved comment with ID: {CommentId} for task {TaskId}", 
                         comment.Id, model.taskId);
                 }

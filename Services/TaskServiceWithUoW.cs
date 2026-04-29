@@ -1,5 +1,7 @@
 using Collaborative_Task_Management_System.Models;
+using Collaborative_Task_Management_System.Models.ViewModels;
 using Collaborative_Task_Management_System.UnitOfWork;
+using Collaborative_Task_Management_System.Specifications;
 using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus;
 
 namespace Collaborative_Task_Management_System.Services
@@ -11,6 +13,8 @@ namespace Collaborative_Task_Management_System.Services
         Task<TaskItem> GetTaskWithDetailsAsync(int id);
         Task<List<TaskItem>> GetTasksByProjectIdAsync(int projectId);
         Task<List<TaskItem>> GetTasksByAssignedUserAsync(string userId);
+        Task<(IEnumerable<TaskItem> Tasks, int TotalCount)> SearchTasksAsync(TaskSearchViewModel model, string currentUserId, bool isManagerOrAdmin, List<int> userProjectIds);
+        Task<IEnumerable<TaskItem>> GetTasksByProjectIdsAsync(IEnumerable<int> projectIds);
         Task<List<TaskItem>> GetTasksByStatusAsync(TaskStatus status);
         Task<List<TaskItem>> GetOverdueTasksAsync();
         Task<List<TaskItem>> GetTasksDueSoonAsync(int days = 7);
@@ -19,7 +23,6 @@ namespace Collaborative_Task_Management_System.Services
         Task<TaskItem> UpdateTaskStatusAsync(int taskId, TaskStatus status, string userId);
         Task DeleteTaskAsync(int id);
         Task<bool> TaskExistsAsync(int id);
-        Task<List<TaskItem>> SearchTasksAsync(string searchTerm);
         Task AssignTaskAsync(int taskId, string userId, string assignedByUserId);
         Task SaveFileAttachmentAsync(int taskId, IFormFile file, string uploadedByUserId);
         Task<FileAttachment> GetFileAttachmentAsync(int attachmentId);
@@ -30,11 +33,13 @@ namespace Collaborative_Task_Management_System.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<TaskServiceWithUoW> _logger;
+        private readonly Supabase.Client _supabase;
 
-        public TaskServiceWithUoW(IUnitOfWork unitOfWork, ILogger<TaskServiceWithUoW> logger)
+        public TaskServiceWithUoW(IUnitOfWork unitOfWork, ILogger<TaskServiceWithUoW> logger, Supabase.Client supabase)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _supabase = supabase;
         }
 
         public async Task<List<TaskItem>> GetAllTasksAsync()
@@ -79,6 +84,39 @@ namespace Collaborative_Task_Management_System.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving task details for ID: {TaskId}", id);
+                throw;
+            }
+        }
+
+        public async Task<(IEnumerable<TaskItem> Tasks, int TotalCount)> SearchTasksAsync(TaskSearchViewModel model, string currentUserId, bool isManagerOrAdmin, List<int> userProjectIds)
+        {
+            try
+            {
+                var spec = new TaskSearchSpecification(model, currentUserId, isManagerOrAdmin, userProjectIds);
+                var countSpec = new TaskSearchCountSpecification(model, currentUserId, isManagerOrAdmin, userProjectIds);
+
+                var tasks = await _unitOfWork.Tasks.ListAsync(spec);
+                var count = await _unitOfWork.Tasks.CountAsync(countSpec);
+
+                return (tasks, count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error executing SearchTasksAsync");
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<TaskItem>> GetTasksByProjectIdsAsync(IEnumerable<int> projectIds)
+        {
+            try
+            {
+                var spec = new TasksByProjectIdsSpecification(projectIds);
+                return await _unitOfWork.Tasks.ListAsync(spec);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error executing GetTasksByProjectIdsAsync");
                 throw;
             }
         }
@@ -416,20 +454,6 @@ namespace Collaborative_Task_Management_System.Services
             }
         }
 
-        public async Task<List<TaskItem>> SearchTasksAsync(string searchTerm)
-        {
-            try
-            {
-                var tasks = await _unitOfWork.Tasks.SearchTasksAsync(searchTerm);
-                return tasks.ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error searching tasks with term: {SearchTerm}", searchTerm);
-                throw;
-            }
-        }
-
         public async Task AssignTaskAsync(int taskId, string userId, string assignedByUserId)
         {
             try
@@ -498,8 +522,15 @@ namespace Collaborative_Task_Management_System.Services
                 // Validate file size (10MB limit)
                 if (file.Length > 10 * 1024 * 1024)
                     throw new ArgumentException("File size cannot exceed 10MB");
+                
+                var allowedMimeTypes = new[] { "image/jpeg", "image/png", "image/gif", "application/pdf" };
+    
+                if (!allowedMimeTypes.Contains(file.ContentType))
+                {
+                    throw new ArgumentException("Only allow images, pdf and docx files");
+                }
 
-                // Create uploads directory if it doesn't exist
+                /*// Create uploads directory if it doesn't exist
                 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
                 Directory.CreateDirectory(uploadsPath);
 
@@ -519,6 +550,36 @@ namespace Collaborative_Task_Management_System.Services
                     TaskId = taskId,
                     FileName = file.FileName,
                     FilePath = $"/uploads/{fileName}",
+                    FileSize = file.Length,
+                    ContentType = file.ContentType,
+                    UploadedById = uploadedByUserId,
+                    UploadedAt = DateTime.UtcNow
+                };*/
+                
+                // Tạo tên file duy nhất (Tránh lỗi khi nhiều người cùng upload 'image.png')
+                var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+        
+                // Chuyển file sang mảng byte để upload
+                using var ms = new MemoryStream();
+                await file.CopyToAsync(ms);
+                var fileBytes = ms.ToArray();
+
+                // 1. Đẩy lên Supabase Storage (Bucket tên là 'attachments')
+                await _supabase.Storage
+                    .From("attachments")
+                    .Upload(fileBytes, fileName);
+
+                // 2. Fetch Public URL
+                var publicUrl = _supabase.Storage
+                    .From("attachments")
+                    .GetPublicUrl(fileName);
+                
+                // 3. Save to DB
+                var attachment = new FileAttachment
+                {
+                    TaskId = taskId,
+                    FileName = file.FileName,
+                    FilePath = publicUrl, // This is URL CDN (https://...)
                     FileSize = file.Length,
                     ContentType = file.ContentType,
                     UploadedById = uploadedByUserId,
@@ -577,6 +638,19 @@ namespace Collaborative_Task_Management_System.Services
                 
                 _logger.LogInformation("Adding comment to repository for task {TaskId}", comment.TaskId);
                 await _unitOfWork.Comments.AddAsync(comment);
+                
+                // Fetch the task for the audit log details
+                var task = await _unitOfWork.Tasks.GetByIdAsync(comment.TaskId);
+
+                // Create audit log
+                var auditLog = new AuditLog
+                {
+                    UserId = comment.UserId,
+                    Action = "CommentCreated",
+                    Details = $"Added comment to task '{task.Title}' (Task ID: {task.Id}, Project ID: {task.ProjectId})",
+                    Timestamp = DateTime.UtcNow
+                };
+                await _unitOfWork.AuditLogs.AddAsync(auditLog);
                 
                 _logger.LogInformation("Saving changes for comment on task {TaskId}", comment.TaskId);
                 await _unitOfWork.SaveChangesAsync();

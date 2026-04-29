@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Collaborative_Task_Management_System.Models;
 using Collaborative_Task_Management_System.Models.ViewModels;
 using Collaborative_Task_Management_System.Services;
-using Collaborative_Task_Management_System.Data;
 using Collaborative_Task_Management_System.Hubs;
 
 namespace Collaborative_Task_Management_System.Controllers
@@ -19,12 +18,9 @@ namespace Collaborative_Task_Management_System.Controllers
         private readonly ILogger<CommentsController> _logger;
         private readonly IHubContext<NotificationHub> _hubContext;
 
-        private readonly ApplicationDbContext _context;
-
         public CommentsController(
             ITaskServiceWithUoW taskService,
             INotificationServiceWithUoW notificationService,
-            ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             IHubContext<NotificationHub> hubContext,
             ILogger<CommentsController> logger)
@@ -32,7 +28,6 @@ namespace Collaborative_Task_Management_System.Controllers
         {
             _taskService = taskService;
             _notificationService = notificationService;
-            _context = context;
             _hubContext = hubContext;
             _logger = logger;
         }
@@ -65,19 +60,7 @@ namespace Collaborative_Task_Management_System.Controllers
                     CreatedAt = DateTime.UtcNow
                 };
 
-                _context.Comments.Add(comment);
-
-                // Create audit log
-                var auditLog = new AuditLog
-                {
-                    UserId = userId,
-                    Action = "CommentCreated",
-                    Details = $"Added comment to task '{task.Title}' (Task ID: {task.Id}, Project ID: {task.ProjectId})",
-                    Timestamp = DateTime.UtcNow
-                };
-                _context.AuditLogs.Add(auditLog);
-
-                await _context.SaveChangesAsync();
+                await _taskService.CreateCommentAsync(comment);
 
                 // Send notification to task assignee and project members
                 await _notificationService.SendTaskCommentNotificationAsync(comment);

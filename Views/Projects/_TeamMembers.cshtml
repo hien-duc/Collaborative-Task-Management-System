@@ -23,7 +23,7 @@
                     {
                         <tr>
                             <td>@(string.IsNullOrEmpty(user.FullName) ? user.UserName : user.FullName)</td>
-                            <td>@member.JoinedAt.ToString("MM/dd/yyyy")</td>
+                            <td><local-time date="@member.JoinedAt" format="date"></local-time></td>
                             @if ((Model.IsManager || User.IsInRole("Admin")) && user.Id != Model.Project.CreatedById)
                             {
                                 <td>

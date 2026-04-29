@@ -66,7 +66,7 @@
                                 <tr>
                                     <td>
                                         <small class="text-muted">
-                                            @log.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")
+                                            <local-time date="@log.Timestamp" format="datetime"></local-time>
                                         </small>
                                     </td>
                                     <td>@log.User?.UserName</td>
@@ -84,7 +84,7 @@
                                         <button type="button" class="btn btn-link p-0" 
                                                 data-bs-toggle="modal" data-bs-target="#logDetailsModal"
                                                 data-log-id="@log.Id"
-                                                data-log-timestamp="@log.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")"
+                                                data-log-timestamp="@log.Timestamp.ToUniversalTime().ToString("o")"
                                                 data-log-user="@log.User?.UserName"
                                                 data-log-action="@log.Action"
                                                 data-log-ip="@log.IpAddress"
@@ -192,7 +192,8 @@
             const details = button.getAttribute('data-log-details');
             
             // Update the modal's content
-            document.getElementById('modalTimestamp').textContent = timestamp;
+            const localTimestamp = new Date(timestamp).toLocaleString(undefined, { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('modalTimestamp').textContent = localTimestamp;
             document.getElementById('modalUser').textContent = user || 'N/A';
             document.getElementById('modalIp').textContent = ip || 'N/A';
             document.getElementById('modalDetails').textContent = details || 'No details available';

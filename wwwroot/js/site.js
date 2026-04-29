@@ -762,8 +762,36 @@ function initCommentForms() {
     });
 }
 
+// UTC to Local Time Conversion
+// Automatically converts all elements with class 'utc-time' to the user's local timezone
+function convertUtcTimesToLocal() {
+    document.querySelectorAll('.utc-time[data-utc]').forEach(function(el) {
+        try {
+            var utcDateStr = el.getAttribute('data-utc');
+            var format = el.getAttribute('data-format') || 'datetime';
+            var date = new Date(utcDateStr);
+
+            if (isNaN(date.getTime())) return; // Skip invalid dates
+
+            var options;
+            if (format === 'date') {
+                options = { year: 'numeric', month: 'short', day: '2-digit' };
+            } else {
+                options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+            }
+
+            el.textContent = date.toLocaleString(undefined, options);
+        } catch (e) {
+            console.warn('Failed to convert UTC time:', e);
+        }
+    });
+}
+
 // Initialize features
 document.addEventListener('DOMContentLoaded', function() {
+    // Convert UTC times to local timezone
+    convertUtcTimesToLocal();
+
     // Initialize theme
     themeManager.init();
 

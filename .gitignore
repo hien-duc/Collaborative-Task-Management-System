@@ -548,3 +548,4 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,rider,dotnetcore,visualstudio
 .env
 appsettings.Development.json
+Logs/

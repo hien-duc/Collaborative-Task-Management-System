@@ -22,46 +22,55 @@ namespace Collaborative_Task_Management_System.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.HasDefaultSchema("public"); 
 
             // Configure Project relationships
-            builder.Entity<Project>()
-                .HasOne(p => p.CreatedBy)
-                .WithMany(u => u.CreatedProjects)
-                .HasForeignKey(p => p.CreatedById)
-                .OnDelete(DeleteBehavior.Restrict);
-            
-            // Configure Project -> Owner relationship
-            builder.Entity<Project>()
-                .HasOne(p => p.Owner)
-                .WithMany() // No navigation property in ApplicationUser for Owner (optional)
-                .HasForeignKey(p => p.OwnerId)
-                .OnDelete(DeleteBehavior.Restrict);
-            
-            // Configure Project -> TeamMembers (many-to-many, assuming a join table)
-            builder.Entity<Project>()
-                .HasMany(p => p.TeamMembers)
-                .WithMany() // No navigation property in ApplicationUser for TeamMembers
-                .UsingEntity(j => j.ToTable("ProjectTeamMembers")); // Join table for many-to-many
+            builder.Entity<Project>(entity =>
+            {
+                entity.ToTable("Projects", "internal");
+                // Configure Project relationships
+                entity.HasOne(p => p.CreatedBy)
+                    .WithMany(u => u.CreatedProjects)
+                    .HasForeignKey(p => p.CreatedById)
+                    .OnDelete(DeleteBehavior.Restrict);
+                
+                // Configure Project -> Owner relationship
+                entity.HasOne(p => p.Owner)
+                    .WithMany() // No navigation property in ApplicationUser for Owner (optional)
+                    .HasForeignKey(p => p.OwnerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                
+                // Configure Project -> TeamMembers (many-to-many, assuming a join table)
+                entity.HasMany(p => p.TeamMembers)
+                    .WithMany() // No navigation property in ApplicationUser for TeamMembers
+                    .UsingEntity(j => j.ToTable("ProjectTeamMembers", "internal")); // Join table for many-to-many
+
+            });
                 
             // Configure ProjectMember relationships
-            builder.Entity<ProjectMember>()
-                .HasOne(pm => pm.Project)
-                .WithMany(p => p.ProjectMembers)
-                .HasForeignKey(pm => pm.ProjectId)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<ProjectMember>(entity =>
+            {
+                entity.ToTable("ProjectMembers", "internal");
                 
-            builder.Entity<ProjectMember>()
-                .HasOne(pm => pm.User)
-                .WithMany(u => u.ProjectMemberships)
-                .HasForeignKey(pm => pm.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(pm => pm.Project)
+                    .WithMany(p => p.ProjectMembers)
+                    .HasForeignKey(pm => pm.ProjectId)
+                    .OnDelete(DeleteBehavior.Cascade);
                 
-            // Add unique constraint on ProjectId and UserId
-            builder.Entity<ProjectMember>()
-                .HasIndex(pm => new { pm.ProjectId, pm.UserId })
-                .IsUnique();
+                entity
+                    .HasOne(pm => pm.User)
+                    .WithMany(u => u.ProjectMemberships)
+                    .HasForeignKey(pm => pm.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                // Add unique constraint on ProjectId and UserId
+                entity
+                    .HasIndex(pm => new { pm.ProjectId, pm.UserId })
+                    .IsUnique();
+            });
 
             // Configure TaskItem relationships
+            builder.Entity<TaskItem>().ToTable("Tasks", "internal");
             builder.Entity<TaskItem>()
                 .HasOne(t => t.Project)
                 .WithMany(p => p.Tasks)
@@ -81,6 +90,7 @@ namespace Collaborative_Task_Management_System.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Configure Comment relationships
+            builder.Entity<Comment>().ToTable("Comments", "internal");
             builder.Entity<Comment>()
                 .HasOne(c => c.Task)
                 .WithMany(t => t.Comments)
@@ -94,6 +104,7 @@ namespace Collaborative_Task_Management_System.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Configure FileAttachment relationships
+            builder.Entity<FileAttachment>().ToTable("FileAttachments", "internal");
             builder.Entity<FileAttachment>()
                 .HasOne(f => f.Task)
                 .WithMany(t => t.FileAttachments)
@@ -107,13 +118,14 @@ namespace Collaborative_Task_Management_System.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Configure AuditLog relationships
+            builder.Entity<AuditLog>().ToTable("AuditLogs", "internal");
             builder.Entity<AuditLog>()
                 .HasOne(a => a.User)
                 .WithMany(u => u.AuditLogs)
                 .HasForeignKey(a => a.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-
+            
+            builder.Entity<Notification>().ToTable("Notifications", "internal");
             builder.Entity<Notification>()
                 .HasOne(n => n.User)
                 .WithMany()
@@ -151,6 +163,20 @@ namespace Collaborative_Task_Management_System.Data
             
             builder.Entity<Project>()
                 .ToTable(tb => tb.HasTrigger("trg_UpdateProjectDelete"));
+
+            // Global configuration to force all DateTime properties to UTC
+            foreach (var entityType in builder.Model.GetEntityTypes())
+            {
+                var properties = entityType.GetProperties()
+                    .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?));
+                
+                foreach (var property in properties)
+                {
+                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
+                        v => v.Kind == DateTimeKind.Utc ? v : DateTime.SpecifyKind(v, DateTimeKind.Utc),
+                        v => v.Kind == DateTimeKind.Utc ? v : DateTime.SpecifyKind(v, DateTimeKind.Utc)));
+                }
+            }
         }
     }
 }

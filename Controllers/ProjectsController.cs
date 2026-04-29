@@ -21,8 +21,7 @@ namespace Collaborative_Task_Management_System.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<ProjectsController> _logger;
         private readonly IHubContext<NotificationHub> _hubContext;
-        private const string DashboardCacheKey = "DashboardData_";
-        private readonly IMemoryCache _cache;
+        private readonly IDashboardBroadcastService _dashboardBroadcastService;
         // Remove this line
         // private readonly HomeController _homeController;
     
@@ -30,16 +29,14 @@ namespace Collaborative_Task_Management_System.Controllers
             IProjectServiceWithUoW projectService,
             UserManager<ApplicationUser> userManager,
             ILogger<ProjectsController> logger,
-            IMemoryCache cache,
+            IDashboardBroadcastService dashboardBroadcastService,
             IHubContext<NotificationHub> hubContext) : base(userManager)
         {
             _projectService = projectService;
             _userManager = userManager;
             _logger = logger;
             _hubContext = hubContext;
-            _cache = cache;
-            // Remove this line
-            // _homeController = homeController;
+            _dashboardBroadcastService = dashboardBroadcastService;
         }
         
         // GET: Projects
@@ -127,19 +124,6 @@ namespace Collaborative_Task_Management_System.Controllers
 
                 // Filter tasks based on user role and membership
                 var filteredTasks = project.Tasks;
-                if (!isManager && !await IsUserInRoleAsync("Admin"))
-                {
-                    // If not manager or admin, only show tasks assigned to the user or if they're a team member
-                    if (isMember)
-                    {
-                        // Show all tasks for team members
-                    }
-                    else
-                    {
-                        // Only show tasks assigned to the user
-                        filteredTasks = project.Tasks.Where(t => t.AssignedToId == currentUserId).ToList();
-                    }
-                }
 
                 // Create the view model
                 var viewModel = new ProjectDetailsViewModel
@@ -188,6 +172,12 @@ namespace Collaborative_Task_Management_System.Controllers
         {
             var currentUserId = GetCurrentUserId();
             var currentUser = await _userManager.GetUserAsync(User);
+
+            if (currentUser == null)
+            {
+                _logger.LogError("Could not find current user with ID {UserId}", currentUserId);
+                return Unauthorized();
+            }
 
             var project = new Project
             {
@@ -484,11 +474,11 @@ private async Task<bool> ProjectExists(int id)
                         "project-membership");
                     
                     // Broadcast dashboard update to the added user
-                    await BroadcastDashboardUpdate(userId);
+                    await _dashboardBroadcastService.BroadcastDashboardUpdate(userId);
                 }
                 
                 // Broadcast dashboard update to all project members
-                await BroadcastDashboardUpdateToProjectMembers(projectId);
+                await _dashboardBroadcastService.BroadcastDashboardUpdateToProjectMembers(projectId);
 
                 TempData["SuccessMessage"] = "Team member added successfully!";
                 return RedirectToAction(nameof(Details), new { id = projectId });
@@ -547,10 +537,10 @@ private async Task<bool> ProjectExists(int id)
                     "project-membership");
                 
                 // Broadcast dashboard update to the removed user
-                await BroadcastDashboardUpdate(userId);
+                await _dashboardBroadcastService.BroadcastDashboardUpdate(userId);
                 
                 // Broadcast dashboard update to all remaining project members
-                await BroadcastDashboardUpdateToProjectMembers(projectId);
+                await _dashboardBroadcastService.BroadcastDashboardUpdateToProjectMembers(projectId);
 
                 TempData["SuccessMessage"] = "Team member removed successfully!";
                 return RedirectToAction(nameof(Details), new { id = projectId });
@@ -563,40 +553,7 @@ private async Task<bool> ProjectExists(int id)
             }
         }
         
-        // Helper method to broadcast dashboard updates to all project members
-        private async Task BroadcastDashboardUpdateToProjectMembers(int projectId)
-        {
-            try
-            {
-                // Get all project members
-                var project = await _projectService.GetProjectByIdAsync(projectId);
-                if (project == null)
-                {
-                    _logger.LogWarning("Cannot broadcast dashboard update: Project {ProjectId} not found", projectId);
-                    return;
-                }
-                
-                // Get all project members including the creator
-                var members = project.ProjectMembers.Select(pm => pm.UserId).ToList();
-                if (!members.Contains(project.CreatedById))
-                {
-                    members.Add(project.CreatedById);
-                }
-                
-                // Broadcast dashboard update to each member
-                foreach (var userId in members)
-                {
-                    await BroadcastDashboardUpdate(userId, projectId);
-                }
-                
-                _logger.LogInformation("Dashboard update broadcast sent to {MemberCount} members of project {ProjectId}", members.Count, projectId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error broadcasting dashboard update to project members for project {ProjectId}", projectId);
-            }
-        }
-        
+
         // GET: Projects/GetTeamMembers/?projectId={projectId}
         [HttpGet]
         public async Task<IActionResult> GetTeamMembers([FromQuery] int projectId)
@@ -660,23 +617,5 @@ private async Task<bool> ProjectExists(int id)
                 return StatusCode(500, "An error occurred while retrieving team members.");
             }
         }
-        public async Task BroadcastDashboardUpdate(string userId, int? projectId = null)
-        {
-            try
-            {
-                // Clear the dashboard cache for this user
-                var cacheKey = $"{DashboardCacheKey}{userId}_{projectId}";
-                _cache.Remove(cacheKey);
-                
-                // Send the dashboard update notification
-                await _hubContext.Clients.User(userId).SendAsync("DashboardDataUpdated", projectId);
-                _logger.LogInformation("Dashboard update broadcast sent to user {UserId}", userId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error broadcasting dashboard update to user {UserId}", userId);
-            }
-        }
-        
     }
 }

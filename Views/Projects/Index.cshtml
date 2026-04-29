@@ -53,7 +53,7 @@
                                             @project.Title
                                         </a>
                                     </td>
-                                    <td>@project.Deadline.ToString("MM/dd/yyyy")</td>
+                                    <td><local-time date="@project.Deadline" format="date"></local-time></td>
                                     <td>@(string.IsNullOrEmpty(project.CreatedBy.FullName) ? project.CreatedBy.UserName : project.CreatedBy.FullName)</td>
                                     <td>
                                         <span class="badge bg-info">

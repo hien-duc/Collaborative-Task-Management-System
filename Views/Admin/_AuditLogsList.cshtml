@@ -5,7 +5,7 @@
     <tr>
         <td>
             <small class="text-muted">
-                @log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+                <local-time date="@log.Timestamp" format="datetime"></local-time>
             </small>
         </td>
         <td>
@@ -48,7 +48,7 @@
                             <div class="modal-body">
                                 <dl class="row">
                                     <dt class="col-sm-3">Timestamp</dt>
-                                    <dd class="col-sm-9">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                                    <dd class="col-sm-9"><local-time date="@log.Timestamp" format="datetime"></local-time></dd>
 
                                     <dt class="col-sm-3">User</dt>
                                     <dd class="col-sm-9">@(log.User?.UserName ?? "System")</dd>
