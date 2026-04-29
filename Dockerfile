@@ -15,8 +15,7 @@ WORKDIR /src
 COPY ["Collaborative-Task-Management-System.csproj", "."]
 RUN dotnet restore "./Collaborative-Task-Management-System.csproj"
 COPY . .
-WORKDIR "/src/."
-RUN dotnet build "./Collaborative-Task-Management-System.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "Collaborative-Task-Management-System.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
