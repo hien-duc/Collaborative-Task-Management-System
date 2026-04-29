@@ -72,6 +72,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         npgsqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
     }));
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>();
+
 // Add supabase
 var url = Environment.GetEnvironmentVariable("SUPABASE_URL");
 var key = Environment.GetEnvironmentVariable("SUPABASE_KEY");
@@ -138,6 +141,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapHub<NotificationHub>("/notificationHub"); // SignalR hub
+app.MapHealthChecks("/health");
 
 // Seed Roles and Admin User
 using (var scope = app.Services.CreateScope())
