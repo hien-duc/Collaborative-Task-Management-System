@@ -63,6 +63,7 @@ Temporary Items
 # Sensitive or high-churn files
 .idea/**/dataSources/
 .idea/**/dataSources.ids
+.idea/**/dataSources.xml
 .idea/**/dataSources.local.xml
 .idea/**/sqlDataSources.xml
 .idea/**/dynamic.xml
@@ -545,3 +546,5 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,rider,dotnetcore,visualstudio
+.env
+appsettings.Development.json
