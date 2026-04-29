@@ -35,17 +35,22 @@ namespace Collaborative_Task_Management_System.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
         public DateTime? UpdatedAt { get; set; }
+        
+        [Required]
+        public bool IsDeleted { get; set; } = false;
 
         // Navigation properties
         [ForeignKey("CreatedById")]
-        public virtual ApplicationUser CreatedBy { get; set; }
+        public virtual ApplicationUser? CreatedBy { get; set; }
 
         [ForeignKey("OwnerId")]
-        public virtual ApplicationUser Owner { get; set; }
+        public virtual ApplicationUser? Owner { get; set; }
     
         public virtual ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     
         public virtual ICollection<ApplicationUser> TeamMembers { get; set; } = new List<ApplicationUser>();
+        
+        public virtual ICollection<ProjectMember> ProjectMembers { get; set; } = new List<ProjectMember>();
     }
 
     public enum ProjectStatus

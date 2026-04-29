@@ -21,8 +21,9 @@ namespace Collaborative_Task_Management_System.Services
         {
             try
             {
-                var projects = await _unitOfWork.Projects.GetAllWithIncludesAsync(p => p.CreatedBy);
-                return projects.OrderByDescending(p => p.CreatedAt).ToList();
+                var projects = await _unitOfWork.Projects.GetAllWithIncludesAsync(p => p.CreatedBy,
+                    p => p.ProjectMembers);
+                return projects.OrderByDescending(p => p.CreatedAt).Where(p => p.IsDeleted == false).ToList();
             }
             catch (Exception ex)
             {
@@ -37,6 +38,7 @@ namespace Collaborative_Task_Management_System.Services
             {
                 return await _unitOfWork.Projects.GetByIdWithIncludesAsync(id,
                     p => p.CreatedBy,
+                    p => p.Owner,
                     p => p.TeamMembers,
                     p => p.Tasks);
             }
@@ -139,7 +141,7 @@ namespace Collaborative_Task_Management_System.Services
             }
         }
 
-        public async Task<Project> UpdateProjectAsync(Project project)
+        public async Task<Project> UpdateProjectAsync(Project project, string? ipAddress)
         {
             try
             {
@@ -196,8 +198,7 @@ namespace Collaborative_Task_Management_System.Services
                     throw new KeyNotFoundException($"Project with ID {id} not found");
                 }
 
-                _unitOfWork.Projects.Delete(project);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.Projects.RemoveProjectAsync(project);
                 
                 // Log the deletion
                 var auditLog = new AuditLog
@@ -244,6 +245,152 @@ namespace Collaborative_Task_Management_System.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error searching projects with term: {SearchTerm}", searchTerm);
+                throw;
+            }
+        }
+
+        // Project member management methods
+        public async Task<ProjectMember> AddProjectMemberAsync(int projectId, string userId, string? ipAddress)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                // Check if project exists
+                var project = await _unitOfWork.Projects.GetByIdWithIncludesAsync(projectId,
+                    p => p.ProjectMembers);
+                if (project == null)
+                {
+                    throw new ArgumentException($"Project with ID {projectId} not found");
+                }
+
+                // Add the member to the project
+                var projectMember = await _unitOfWork.Projects.AddProjectMemberAsync(projectId, userId);
+
+                // Log the action
+                await _unitOfWork.AuditLogs.AddAsync(new AuditLog
+                {
+                    UserId = userId,
+                    Action = "Added to project",
+                    EntityId = projectId.ToString(),
+                    Details = "Add Project Member",
+                    EntityType = "Project",
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = ipAddress
+                });
+
+                await _unitOfWork.CommitTransactionAsync();
+                return projectMember;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                _logger.LogError(ex, "Error adding user {UserId} to project {ProjectId}", userId, projectId);
+                throw;
+            }
+        }
+
+        public async Task RemoveProjectMemberAsync(int projectId, string userId, string? ipAddress)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                // Check if project exists
+                var project = await _unitOfWork.Projects.GetByIdAsync(projectId);
+                if (project == null)
+                {
+                    throw new ArgumentException($"Project with ID {projectId} not found");
+                }
+
+                // Remove the member from the project
+                await _unitOfWork.Projects.RemoveProjectMemberAsync(projectId, userId);
+
+                // Log the action
+                await _unitOfWork.AuditLogs.AddAsync(new AuditLog
+                {
+                    UserId = userId,
+                    Action = "Removed from project",
+                    EntityId = projectId.ToString(),
+                    EntityType = "Project",
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = ipAddress,
+                    Details = $"User {userId} was removed from project {projectId}"
+                });
+
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                _logger.LogError(ex, "Error removing user {UserId} from project {ProjectId}", userId, projectId);
+                throw;
+            }
+        }
+
+        public async Task<List<ProjectMember>> GetProjectMembersAsync(int projectId)
+        {
+            try
+            {
+                var members = await _unitOfWork.Projects.GetProjectMembersAsync(projectId);
+                return members.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving members for project {ProjectId}", projectId);
+                throw;
+            }
+        }
+
+        public async Task<List<Project>> GetProjectsByMemberAsync(string userId)
+        {
+            try
+            {
+                var projects = await _unitOfWork.Projects.GetProjectsByMemberAsync(userId);
+                return projects.ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving projects for member {UserId}", userId);
+                throw;
+            }
+        }
+        
+        public async Task<List<Project>> GetProjectsForUserAsync(string userId)
+        {
+            try
+            {
+                // Get projects where user is a member
+                var memberProjects = await _unitOfWork.Projects.GetProjectsByMemberAsync(userId);
+                
+                // Get projects created by the user
+                var ownedProjects = await _unitOfWork.Projects.GetProjectsByOwnerAsync(userId);
+                
+                // Combine both lists and remove duplicates
+                var allProjects = memberProjects.Concat(ownedProjects)
+                    .GroupBy(p => p.Id)
+                    .Select(g => g.First())
+                    .OrderByDescending(p => p.CreatedAt)
+                    .ToList();
+                    
+                return allProjects;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving projects for user {UserId}", userId);
+                throw;
+            }
+        }
+
+        public async Task<bool> IsUserProjectMemberAsync(int projectId, string userId)
+        {
+            try
+            {
+                return await _unitOfWork.Projects.IsUserProjectMemberAsync(projectId, userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking if user {UserId} is a member of project {ProjectId}", userId, projectId);
                 throw;
             }
         }

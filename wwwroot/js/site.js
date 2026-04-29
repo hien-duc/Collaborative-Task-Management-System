@@ -9,6 +9,166 @@ const connection = new signalR.HubConnectionBuilder()
     })
     .configureLogging(signalR.LogLevel.Information)
     .build();
+    
+// Dashboard update handler
+connection.on('DashboardDataUpdated', function(projectId) {
+    console.log('Dashboard update received', projectId ? `for project ${projectId}` : 'for all projects');
+    updateDashboardData(projectId);
+});
+
+// Function to update dashboard data
+function updateDashboardData(projectId) {
+    // Only update if we're on the dashboard page
+    if (!document.querySelector('.dashboard-container')) {
+        return;
+    }
+    
+    // Show loading indicator in the alerts container
+    const alertsContainer = document.querySelector('.alerts-container');
+    if (alertsContainer) {
+        const loadingAlert = document.createElement('div');
+        loadingAlert.className = 'alert alert-info alert-dismissible fade show';
+        loadingAlert.setAttribute('role', 'alert');
+        loadingAlert.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-2" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span>Updating dashboard data...</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        alertsContainer.appendChild(loadingAlert);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            if (loadingAlert && loadingAlert.parentNode) {
+                const bsAlert = new bootstrap.Alert(loadingAlert);
+                bsAlert.close();
+            }
+        }, 5000);
+    }
+    
+    // Fetch updated dashboard data
+    const url = projectId ? `/Home/GetDashboardData?projectId=${projectId}` : '/Home/GetDashboardData';
+    
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Update summary cards
+            updateSummaryCards(data);
+            
+            // Update charts
+            updateTaskStatusChart(data.taskStatusSummary);
+            updateProjectProgressChart(data.projectProgress);
+            
+            // Show success notification
+            if (alertsContainer) {
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success alert-dismissible fade show';
+                successAlert.setAttribute('role', 'alert');
+                successAlert.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <span>Dashboard updated successfully!</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                alertsContainer.appendChild(successAlert);
+                
+                // Auto-dismiss after 5 seconds
+                setTimeout(() => {
+                    if (successAlert && successAlert.parentNode) {
+                        const bsAlert = new bootstrap.Alert(successAlert);
+                        bsAlert.close();
+                    }
+                }, 5000);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating dashboard:', error);
+            
+            // Show error notification
+            if (alertsContainer) {
+                const errorAlert = document.createElement('div');
+                errorAlert.className = 'alert alert-danger alert-dismissible fade show';
+                errorAlert.setAttribute('role', 'alert');
+                errorAlert.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span>Error updating dashboard. Please refresh the page.</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                alertsContainer.appendChild(errorAlert);
+                
+                // Auto-dismiss after 10 seconds
+                setTimeout(() => {
+                    if (errorAlert && errorAlert.parentNode) {
+                        const bsAlert = new bootstrap.Alert(errorAlert);
+                        bsAlert.close();
+                    }
+                }, 10000);
+            }
+        });
+}
+
+// Function to update summary cards
+function updateSummaryCards(data) {
+    // Update total projects
+    const totalProjectsElement = document.querySelector('.total-projects');
+    if (totalProjectsElement) {
+        totalProjectsElement.textContent = data.totalProjects;
+    }
+    
+    // Update total tasks
+    const totalTasksElement = document.querySelector('.total-tasks');
+    if (totalTasksElement) {
+        totalTasksElement.textContent = data.totalTasks;
+    }
+    
+    // Update completed tasks
+    const completedTasksElement = document.querySelector('.completed-tasks');
+    if (completedTasksElement) {
+        completedTasksElement.textContent = data.completedTasks;
+    }
+    
+    // Update completion rate
+    const completionRateElement = document.querySelector('.completion-rate');
+    if (completionRateElement) {
+        completionRateElement.textContent = `${Math.round(data.completionRate)}%`;
+    }
+}
+
+// Function to update task status chart
+function updateTaskStatusChart(statusData) {
+    const taskStatusChart = Chart.getChart('taskStatusChart');
+    if (taskStatusChart) {
+        taskStatusChart.data.datasets[0].data = [
+            statusData.toDoCount,
+            statusData.inProgressCount,
+            statusData.underReviewCount,
+            statusData.completedCount,
+            statusData.blockedCount
+        ];
+        taskStatusChart.update();
+    }
+}
+
+// Function to update project progress chart
+function updateProjectProgressChart(projectsData) {
+    const projectProgressChart = Chart.getChart('projectProgressChart');
+    if (projectProgressChart) {
+        projectProgressChart.data.labels = projectsData.map(p => p.projectTitle);
+        projectProgressChart.data.datasets[0].data = projectsData.map(p => p.completionPercentage);
+        projectProgressChart.update();
+    }
+}
 
 // Theme Management
 const themeManager = {
@@ -16,15 +176,31 @@ const themeManager = {
         const themeToggle = document.getElementById('themeToggle');
         if (themeToggle) {
             const currentTheme = localStorage.getItem('theme') || 'light';
-            document.body.classList.toggle('high-contrast', currentTheme === 'high-contrast');
-            themeToggle.setAttribute('aria-pressed', currentTheme === 'high-contrast');
+            
+            // Set initial theme
+            if (currentTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.body.classList.add('dark-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.body.classList.remove('dark-theme');
+            }
+            
+            themeToggle.setAttribute('aria-pressed', currentTheme === 'dark');
             
             themeToggle.addEventListener('click', () => {
-                const isHighContrast = document.body.classList.toggle('high-contrast');
-                localStorage.setItem('theme', isHighContrast ? 'high-contrast' : 'light');
-                themeToggle.setAttribute('aria-pressed', isHighContrast);
+                const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+                const newTheme = isDarkTheme ? 'light' : 'dark';
+                
+                // Toggle theme
+                document.documentElement.setAttribute('data-theme', newTheme);
+                document.body.classList.toggle('dark-theme', newTheme === 'dark');
+                
+                localStorage.setItem('theme', newTheme);
+                themeToggle.setAttribute('aria-pressed', newTheme === 'dark');
+                
                 notificationSystem.showNotification(
-                    `Switched to ${isHighContrast ? 'high contrast' : 'light'} theme`,
+                    `Switched to ${newTheme} theme`,
                     'info'
                 );
             });
@@ -78,8 +254,38 @@ const notificationSystem = {
 };
 
 // SignalR Event Handlers
-connection.on("ReceiveNotification", (message) => {
-    notificationSystem.showNotification(message);
+connection.on("ReceiveNotification", (message, type) => {
+    notificationSystem.showNotification(message, type || 'info');
+});
+
+// Handle project membership notifications
+connection.on("ProjectMembershipChanged", (projectId, projectTitle, action) => {
+    let message = '';
+    let type = 'info';
+    
+    if (action === 'added') {
+        message = `You were added to project: ${projectTitle}`;
+        type = 'info';
+    } else if (action === 'removed') {
+        message = `You were removed from project: ${projectTitle}`;
+        type = 'warning';
+    }
+    
+    if (message) {
+        const alert = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                <i class="bi bi-info-circle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        
+        const alertsContainer = document.querySelector('.alerts-container');
+        if (alertsContainer) {
+            alertsContainer.innerHTML += alert;
+        } else {
+            notificationSystem.showNotification(message, type);
+        }
+    }
 });
 
 connection.on("TaskUpdated", (taskId, status, taskTitle) => {
@@ -102,21 +308,66 @@ connection.on("ProjectCreated", (projectName) => {
     }
 });
 
-connection.on("CommentAdded", (taskId, comment) => {
-    const commentsList = document.querySelector(`#comments-${taskId}`);
-    if (commentsList) {
-        const commentElement = createCommentElement(comment);
-        commentsList.appendChild(commentElement);
-        notificationSystem.showNotification(`New comment added to task #${taskId}`, 'info');
-    }
-});
+connection.on('CommentAdded', function (taskId, comment) {
+    console.log('Comment added:', taskId, comment);
 
-connection.on("FileUploaded", (taskId, fileName) => {
-    const filesList = document.querySelector(`#files-${taskId}`);
-    if (filesList) {
-        updateFilesList(taskId);
-        notificationSystem.showNotification(`File uploaded: ${fileName}`, 'success');
+    // Get current user name
+    const currentUserName = document.querySelector('.navbar .nav-link.text-dark')?.textContent.trim() || 'User';
+
+    // Check if we're on the task details page or project page
+    const isTaskDetailPage = document.querySelector('input[name="TaskId"]') !== null;
+    const isProjectPage = document.querySelector('.project-page') !== null; // Add a specific class to your project page body if needed
+
+    let targetContainer;
+
+    if (isTaskDetailPage) {
+        // Handle task detail page
+        targetContainer = document.querySelector('.comments-container');
     }
+    if (isProjectPage) {
+        // Handle project page
+        targetContainer = document.querySelector(`#task-${taskId} .comments-container`);
+
+        // Update the comment count in the button for project page
+        const commentButton = document.querySelector(`button[data-bs-target="#task-${taskId}"]`);
+        if (commentButton) {
+            const countText = commentButton.textContent;
+            const count = parseInt(countText.match(/\d+/) || '0') + 1;
+            commentButton.innerHTML = `<i class="bi bi-chat-dots"></i> View Comments (${count})`;
+        }
+    }
+
+    if (targetContainer) {
+        // Remove the 'no comments yet' message if it exists
+        const noCommentsMessage = targetContainer.querySelector('.text-muted');
+        if (noCommentsMessage) {
+            const noCommentsText = noCommentsMessage.textContent.trim();
+            if (noCommentsText === 'No comments yet') {
+                if (noCommentsMessage.parentElement.classList.contains('text-center')) {
+                    noCommentsMessage.parentElement.remove();
+                } else {
+                    noCommentsMessage.remove();
+                }
+            }
+        }
+
+        // Create and prepend the new comment
+        const commentCard = createCommentElement(comment.text, comment.authorName, comment.timestamp);
+        targetContainer.insertBefore(commentCard, targetContainer.firstChild);
+    }
+
+    // Show notification if comment was not made by current user
+    if (comment.authorName !== currentUserName) {
+        notificationSystem.showNotification(`New comment on task #${taskId} from ${comment.authorName}`, 'info');
+    }
+
+    // Announce for screen readers
+    const announcer = document.createElement('div');
+    announcer.setAttribute('aria-live', 'polite');
+    announcer.className = 'visually-hidden';
+    announcer.textContent = `New comment added by ${comment.authorName}`;
+    document.body.appendChild(announcer);
+    setTimeout(() => announcer.remove(), 3000);
 });
 
 // Search Functionality with Accessibility
@@ -241,16 +492,15 @@ function updateTaskStatus(taskId, newStatus) {
 }
 
 // Comment System
-function createCommentElement(comment) {
+function createCommentElement(text, authorName, timestamp) {
     const div = document.createElement('div');
     div.className = 'card mb-2';
     div.setAttribute('role', 'article');
+    div.setAttribute('aria-label', `Comment by ${authorName}`);
     div.innerHTML = `
-        <div class="card-body">
-            <p class="card-text">${escapeHtml(comment.text)}</p>
-            <small class="text-muted">
-                ${comment.authorName} - ${new Date(comment.timestamp).toLocaleString()}
-            </small>
+        <div class="card-body py-2 px-3">
+            <p class="mb-1">${escapeHtml(text)}</p>
+            <small class="text-muted">${authorName} - ${new Date(timestamp).toLocaleString()}</small>
         </div>
     `;
     return div;
@@ -263,6 +513,8 @@ function postComment(taskId, commentText) {
     }
 
     const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+    console.log('Posting comment to task:', taskId, 'Text:', commentText);
+    
     fetch('/Tasks/AddComment', {
         method: 'POST',
         headers: {
@@ -271,8 +523,12 @@ function postComment(taskId, commentText) {
         },
         body: JSON.stringify({ taskId, text: commentText })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
             document.querySelector('#commentText').value = '';
             notificationSystem.showNotification('Comment posted successfully', 'success');
@@ -384,8 +640,158 @@ function getStatusColor(status) {
     return statusColors[status] || 'secondary';
 }
 
+// Team Member Management
+function initTeamMemberManagement() {
+    // Add member form submission
+    const addMemberForms = document.querySelectorAll('.add-member-form');
+    addMemberForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const projectId = this.getAttribute('data-project-id');
+            const userId = this.querySelector('select[name="userId"]').value;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            
+            if (!userId) {
+                notificationSystem.showNotification('Please select a user to add', 'warning');
+                return;
+            }
+            
+            fetch(`/Projects/AddMember/${projectId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: `userId=${encodeURIComponent(userId)}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add team member');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Reload the team members section
+                const teamMembersSection = document.querySelector('.team-members-section');
+                if (teamMembersSection) {
+                    teamMembersSection.innerHTML = html;
+                    // Re-initialize event handlers for the new content
+                    initTeamMemberManagement();
+                }
+                notificationSystem.showNotification('Team member added successfully', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                notificationSystem.showNotification('Failed to add team member', 'danger');
+            });
+        });
+    });
+}
+
+// Project Filter Functionality
+function initProjectFilters() {
+    // Handle project filter dropdowns
+    const projectFilterForms = document.querySelectorAll('.project-filter-form');
+    projectFilterForms.forEach(form => {
+        const select = form.querySelector('select[name="projectId"]');
+        if (select) {
+            select.addEventListener('change', function() {
+                form.submit();
+            });
+        }
+    });
+}
+
+// Comment Form Handling
+function initCommentForms() {
+    const commentForms = document.querySelectorAll('.comment-form');
+    commentForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const taskId = this.querySelector('input[name="TaskId"]').value;
+            const commentText = this.querySelector('textarea[name="Content"]').value;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            
+            if (!commentText.trim()) {
+                notificationSystem.showNotification('Please enter a comment', 'warning');
+                return;
+            }
+            
+            // Disable submit button to prevent double submission
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Posting...';
+            
+            fetch('/Comments/Create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ TaskId: taskId, Content: commentText })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Clear the textarea
+                    this.querySelector('textarea[name="Content"]').value = '';
+
+                    // Don't add the comment here, let SignalR handle it
+                    notificationSystem.showNotification('Comment posted successfully', 'success');
+
+                    // Re-enable submit button
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i class="bi bi-chat-dots"></i> Post Comment';
+                } else {
+                    notificationSystem.showNotification(data.message || 'Failed to post comment', 'danger');
+                }
+                
+                // Re-enable submit button
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="bi bi-chat-dots"></i> Post Comment';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                notificationSystem.showNotification('An error occurred while posting the comment', 'danger');
+                
+                // Re-enable submit button
+                submitButton.disabled = false;
+                submitButton.innerHTML = '<i class="bi bi-chat-dots"></i> Post Comment';
+            });
+        });
+    });
+}
+
+// UTC to Local Time Conversion
+// Automatically converts all elements with class 'utc-time' to the user's local timezone
+function convertUtcTimesToLocal() {
+    document.querySelectorAll('.utc-time[data-utc]').forEach(function(el) {
+        try {
+            var utcDateStr = el.getAttribute('data-utc');
+            var format = el.getAttribute('data-format') || 'datetime';
+            var date = new Date(utcDateStr);
+
+            if (isNaN(date.getTime())) return; // Skip invalid dates
+
+            var options;
+            if (format === 'date') {
+                options = { year: 'numeric', month: 'short', day: '2-digit' };
+            } else {
+                options = { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+            }
+
+            el.textContent = date.toLocaleString(undefined, options);
+        } catch (e) {
+            console.warn('Failed to convert UTC time:', e);
+        }
+    });
+}
+
 // Initialize features
 document.addEventListener('DOMContentLoaded', function() {
+    // Convert UTC times to local timezone
+    convertUtcTimesToLocal();
+
     // Initialize theme
     themeManager.init();
 
@@ -396,6 +802,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize popovers
     const popovers = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
     popovers.forEach(popover => new bootstrap.Popover(popover));
+    
+    // Initialize team member management
+    initTeamMemberManagement();
+    
+    // Initialize project filters
+    initProjectFilters();
+    
+    // Initialize comment forms
+    initCommentForms();
 
     // Start SignalR connection after a short delay to ensure auth is ready
     setTimeout(() => {
@@ -405,6 +820,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to start SignalR connection with retry logic
 async function startSignalRConnection() {
+    // Check if user is authenticated by looking for elements that only appear for logged-in users
+    const isAuthenticated = document.querySelector('.user-profile-link') !== null || 
+                           document.querySelector('a[href*="/Projects/Index"]') !== null ||
+                           document.querySelector('a[href*="/Tasks/MyTasks"]') !== null;
+    
+    if (!isAuthenticated) {
+        console.log('User not authenticated. SignalR connection not started.');
+        return; // Don't attempt to connect if not authenticated
+    }
+    
+    // Check if connection is already in a state other than 'Disconnected'
+    if (connection.state !== signalR.HubConnectionState.Disconnected) {
+        console.log(`SignalR connection already in ${connection.state} state. Not starting again.`);
+        return;
+    }
+    
     try {
         await connection.start();
         console.log('SignalR Connected.');
@@ -447,4 +878,17 @@ connection.onreconnecting(error => {
 connection.onreconnected(connectionId => {
     console.log('SignalR reconnected. Connection ID:', connectionId);
     notificationSystem.showNotification('Reconnected to real-time updates', 'success');
+});
+
+// Set active class on current nav link
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPath = window.location.pathname.toLowerCase();
+    const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+    
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href')?.toLowerCase();
+        if (href && (currentPath === href || currentPath.startsWith(href) && href !== '/')) {
+            link.classList.add('active');
+        }
+    });
 });

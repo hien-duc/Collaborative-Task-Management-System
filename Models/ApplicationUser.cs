@@ -26,6 +26,9 @@ namespace Collaborative_Task_Management_System.Models
 
         // Navigation property for audit logs
         public virtual ICollection<AuditLog> AuditLogs { get; set; }
+        
+        // Navigation property for project memberships
+        public virtual ICollection<ProjectMember> ProjectMemberships { get; set; }
 
         public ApplicationUser()
         {
@@ -35,6 +38,7 @@ namespace Collaborative_Task_Management_System.Models
             Comments = new HashSet<Comment>();
             FileAttachments = new HashSet<FileAttachment>();
             AuditLogs = new HashSet<AuditLog>();
+            ProjectMemberships = new HashSet<ProjectMember>();
         }
     }
 }

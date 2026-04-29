@@ -58,7 +58,9 @@
                                     <select asp-for="Status" class="form-select">
                                         <option value="ToDo">To Do</option>
                                         <option value="InProgress">In Progress</option>
+                                        <option value="UnderReview">Under review</option>
                                         <option value="Completed">Completed</option>
+                                        <option value="Blocked">Blocked</option>
                                     </select>
                                     <label asp-for="Status">Status</label>
                                 </div>
@@ -78,7 +80,7 @@
                         <div class="mb-4">
                             <label class="form-label">Attachments</label>
                             <div class="input-group">
-                                <input type="file" class="form-control" name="attachments" multiple 
+                                <input type="file" class="form-control" name="attachment" 
                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
                                        aria-describedby="attachmentHelp" />
                             </div>

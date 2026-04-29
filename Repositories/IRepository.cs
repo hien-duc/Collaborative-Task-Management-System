@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Collaborative_Task_Management_System.Specifications;
 
 namespace Collaborative_Task_Management_System.Repositories
 {
@@ -21,6 +22,10 @@ namespace Collaborative_Task_Management_System.Repositories
         
         // Pagination
         Task<IEnumerable<T>> GetPagedAsync(int pageNumber, int pageSize, Expression<Func<T, bool>>? predicate = null);
+        
+        // Specification Pattern
+        Task<IEnumerable<T>> ListAsync(ISpecification<T> spec);
+        Task<int> CountAsync(ISpecification<T> spec);
         
         // Add operations
         Task<T> AddAsync(T entity);

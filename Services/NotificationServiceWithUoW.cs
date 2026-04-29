@@ -19,7 +19,7 @@ namespace Collaborative_Task_Management_System.Services
         Task<bool> NotificationExistsAsync(int id);
         Task<int> GetUnreadCountAsync(string userId);
         Task CreateTaskNotificationAsync(string userId, string title, string message, NotificationType type, int? taskId = null, int? projectId = null);
-        Task CreateAuditLogAsync(string userId, string action, string details);
+        Task CreateAuditLogAsync(string userId, string action, string details, string? ipAddress);
         Task SendTaskCommentNotificationAsync(Comment comment);
         Task SendTaskAssignmentNotificationAsync(TaskItem task);
         Task SendTaskStatusUpdateNotificationAsync(TaskItem task, string updatedByUserId);
@@ -286,7 +286,7 @@ namespace Collaborative_Task_Management_System.Services
             }
         }
 
-        public async Task CreateAuditLogAsync(string userId, string action, string details)
+        public async Task CreateAuditLogAsync(string userId, string action, string details, string? ipAddress)
         {
             try
             {
@@ -294,8 +294,9 @@ namespace Collaborative_Task_Management_System.Services
                 {
                     UserId = userId,
                     Action = action,
-                    Details = details,
-                    Timestamp = DateTime.UtcNow
+                    Details = details ?? "{}",
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = ipAddress
                 };
 
                 await _unitOfWork.AuditLogs.AddAsync(auditLog);
@@ -314,22 +315,48 @@ namespace Collaborative_Task_Management_System.Services
         {
             try
             {
-                var task = await _unitOfWork.Tasks.GetByIdWithIncludesAsync(comment.TaskId, t => t.AssignedTo, t => t.Project);
-                if (task?.AssignedTo != null && task.AssignedTo.Id != comment.UserId)
+                // Get the task with related entities
+                var task = await _unitOfWork.Tasks.GetByIdWithIncludesAsync(comment.TaskId, t => t.AssignedUser, t => t.Project);
+                if (task == null) return;
+                
+                // Get the comment author - use Repository<ApplicationUser> instead of Users
+                var commentAuthor = await _unitOfWork.Repository<ApplicationUser>().GetByIdAsync(comment.UserId);
+                if (commentAuthor == null) return;
+                
+                // Notify the task assignee if they're not the commenter
+                if (task.AssignedUser != null && task.AssignedUser.Id != comment.UserId)
                 {
                     await CreateTaskNotificationAsync(
-                        task.AssignedTo.Id,
+                        task.AssignedUser.Id,
                         "New Comment on Task",
-                        $"A new comment was added to task '{task.Title}'",
+                        $"{commentAuthor.FullName ?? commentAuthor.UserName} commented on task '{task.Title}'",
                         NotificationType.TaskCommented,
                         task.Id,
                         task.ProjectId);
+                }
+                
+                // Get project members to notify them as well
+                // ProjectId is not nullable, so we don't need to check HasValue
+                var projectMembers = await _unitOfWork.Repository<ProjectMember>().FindAsync(pm => pm.ProjectId == task.ProjectId);
+                foreach (var member in projectMembers)
+                {
+                    // Don't notify the commenter or the assignee (who was already notified)
+                    if (member.UserId != comment.UserId && 
+                        (task.AssignedUser == null || member.UserId != task.AssignedUser.Id))
+                    {
+                        await CreateTaskNotificationAsync(
+                            member.UserId,
+                            "New Comment on Task",
+                            $"{commentAuthor.FullName ?? commentAuthor.UserName} commented on task '{task.Title}' in project '{task.Project.Title}'",
+                            NotificationType.TaskCommented,
+                            task.Id,
+                            task.ProjectId);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error sending task comment notification for comment {CommentId}", comment.Id);
-                throw;
             }
         }
 

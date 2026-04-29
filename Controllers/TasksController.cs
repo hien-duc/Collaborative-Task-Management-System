@@ -7,7 +7,11 @@ using Collaborative_Task_Management_System.Models;
 using Collaborative_Task_Management_System.Models.ViewModels;
 using Collaborative_Task_Management_System.Services;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 using TaskStatus = Collaborative_Task_Management_System.Models.TaskStatus;
+using Microsoft.AspNetCore.SignalR;
+using Collaborative_Task_Management_System.Hubs;
+using Collaborative_Task_Management_System.Controllers;
 
 namespace Collaborative_Task_Management_System.Controllers
 {
@@ -18,19 +22,28 @@ namespace Collaborative_Task_Management_System.Controllers
         private readonly IProjectServiceWithUoW _projectService;
         private readonly INotificationServiceWithUoW _notificationService;
         private readonly ILogger<TasksController> _logger;
-
+        private readonly IHubContext<NotificationHub> _hubContext;
+        private readonly IDashboardBroadcastService _dashboardBroadcastService;
+        private readonly IHttpClientFactory _httpClientFactory;
+        
         public TasksController(
         ITaskServiceWithUoW taskService,
         IProjectServiceWithUoW projectService,
         INotificationServiceWithUoW notificationService,
         UserManager<ApplicationUser> userManager,
-        ILogger<TasksController> logger)
+        ILogger<TasksController> logger,
+        IHubContext<NotificationHub> hubContext,
+        IDashboardBroadcastService dashboardBroadcastService,
+        IHttpClientFactory httpClientFactory)
         : base(userManager)
     {
         _taskService = taskService;
         _projectService = projectService;
         _notificationService = notificationService;
         _logger = logger;
+        _hubContext = hubContext;
+        _dashboardBroadcastService = dashboardBroadcastService;
+        _httpClientFactory = httpClientFactory;
     }
 
         // GET: Tasks/Create/5 (projectId)
@@ -47,10 +60,30 @@ namespace Collaborative_Task_Management_System.Controllers
                 return NotFound();
             }
 
+            // Check if user can access this project
+            if (!await CanAccessTaskAsync(projectId.Value))
+            {
+                return Forbid();
+            }
+
             ViewBag.ProjectId = projectId.Value;
             
-            // Convert users to SelectListItems
-            var users = await _userManager.Users.ToListAsync();
+            // Get project members and manager for the assignee dropdown
+            project = await _projectService.GetProjectByIdAsync(projectId.Value);
+            var projectMembers = await _projectService.GetProjectMembersAsync(projectId.Value);
+            var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+            
+            // Add project manager if not already in the list
+            if (!memberIds.Contains(project.CreatedById))
+            {
+                memberIds.Add(project.CreatedById);
+            }
+            
+            // Filter users to only include project members and manager
+            var users = await _userManager.Users
+                .Where(u => memberIds.Contains(u.Id))
+                .ToListAsync();
+                
             ViewBag.Users = users.Select(u => new SelectListItem()
             {
                 Value = u.Id,
@@ -69,6 +102,11 @@ namespace Collaborative_Task_Management_System.Controllers
         {
             try
             {
+                // Check if user can access this project
+                if (!await CanAccessTaskAsync(task.ProjectId))
+                {
+                    return Forbid();
+                }
                 task.CreatedById = GetCurrentUserId();
                 ModelState.Remove("CreatedById");
                 if (ModelState.IsValid) {
@@ -81,12 +119,13 @@ namespace Collaborative_Task_Management_System.Controllers
                         await _taskService.SaveFileAttachmentAsync(
                             createdTask.Id, attachment, GetCurrentUserId());
                     }
+                    string? ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
 
                     // Create audit log
                     await _notificationService.CreateAuditLogAsync(
                         GetCurrentUserId(),
                         "TaskCreated",
-                        $"Created task '{createdTask.Title}' in project {task.ProjectId}"
+                        $"Created task '{createdTask.Title}' in project {task.ProjectId}", ipAddress
                     );
 
                     await _notificationService.SendTaskAssignmentNotificationAsync(createdTask);
@@ -102,8 +141,22 @@ namespace Collaborative_Task_Management_System.Controllers
                 
 
 
-                // If we got this far, something failed; repopulate the users list
-                var users = await _userManager.Users.ToListAsync();
+                // If we got this far, something failed; repopulate the users list with project members
+                var project = await _projectService.GetProjectByIdAsync(task.ProjectId);
+                var projectMembers = await _projectService.GetProjectMembersAsync(task.ProjectId);
+                var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+                
+                // Add project manager if not already in the list
+                if (!memberIds.Contains(project.CreatedById))
+                {
+                    memberIds.Add(project.CreatedById);
+                }
+                
+                // Filter users to only include project members and manager
+                var users = await _userManager.Users
+                    .Where(u => memberIds.Contains(u.Id))
+                    .ToListAsync();
+                    
                 ViewBag.Users = users.Select(u => new SelectListItem
                 {
                     Value = u.Id,
@@ -119,14 +172,42 @@ namespace Collaborative_Task_Management_System.Controllers
                 _logger.LogError(ex, "Error creating task");
                 ModelState.AddModelError("", "Error creating task. Please try again later.");
                 
-                // Repopulate the users list in case of error
-                var users = await _userManager.Users.ToListAsync();
-                ViewBag.Users = users.Select(u => new SelectListItem
+                // Repopulate the users list in case of error with project members
+                if (task?.ProjectId != null)
                 {
-                    Value = u.Id,
-                    Text = u.FullName ?? u.UserName,
-                    Selected = u.Id == task?.AssignedToId
-                }).ToList();
+                    var project = await _projectService.GetProjectByIdAsync(task.ProjectId);
+                    var projectMembers = await _projectService.GetProjectMembersAsync(task.ProjectId);
+                    var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+                    
+                    // Add project manager if not already in the list
+                    if (!memberIds.Contains(project.CreatedById))
+                    {
+                        memberIds.Add(project.CreatedById);
+                    }
+                    
+                    // Filter users to only include project members and manager
+                    var users = await _userManager.Users
+                        .Where(u => memberIds.Contains(u.Id))
+                        .ToListAsync();
+                        
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task.AssignedToId
+                    }).ToList();
+                }
+                else
+                {
+                    // Fallback if project ID is null
+                    var users = await _userManager.Users.ToListAsync();
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task?.AssignedToId
+                    }).ToList();
+                }
                 
                 ViewBag.ProjectId = task?.ProjectId;
                 return View(task);
@@ -147,7 +228,28 @@ namespace Collaborative_Task_Management_System.Controllers
                 return NotFound();
             }
 
-            var users = await _userManager.Users.ToListAsync();
+            // Check if user can access this task
+            if (!await CanAccessTaskAsync(task.ProjectId))
+            {
+                return Forbid();
+            }
+
+            // Get project members and manager for the assignee dropdown
+            var project = await _projectService.GetProjectByIdAsync(task.ProjectId);
+            var projectMembers = await _projectService.GetProjectMembersAsync(task.ProjectId);
+            var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+            
+            // Add project manager if not already in the list
+            if (!memberIds.Contains(project.CreatedById))
+            {
+                memberIds.Add(project.CreatedById);
+            }
+            
+            // Filter users to only include project members and manager
+            var users = await _userManager.Users
+                .Where(u => memberIds.Contains(u.Id))
+                .ToListAsync();
+                
             ViewBag.Users = users.Select(u => new SelectListItem
             {
                 Value = u.Id,
@@ -162,43 +264,144 @@ namespace Collaborative_Task_Management_System.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id,
-            [Bind("Id,ProjectId,Title,Description,DueDate,Priority,Status,AssignedToId")] TaskItem task,
-            IFormFile attachment)
+            [Bind("Id,ProjectId,Title,Description,DueDate,Priority,Status,AssignedUserId,CreatedById")] TaskItem task,
+            IFormFile? newAttachment)
         {
             if (id != task.Id)
             {
                 return NotFound();
             }
 
+            // Check if user can access this task
+            if (!await CanAccessTaskAsync(task.ProjectId))
+            {
+                return Forbid();
+            }
+
             try
             {
-                if (ModelState.IsValid)
+                if (!ModelState.IsValid)
+                {
+                    // Log all validation errors
+                    var validationErrors = ModelState
+                        .Where(x => x.Value.Errors.Count > 0)
+                        .Select(x => new 
+                        { 
+                            Property = x.Key, 
+                            Errors = x.Value.Errors.Select(e => e.ErrorMessage).ToArray() 
+                        })
+                        .ToList();
+
+                    _logger.LogWarning("ModelState validation failed with {ErrorCount} errors. Details: {ValidationErrors}", 
+                        validationErrors.Sum(e => e.Errors.Length),
+                        System.Text.Json.JsonSerializer.Serialize(validationErrors));
+
+                    // Optionally add the errors to ViewData to display in the view
+                    ViewData["ValidationErrors"] = validationErrors;
+                }
+
+                else if (ModelState.IsValid)
                 {
                     var updatedTask = await _taskService.UpdateTaskAsync(task);
 
-                    if (attachment != null)
+                    if (newAttachment != null)
                     {
                         await _taskService.SaveFileAttachmentAsync(
-                            updatedTask.Id, attachment, GetCurrentUserId());
+                            updatedTask.Id, newAttachment, GetCurrentUserId());
                     }
 
                     await _notificationService.SendTaskAssignmentNotificationAsync(updatedTask);
+                    string? ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
                     await _notificationService.CreateAuditLogAsync(
                         GetCurrentUserId(),
                         "TaskUpdated",
-                        $"Updated task {updatedTask.Id}");
+                        $"Updated task {updatedTask.Id}", ipAddress);
 
                     return RedirectToAction("Details", "Projects", new { id = task.ProjectId });
                 }
 
-                ViewBag.Users = await _userManager.Users.ToListAsync();
+                // Repopulate the users list in case of error with project members
+                if (task?.ProjectId != null)
+                {
+                    var project = await _projectService.GetProjectByIdAsync(task.ProjectId);
+                    var projectMembers = await _projectService.GetProjectMembersAsync(task.ProjectId);
+                    var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+                    
+                    // Add project manager if not already in the list
+                    if (!memberIds.Contains(project.CreatedById))
+                    {
+                        memberIds.Add(project.CreatedById);
+                    }
+                    
+                    // Filter users to only include project members and manager
+                    var users = await _userManager.Users
+                        .Where(u => memberIds.Contains(u.Id))
+                        .ToListAsync();
+                        
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task.AssignedToId
+                    }).ToList();
+                }
+                else
+                {
+                    // Fallback if project ID is null
+                    var users = await _userManager.Users.ToListAsync();
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task?.AssignedToId
+                    }).ToList();
+                }
+                
+                ViewBag.ProjectId = task?.ProjectId;
                 return View(task);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating task {TaskId}", id);
                 ModelState.AddModelError("", "Error updating task. Please try again later.");
-                ViewBag.Users = await _userManager.Users.ToListAsync();
+                // Repopulate the users list in case of error with project members
+                if (task?.ProjectId != null)
+                {
+                    var project = await _projectService.GetProjectByIdAsync(task.ProjectId);
+                    var projectMembers = await _projectService.GetProjectMembersAsync(task.ProjectId);
+                    var memberIds = projectMembers.Select(pm => pm.UserId).ToList();
+                    
+                    // Add project manager if not already in the list
+                    if (!memberIds.Contains(project.CreatedById))
+                    {
+                        memberIds.Add(project.CreatedById);
+                    }
+                    
+                    // Filter users to only include project members and manager
+                    var users = await _userManager.Users
+                        .Where(u => memberIds.Contains(u.Id))
+                        .ToListAsync();
+                        
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task.AssignedToId
+                    }).ToList();
+                }
+                else
+                {
+                    // Fallback if project ID is null
+                    var users = await _userManager.Users.ToListAsync();
+                    ViewBag.Users = users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id,
+                        Text = u.FullName ?? u.UserName,
+                        Selected = u.Id == task?.AssignedToId
+                    }).ToList();
+                }
+                
+                ViewBag.ProjectId = task?.ProjectId;
                 return View(task);
             }
         }
@@ -216,13 +419,20 @@ namespace Collaborative_Task_Management_System.Controllers
                     return NotFound();
                 }
 
+                // Check if user can access this task
+                if (!await CanAccessTaskAsync(task.ProjectId))
+                {
+                    return Forbid();
+                }
+
                 var projectId = task.ProjectId;
                 await _taskService.DeleteTaskAsync(id);
-
+                
+                string? ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
                 await _notificationService.CreateAuditLogAsync(
                     GetCurrentUserId(),
                     "TaskDeleted",
-                    $"Deleted task {id}");
+                    $"Deleted task {id}", ipAddress);
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
                     return Json(new { success = true });
@@ -238,16 +448,44 @@ namespace Collaborative_Task_Management_System.Controllers
             }
         }
 
+        // Helper method to check if the current user can access a task
+        private async Task<bool> CanAccessTaskAsync(int projectId)
+        {
+            var currentUserId = GetCurrentUserId();
+            
+            // Admin and Manager can access all tasks
+            if (await IsUserInRoleAsync("Admin") || 
+                await IsUserInRoleAsync("Manager"))
+            {
+                return true;
+            }
+            
+            // Project members can access tasks in their projects
+            return await _projectService.IsUserProjectMemberAsync(projectId, currentUserId);
+        }
+
         // POST: Tasks/UpdateStatus/5
         [HttpPost]
-        public async Task<IActionResult> UpdateStatus(int id, TaskStatus status)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] string status)
         {
             try
             {
+                if (!Enum.TryParse<TaskStatus>(status, out var statusEnum))
+                {
+                    return Json(new { success = false, message = "Invalid status value" });
+                }
+                
                 var task = await _taskService.GetTaskByIdAsync(id);
                 if (task == null)
                 {
                     return NotFound();
+                }
+
+                // Check if user can access this task
+                if (!await CanAccessTaskAsync(task.ProjectId))
+                {
+                    return Json(new { success = false, message = "You don't have permission to update this task." });
                 }
 
                 var currentUserId = GetCurrentUserId();
@@ -256,8 +494,11 @@ namespace Collaborative_Task_Management_System.Controllers
                     return Forbid();
                 }
 
-                task = await _taskService.UpdateTaskStatusAsync(id, status, currentUserId);
+                task = await _taskService.UpdateTaskStatusAsync(id, statusEnum, currentUserId);
                 await _notificationService.SendTaskStatusUpdateNotificationAsync(task, currentUserId);
+                
+                // Broadcast dashboard update to all project members
+                await BroadcastDashboardUpdateToProjectMembers(task.ProjectId);
 
                 return Json(new { success = true });
             }
@@ -267,25 +508,61 @@ namespace Collaborative_Task_Management_System.Controllers
                 return Json(new { success = false, message = "Error updating task status" });
             }
         }
+        
+        // Helper method to broadcast dashboard updates to all project members
+        private async Task BroadcastDashboardUpdateToProjectMembers(int projectId)
+        {
+            try
+            {
+                await _dashboardBroadcastService.BroadcastDashboardUpdateToProjectMembers(projectId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in BroadcastDashboardUpdateToProjectMembers for project {ProjectId}", projectId);
+            }
+        }
 
         // GET: Tasks/DownloadFile/5
         public async Task<IActionResult> DownloadFile(int id)
         {
             try
             {
+                _logger.LogInformation("DownloadFile called for file ID: {FileId}", id);
                 var file = await _taskService.GetFileAttachmentAsync(id);
                 if (file == null)
                 {
+                    _logger.LogWarning("File attachment not found with ID: {FileId}", id);
                     return NotFound();
                 }
 
-                var filePath = file.FilePath;
-                if (!System.IO.File.Exists(filePath))
+                // Convert the relative URL path to a physical file path
+                // FilePath is stored as "/uploads/filename" in the database
+                /*var webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var physicalFilePath = Path.Combine(webRootPath, file.FilePath.TrimStart('/'));
+                
+                _logger.LogInformation("Physical file path: {FilePath}", physicalFilePath);*/
+
+                var cloudFilePath = file.FilePath;
+                
+                /*if (!System.IO.File.Exists(physicalFilePath))
                 {
-                    return NotFound();
-                }
+                    _logger.LogWarning("Physical file not found at path: {FilePath}", physicalFilePath);
+                    return NotFound("The file was found in the database but not on the server.");
+                }*/
 
-                return PhysicalFile(filePath, file.ContentType, file.FileName);
+                _logger.LogInformation("Returning file: {FileName}, Content-Type: {ContentType}", 
+                    file.FileName, file.ContentType);
+                
+                var client = _httpClientFactory.CreateClient();
+                var response = await client.GetAsync(cloudFilePath, HttpCompletionOption.ResponseHeadersRead);
+            
+                if (!response.IsSuccessStatusCode)
+                    return NotFound();
+
+                var stream = await response.Content.ReadAsStreamAsync();
+
+                // 4. Trả về FileStreamResult (Thay vì PhysicalFile)
+                return File(stream, file.ContentType, file.FileName);
             }
             catch (Exception ex)
             {
@@ -294,13 +571,88 @@ namespace Collaborative_Task_Management_System.Controllers
             }
         }
 
+        // GET: Tasks/Details/5
+        public async Task<IActionResult> Details(int? id, bool partial = false)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var task = await _taskService.GetTaskByIdAsync(id.Value);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            // Check if user can access this task
+            if (!await CanAccessTaskAsync(task.ProjectId))
+            {
+                return Forbid();
+            }
+
+            // If partial is true, return the partial view for the modal
+            if (partial)
+            {
+                return PartialView("_TaskDetails", task);
+            }
+
+            return View(task);
+        }
+
         // GET: Tasks/MyTasks
-        public async Task<IActionResult> MyTasks()
+        public async Task<IActionResult> MyTasks(int? projectId)
         {
             try
             {
-                var tasks = await _taskService.GetTasksByAssignedUserAsync(GetCurrentUserId());
-                return View(tasks);
+                var currentUserId = GetCurrentUserId();
+                var userProjects = await _projectService.GetProjectsForUserAsync(currentUserId);
+                
+                // Get tasks assigned to the user
+                var assignedTasks = await _taskService.GetTasksByAssignedUserAsync(currentUserId);
+                
+                // Get all tasks from projects where the user is a member
+                var allUserTasks = new List<TaskItem>();
+                
+                var projectIds = projectId.HasValue ? new[] { projectId.Value } : userProjects.Select(p => p.Id).ToArray();
+                
+                if (projectIds.Any())
+                {
+                    var projectTasks = await _taskService.GetTasksByProjectIdsAsync(projectIds);
+                    allUserTasks.AddRange(projectTasks);
+                }
+                
+                // If not filtering by project, combine assigned tasks with project tasks and remove duplicates
+                if (!projectId.HasValue)
+                {
+                    allUserTasks = allUserTasks.Concat(assignedTasks)
+                        .GroupBy(t => t.Id)
+                        .Select(g => g.First())
+                        .ToList();
+                }
+                
+                // Create select list for projects dropdown
+                var projectSelectList = userProjects
+                    .Select(p => new SelectListItem
+                    {
+                        Value = p.Id.ToString(),
+                        Text = p.Title,
+                        Selected = projectId.HasValue && p.Id == projectId.Value
+                    })
+                    .ToList();
+                
+                // Add "All Projects" option
+                projectSelectList.Insert(0, new SelectListItem
+                {
+                    Value = "",
+                    Text = "All Projects",
+                    Selected = !projectId.HasValue
+                });
+                
+                ViewData["Projects"] = projectSelectList;
+                ViewData["SelectedProjectId"] = projectId;
+                
+                return View(allUserTasks);
             }
             catch (Exception ex)
             {
@@ -339,91 +691,27 @@ namespace Collaborative_Task_Management_System.Controllers
             {
                 var userId = GetCurrentUserId();
                 var isManagerOrAdmin = await IsManagerOrAdmin();
-                var tasks = await _taskService.GetAllTasksAsync();
-                var query = tasks.AsQueryable();
+                
+                // Get user's projects (where they are a member or owner)
+                var userProjects = await _projectService.GetProjectsForUserAsync(userId);
+                var userProjectIds = userProjects.Select(p => p.Id).ToList();
 
-                // Apply search filters
-                if (!string.IsNullOrEmpty(model.Query))
-                {
-                    query = query.Where(t =>
-                        t.Title.Contains(model.Query) ||
-                        t.Description.Contains(model.Query) ||
-                        t.AssignedTo.UserName.Contains(model.Query));
-                }
+                var (tasks, totalTasks) = await _taskService.SearchTasksAsync(model, userId, isManagerOrAdmin, userProjectIds);
 
-                if (!string.IsNullOrEmpty(model.AssigneeId))
-                {
-                    query = query.Where(t => t.AssignedToId == model.AssigneeId);
-                }
-
-                if (model.Status.HasValue)
-                {
-                    query = query.Where(t => t.Status == model.Status.Value);
-                }
-
-                if (model.FromDate.HasValue)
-                {
-                    query = query.Where(t => t.DueDate >= model.FromDate.Value);
-                }
-
-                if (model.ToDate.HasValue)
-                {
-                    query = query.Where(t => t.DueDate <= model.ToDate.Value);
-                }
-
-                if (model.ProjectId.HasValue)
-                {
-                    query = query.Where(t => t.ProjectId == model.ProjectId.Value);
-                }
-
-                // Apply access restrictions
-                if (!isManagerOrAdmin)
-                {
-                    query = query.Where(t =>
-                        t.AssignedToId == userId ||
-                        t.CreatedById == userId);
-                }
-
-                // Apply sorting
-                query = model.SortBy?.ToLower() switch
-                {
-                    "title" => model.SortDescending ?
-                        query.OrderByDescending(t => t.Title) :
-                        query.OrderBy(t => t.Title),
-                    "duedate" => model.SortDescending ?
-                        query.OrderByDescending(t => t.DueDate) :
-                        query.OrderBy(t => t.DueDate),
-                    "status" => model.SortDescending ?
-                        query.OrderByDescending(t => t.Status) :
-                        query.OrderBy(t => t.Status),
-                    "assignee" => model.SortDescending ?
-                        query.OrderByDescending(t => t.AssignedTo.UserName) :
-                        query.OrderBy(t => t.AssignedTo.UserName),
-                    _ => query.OrderByDescending(t => t.CreatedAt)
-                };
-
-                // Get total count for pagination
-                var totalTasks = await query.CountAsync();
-
-                // Apply pagination
-                var paginatedTasks = await query
-                    .Skip((model.Page - 1) * model.PageSize)
-                    .Take(model.PageSize)
-                    .ToListAsync();
-
-                model.Tasks = paginatedTasks;
+                model.Tasks = tasks.ToList();
                 model.TotalTasks = totalTasks;
-
+                string? ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
                 // Create audit log for search
                 await _notificationService.CreateAuditLogAsync(
                     userId,
                     "TaskSearch",
-                    $"Searched tasks with query: {model.Query}. Filters: Status={model.Status}, AssigneeId={model.AssigneeId}, ProjectId={model.ProjectId}"
+                    $"Searched tasks with query: {model.Query}. Filters: Status={model.Status}, AssigneeId={model.AssigneeId}, ProjectId={model.ProjectId}",
+                    ipAddress
                 );
 
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    return PartialView("_TaskList", tasks);
+                    return PartialView("_TaskList", model.Tasks);
                 }
 
                 return View("Index", model);
@@ -434,5 +722,263 @@ namespace Collaborative_Task_Management_System.Controllers
                 return Problem("Error searching tasks. Please try again later.");
             }
         }
-    }
-}
+
+        // POST: Tasks/AddComment
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment([FromBody] CommentAddModel model)
+        {
+            try
+            {
+                _logger.LogInformation("AddComment called with taskId: {TaskId}", model?.taskId);
+                
+                if (model == null || string.IsNullOrEmpty(model.text))
+                {
+                    _logger.LogWarning("Invalid model or empty comment text");
+                    return Json(new { success = false, message = "Comment text cannot be empty" });
+                }
+                
+                var userId = GetCurrentUserId();
+                _logger.LogInformation("Current user ID: {UserId}", userId);
+                
+                var task = await _taskService.GetTaskByIdAsync(model.taskId);
+                _logger.LogInformation("Retrieved task: {TaskExists}", task != null ? "Yes" : "No");
+
+                if (task == null)
+                {
+                    _logger.LogWarning("Task not found with ID: {TaskId}", model.taskId);
+                    return Json(new { success = false, message = "Task not found" });
+                }
+
+                // Check if user can access this task
+                var canAccess = await CanAccessTaskAsync(task.ProjectId);
+                _logger.LogInformation("User {UserId} can access task: {CanAccess}", userId, canAccess);
+                
+                if (!canAccess)
+                {
+                    _logger.LogWarning("User {UserId} doesn't have permission to comment on task {TaskId}", userId, model.taskId);
+                    return Json(new { success = false, message = "You don't have permission to comment on this task" });
+                }
+
+                var comment = new Comment
+                {
+                    TaskId = model.taskId,
+                    Text = model.text,
+                    UserId = userId,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _logger.LogInformation("Created comment object for task {TaskId} with text: {CommentText}", model.taskId, model.text);
+
+                try
+                {
+                    _logger.LogInformation("Creating comment using TaskService for task {TaskId}", model.taskId);
+                    await _taskService.CreateCommentAsync(comment);
+                    _logger.LogInformation("Successfully saved comment with ID: {CommentId} for task {TaskId}", 
+                        comment.Id, model.taskId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error saving comment to database for task {TaskId}. Exception: {ExMessage}", 
+                        model.taskId, ex.Message);
+                    return Json(new { success = false, message = $"Error creating comment: {ex.Message}" });
+                }
+
+                try
+                {
+                    // Send notification to task assignee and project members
+                    _logger.LogInformation("Sending task comment notification for task {TaskId}", model.taskId);
+                    await _notificationService.SendTaskCommentNotificationAsync(comment);
+                    _logger.LogInformation("Successfully sent task comment notification for task {TaskId}", model.taskId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error sending task comment notification for task {TaskId}. Exception: {ExMessage}", 
+                        model.taskId, ex.Message);
+                    // Continue execution even if notification fails
+                }
+                
+                try
+                {
+                    // Get current user for the real-time notification
+                    _logger.LogInformation("Getting current user for SignalR notification");
+                    var currentUser = await _userManager.FindByIdAsync(userId);
+                    string userName = currentUser?.FullName ?? currentUser?.UserName ?? "Unknown User";
+                    _logger.LogInformation("Retrieved user name: {UserName} for SignalR notification", userName);
+                    
+                    // Broadcast the comment to all connected clients
+                    _logger.LogInformation("Broadcasting comment via SignalR for task {TaskId}", model.taskId);
+                    await _hubContext.Clients.All.SendAsync("CommentAdded", task.Id, new
+                    {
+                        taskId = task.Id,
+                        projectId = task.ProjectId,
+                        text = comment.Text,
+                        authorName = userName,
+                        timestamp = comment.CreatedAt
+                    });
+                    _logger.LogInformation("Successfully broadcasted comment via SignalR for task {TaskId}", model.taskId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error broadcasting comment via SignalR for task {TaskId}. Exception: {ExMessage}", 
+                        model.taskId, ex.Message);
+                    // Continue execution even if SignalR broadcast fails
+                }
+
+                _logger.LogInformation("AddComment completed successfully for task {TaskId}", model.taskId);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled error in AddComment for task {TaskId}. Exception: {ExMessage}", 
+                    model?.taskId, ex.Message);
+                return Json(new { success = false, message = $"An error occurred: {ex.Message}" });
+            }
+        }
+
+        // Helper class for AddComment method
+        public class CommentAddModel
+        {
+            public int taskId { get; set; }
+            public string text { get; set; }
+        }
+
+        // Helper method to check if user is manager or admin
+        private async Task<bool> IsManagerOrAdmin()
+        {
+            return await IsUserInRoleAsync("Manager") || await IsUserInRoleAsync("Admin");
+        }
+
+        // GET: Tasks/Search
+        public async Task<IActionResult> Search(string q)
+        {
+            try
+            {
+                _logger.LogInformation("Search called with query: {Query}", q);
+                
+                if (string.IsNullOrEmpty(q) || q.Length < 2)
+                {
+                    return Content("");
+                }
+                
+                var userId = GetCurrentUserId();
+                var isManagerOrAdmin = await IsManagerOrAdmin();
+                
+                // Get user's projects (where they are a member or owner)
+                var userProjects = await _projectService.GetProjectsForUserAsync(userId);
+                var userProjectIds = userProjects.Select(p => p.Id).ToList();
+                
+                // Get all tasks
+                var allTasks = await _taskService.GetAllTasksAsync();
+                
+                // Filter tasks based on search query and user access
+                var filteredTasks = allTasks
+                    .Where(t => 
+                        (t.Title.Contains(q, StringComparison.OrdinalIgnoreCase) || 
+                         t.Description.Contains(q, StringComparison.OrdinalIgnoreCase)) &&
+                        (isManagerOrAdmin || t.AssignedToId == userId || userProjectIds.Contains(t.ProjectId)))
+                    .Take(10)
+                    .ToList();
+                
+                _logger.LogInformation("Found {Count} tasks matching query: {Query}", filteredTasks.Count, q);
+                
+                // Return search results as HTML
+                var html = "";
+                if (filteredTasks.Any())
+                {
+                    html = "<ul class='list-group'>";
+                    foreach (var task in filteredTasks)
+                    {
+                        var projectTitle = userProjects.FirstOrDefault(p => p.Id == task.ProjectId)?.Title ?? "Unknown Project";
+                        var statusClass = task.Status switch
+                        {
+                            TaskStatus.ToDo => "text-secondary",
+                            TaskStatus.InProgress => "text-primary",
+                            TaskStatus.Completed => "text-success",
+                            TaskStatus.UnderReview => "text-warning",
+                            TaskStatus.Blocked => "text-danger",
+                            _ => "text-secondary"
+                        };
+                        
+                        html += $"<li class='list-group-item p-2'>" +
+                               $"<a href='/Projects/Details/{task.ProjectId}?taskId={task.Id}' class='d-block text-decoration-none'>" +
+                               $"<div class='d-flex justify-content-between'>" +
+                               $"<span class='fw-bold'>{task.Title}</span>" +
+                               $"<span class='badge {statusClass}'>{task.Status}</span>" +
+                               $"</div>" +
+                               $"<small class='text-muted'>Project: {projectTitle}</small>" +
+                               $"</a>" +
+                               $"</li>";
+                    }
+                    html += "</ul>";
+                }
+                else
+                {
+                    html = "<div class='p-3'>No tasks found matching your search.</div>";
+                }
+                
+                return Content(html, "text/html");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error searching tasks with query: {Query}", q);
+                return Content("<div class='p-3 text-danger'>An error occurred while searching.</div>", "text/html");
+            }
+        }
+        // POST: Tasks/UploadFile
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadFile(int TaskId, IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    return RedirectToAction("Details", "Projects", new { id = await GetProjectIdFromTaskAsync(TaskId) });
+                }
+
+                // Check if user can access this task
+                var task = await _taskService.GetTaskByIdAsync(TaskId);
+                if (task == null)
+                {
+                    return NotFound();
+                }
+
+                if (!await CanAccessTaskAsync(task.ProjectId))
+                {
+                    return Forbid();
+                }
+
+                // Save the file
+                var currentUserId = GetCurrentUserId();
+                await _taskService.SaveFileAttachmentAsync(TaskId, file, currentUserId);
+                
+                // Log the action
+                _logger.LogInformation("File uploaded for task {TaskId} by user {UserId}", TaskId, currentUserId);
+                
+                // Redirect back to the project details page
+                return RedirectToAction("Details", "Projects", new { id = task.ProjectId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading file for task {TaskId}", TaskId);
+                // Get the project ID to redirect back
+                var projectId = await GetProjectIdFromTaskAsync(TaskId);
+                return RedirectToAction("Details", "Projects", new { id = projectId });
+            }
+        }
+        
+        // Helper method to get project ID from task ID
+        private async Task<int> GetProjectIdFromTaskAsync(int taskId)
+        {
+            try
+            {
+                var task = await _taskService.GetTaskByIdAsync(taskId);
+                return task?.ProjectId ?? 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+    }  // End of TasksController class
+}  // End of namespace

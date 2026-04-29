@@ -1,0 +1,196 @@
+/* Task-specific styles */
+
+/* Task Status Dropdown */
+.task-status-dropdown .dropdown-toggle {
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    transition: all 0.3s ease;
+    background-color: var(--light);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .task-status-dropdown .dropdown-toggle {
+    background-color: var(--dark);
+    color: var(--text-light);
+    border-color: var(--border-color-dark);
+}
+
+.task-status-dropdown .dropdown-toggle:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+}
+
+[data-theme="dark"] .task-status-dropdown .dropdown-toggle:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.15);
+}
+
+.task-status-dropdown .dropdown-menu {
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    min-width: 10rem;
+    background-color: var(--dropdown-bg);
+}
+
+[data-theme="dark"] .task-status-dropdown .dropdown-menu {
+    background-color: var(--dropdown-bg-dark, #343a40);
+    border-color: var(--border-color-dark);
+}
+
+.task-status-dropdown .dropdown-item {
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .task-status-dropdown .dropdown-item {
+    color: var(--text-light);
+}
+
+.task-status-dropdown .dropdown-item:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+}
+
+[data-theme="dark"] .task-status-dropdown .dropdown-item:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.15);
+}
+
+/* Task Card Styling */
+.task-card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 1.5rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .task-card {
+    background-color: var(--card-bg-dark);
+    border-color: var(--border-color-dark);
+}
+
+/* Badge styling for dark mode */
+[data-theme="dark"] .badge.bg-danger {
+    background-color: #e53935 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .badge.bg-warning {
+    background-color: #fb8c00 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .badge.bg-info {
+    background-color: #039be5 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .badge.bg-secondary {
+    background-color: #546e7a !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .badge.bg-success {
+    background-color: #43a047 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .badge.bg-primary {
+    background-color: #5c6bc0 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+/* Link styling in task table for dark mode */
+[data-theme="dark"] .table a.text-decoration-none {
+    color: #90caf9 !important;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .table a.text-decoration-none:hover {
+    color: #bbdefb !important;
+    text-decoration: underline !important;
+}
+
+.task-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.task-card .card-body {
+    padding: 1.5rem;
+}
+
+.task-card .task-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.task-card .task-description {
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.task-card .task-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.task-card .task-due-date {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.task-card .task-due-date i {
+    color: rgba(var(--primary-color-rgb), 0.8);
+}
+
+.task-card .card-footer {
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+    border-top: 1px solid rgba(var(--primary-color-rgb), 0.1);
+    padding: 1rem 1.5rem;
+}
+
+[data-theme="dark"] .task-card .card-footer {
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    border-top: 1px solid rgba(var(--primary-color-rgb), 0.2);
+}
+
+/* Tasks Table Styling */
+.tasks-table {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.tasks-table th {
+    background-color: rgba(var(--primary-color-rgb), 0.05);
+    border-bottom: 2px solid rgba(var(--primary-color-rgb), 0.1);
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+[data-theme="dark"] .tasks-table th {
+    background-color: rgba(var(--primary-color-rgb), 0.15);
+    border-bottom: 2px solid rgba(var(--primary-color-rgb), 0.2);
+    color: var(--text-light);
+}
+
+.tasks-table td {
+    vertical-align: middle;
+}
+
+.task-status-select {
+    min-width: 140px;
+}

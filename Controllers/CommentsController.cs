@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Collaborative_Task_Management_System.Models;
 using Collaborative_Task_Management_System.Models.ViewModels;
 using Collaborative_Task_Management_System.Services;
-using Collaborative_Task_Management_System.Data;
 using Collaborative_Task_Management_System.Hubs;
 
 namespace Collaborative_Task_Management_System.Controllers
@@ -17,27 +16,26 @@ namespace Collaborative_Task_Management_System.Controllers
         private readonly ITaskServiceWithUoW _taskService;
         private readonly INotificationServiceWithUoW _notificationService;
         private readonly ILogger<CommentsController> _logger;
-
-        private readonly ApplicationDbContext _context;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
         public CommentsController(
             ITaskServiceWithUoW taskService,
             INotificationServiceWithUoW notificationService,
-            ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
+            IHubContext<NotificationHub> hubContext,
             ILogger<CommentsController> logger)
             : base(userManager)
         {
             _taskService = taskService;
             _notificationService = notificationService;
-            _context = context;
+            _hubContext = hubContext;
             _logger = logger;
         }
 
         // POST: Comments/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CommentCreateViewModel model)
+        public async Task<IActionResult> Create([FromBody] CommentCreateViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -62,22 +60,24 @@ namespace Collaborative_Task_Management_System.Controllers
                     CreatedAt = DateTime.UtcNow
                 };
 
-                _context.Comments.Add(comment);
+                await _taskService.CreateCommentAsync(comment);
 
-                // Create audit log
-                var auditLog = new AuditLog
-                {
-                    UserId = userId,
-                    Action = "CommentCreated",
-                    Details = $"Added comment to task '{task.Title}' (Task ID: {task.Id}, Project ID: {task.ProjectId})",
-                    Timestamp = DateTime.UtcNow
-                };
-                _context.AuditLogs.Add(auditLog);
-
-                await _context.SaveChangesAsync();
-
-                // Send notification to task assignee and creator
+                // Send notification to task assignee and project members
                 await _notificationService.SendTaskCommentNotificationAsync(comment);
+                
+                // Get current user for the real-time notification
+                var currentUser = await _userManager.FindByIdAsync(userId);
+                string userName = currentUser?.FullName ?? currentUser?.UserName ?? "Unknown User";
+                
+                // Broadcast the comment to all connected clients
+                await _hubContext.Clients.All.SendAsync("CommentAdded", task.Id, new
+                {
+                    taskId = task.Id,
+                    projectId = task.ProjectId,
+                    text = comment.Text,
+                    authorName = userName,
+                    timestamp = comment.CreatedAt
+                });
 
                 return Json(new { success = true });
             }

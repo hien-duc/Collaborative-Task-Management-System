@@ -158,7 +158,7 @@
                                             <tr>
                                                 <td>
                                                     <small class="text-muted">
-                                                        @log.Timestamp.ToString("MM/dd HH:mm")
+                                                        <local-time date="@log.Timestamp" format="datetime"></local-time>
                                                     </small>
                                                 </td>
                                                 <td>@log.User?.UserName</td>
@@ -192,7 +192,7 @@
                                                                 <div class="modal-body">
                                                                     <dl class="row">
                                                                         <dt class="col-sm-4">Timestamp</dt>
-                                                                        <dd class="col-sm-8">@log.Timestamp.ToString("MM/dd/yyyy HH:mm:ss")</dd>
+                                                                        <dd class="col-sm-8"><local-time date="@log.Timestamp" format="datetime"></local-time></dd>
 
                                                                         <dt class="col-sm-4">User</dt>
                                                                         <dd class="col-sm-8">@log.User?.UserName</dd>

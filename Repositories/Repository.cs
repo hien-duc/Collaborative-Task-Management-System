@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Collaborative_Task_Management_System.Data;
+using Collaborative_Task_Management_System.Specifications;
 
 namespace Collaborative_Task_Management_System.Repositories
 {
@@ -100,6 +101,21 @@ namespace Collaborative_Task_Management_System.Repositories
                 query = query.Where(predicate);
             }
             return await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+        }
+
+        public async Task<IEnumerable<T>> ListAsync(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).ToListAsync();
+        }
+
+        public async Task<int> CountAsync(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).CountAsync();
+        }
+
+        private IQueryable<T> ApplySpecification(ISpecification<T> spec)
+        {
+            return SpecificationEvaluator<T>.GetQuery(_dbSet.AsQueryable(), spec);
         }
 
         public virtual async Task<T> AddAsync(T entity)

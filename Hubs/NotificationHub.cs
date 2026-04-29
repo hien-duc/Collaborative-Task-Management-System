@@ -96,6 +96,51 @@ namespace Collaborative_Task_Management_System.Hubs
                 Timestamp = DateTime.UtcNow
             });
         }
+        
+        // Method to broadcast comment added to task
+        public async Task BroadcastCommentAdded(int taskId, int projectId, string commentText, string userName, DateTime timestamp)
+        {
+            try
+            {
+                var throttleKey = $"{ThrottlePrefix}Comment_{taskId}_{DateTime.UtcNow.Ticks}";
+                
+                // Check if we've sent a notification recently
+                if (!_cache.TryGetValue(throttleKey, out _))
+                {
+                    await Clients.All.SendAsync("CommentAdded", taskId, new
+                    {
+                        taskId,
+                        text = commentText,
+                        authorName = userName,
+                        timestamp
+                    });
+                    
+                    // Set throttle cache
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(ThrottleSeconds))
+                        .SetPriority(CacheItemPriority.Low);
+                    
+                    _cache.Set(throttleKey, true, cacheEntryOptions);
+                    
+                    _logger.LogInformation(
+                        "Comment notification broadcast for task {TaskId}",
+                        taskId);
+                }
+                else
+                {
+                    _logger.LogDebug(
+                        "Comment notification throttled for task {TaskId}",
+                        taskId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error broadcasting comment notification for task {TaskId}",
+                    taskId);
+                throw;
+            }
+        }
 
         // Method to broadcast project update
         public async Task BroadcastProjectUpdate(string projectId, string message)
@@ -119,6 +164,91 @@ namespace Collaborative_Task_Management_System.Hubs
         public async Task LeaveProjectGroup(string projectId)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"Project_{projectId}");
+        }
+
+        // Method to send project membership notification
+        public async Task SendProjectMembershipNotification(string userId, string projectTitle, int projectId)
+        {
+            try
+            {
+                var throttleKey = $"{ThrottlePrefix}{userId}_{projectId}_membership";
+
+                // Check if we've sent a notification recently
+                if (!_cache.TryGetValue(throttleKey, out _))
+                {
+                    await Clients.User(userId).SendAsync("ReceiveProjectMembershipNotification",
+                        new
+                        {
+                            message = $"You were added to project: {projectTitle}",
+                            projectId,
+                            projectTitle,
+                            timestamp = DateTime.UtcNow
+                        });
+
+                    // Set throttle cache
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(ThrottleSeconds))
+                        .SetPriority(CacheItemPriority.Low);
+
+                    _cache.Set(throttleKey, true, cacheEntryOptions);
+
+                    _logger.LogInformation(
+                        "Project membership notification sent to user {UserId} for project {ProjectId}",
+                        userId, projectId);
+                }
+                else
+                {
+                    _logger.LogDebug(
+                        "Project membership notification throttled for user {UserId} and project {ProjectId}",
+                        userId, projectId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error sending project membership notification to user {UserId} for project {ProjectId}",
+                    userId, projectId);
+                throw;
+            }
+        }
+        
+        // Method to send dashboard data update notification
+        public async Task SendDashboardUpdateNotification(string userId, int? projectId = null)
+        {
+            try
+            {
+                var throttleKey = $"{ThrottlePrefix}{userId}_dashboard_update";
+
+                // Check if we've sent a notification recently
+                if (!_cache.TryGetValue(throttleKey, out _))
+                {
+                    await Clients.User(userId).SendAsync("DashboardDataUpdated", projectId);
+
+                    // Set throttle cache
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(ThrottleSeconds))
+                        .SetPriority(CacheItemPriority.Low);
+
+                    _cache.Set(throttleKey, true, cacheEntryOptions);
+
+                    _logger.LogInformation(
+                        "Dashboard update notification sent to user {UserId}",
+                        userId);
+                }
+                else
+                {
+                    _logger.LogDebug(
+                        "Dashboard update notification throttled for user {UserId}",
+                        userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Error sending dashboard update notification to user {UserId}",
+                    userId);
+                throw;
+            }
         }
     }
 }

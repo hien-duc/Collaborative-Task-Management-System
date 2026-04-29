@@ -15,6 +15,7 @@ WORKDIR /src
 COPY ["Collaborative-Task-Management-System.csproj", "."]
 RUN dotnet restore "./Collaborative-Task-Management-System.csproj"
 COPY . .
+RUN rm -f global.json
 WORKDIR "/src/."
 RUN dotnet build "./Collaborative-Task-Management-System.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
