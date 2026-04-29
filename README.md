@@ -32,6 +32,11 @@ The system has been migrated to use **Supabase** for enhanced data handling and 
 - **Frontend**: Razor Pages, Bootstrap 5.1, jQuery
 - **Architecture**: Repository Pattern & Unit of Work
 
+## [Demo](https://www.codecademy.com/resources/docs) (Please try not to overflow my database please)( °̥̥̥̥̥̥̥̥◡͐°̥̥̥̥̥̥̥̥)
+## Default Credentials (This is admin)
+- **Email**: `admin@taskmanager.com`
+- **Password**: `Admin@123456`
+
 ## Getting Started
 
 ### Prerequisites
@@ -76,7 +81,3 @@ This project utilizes a **Clean Architecture** approach:
 - **Repository & Unit of Work**: Decouples the business logic from data access code, ensuring a single point of truth for database transactions.
 - **Service Layer**: All business logic resides in services (e.g., `TaskServiceWithUoW`) which now integrate with the Supabase client.
 - **Middleware**: Includes custom audit logging to track critical system actions.
-
-## Default Credentials
-- **Email**: `admin@taskmanager.com`
-- **Password**: `Admin@123456`
